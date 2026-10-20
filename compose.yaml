@@ -1,0 +1,14 @@
+services:
+  lab:
+    build: .
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8765:8765"
+    environment:
+      SPORTSLAB_HOME: /data
+      SPORTSLAB_BIND: 0.0.0.0
+    volumes:
+      - sportslab-data:/data
+volumes:
+  sportslab-data:

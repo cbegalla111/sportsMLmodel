@@ -1,0 +1,5242 @@
+[
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 0,
+    "home_probability": 0.4306263993889033
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7380318195246612
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 0,
+    "home_probability": 0.4894659870095213
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7858696870836719
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.5462098120869618
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.46345387760321693
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.5916980674837576
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.6734459651888276
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.5938213972673962
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 0,
+    "home_probability": 0.6016965218429179
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 0,
+    "home_probability": 0.4890391125067345
+  },
+  {
+    "date": "2022-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.6623003508239561
+  },
+  {
+    "date": "2022-12-05",
+    "observed_home_win": 1,
+    "home_probability": 0.5910306635990508
+  },
+  {
+    "date": "2022-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.49661293801988
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.4134292872042835
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.7034403306176098
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.703679668796902
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.8896840702161083
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.7541998580778706
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.2827629706493506
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.5073157202486691
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.41589531412073866
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.7258186992311705
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.37692864693414463
+  },
+  {
+    "date": "2022-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.7134508544656206
+  },
+  {
+    "date": "2022-12-12",
+    "observed_home_win": 0,
+    "home_probability": 0.4340966496354603
+  },
+  {
+    "date": "2022-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.4346057003719253
+  },
+  {
+    "date": "2022-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.40514348888485235
+  },
+  {
+    "date": "2022-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.6765041378707292
+  },
+  {
+    "date": "2022-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.7424736500132495
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.519328422257491
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.6221919807855326
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 0,
+    "home_probability": 0.42424505971822857
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.21707862447668919
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 0,
+    "home_probability": 0.6374530046891328
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 0,
+    "home_probability": 0.20091485389980615
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.47532552885703244
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 0,
+    "home_probability": 0.6759887746860379
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 0,
+    "home_probability": 0.28813659681114856
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 0,
+    "home_probability": 0.5306154881014998
+  },
+  {
+    "date": "2022-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.5419113889790442
+  },
+  {
+    "date": "2022-12-19",
+    "observed_home_win": 1,
+    "home_probability": 0.6269264665128005
+  },
+  {
+    "date": "2022-12-22",
+    "observed_home_win": 0,
+    "home_probability": 0.6871477038063559
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.7115298688369606
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.25747931978077493
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.564378455611226
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5098079782657597
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.7647200904081572
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5286296854180262
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.5145841064488529
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6792360430498285
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.575971377598624
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6926512199454854
+  },
+  {
+    "date": "2022-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.763392497742816
+  },
+  {
+    "date": "2022-12-25",
+    "observed_home_win": 1,
+    "home_probability": 0.599755810178302
+  },
+  {
+    "date": "2022-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.587466686904018
+  },
+  {
+    "date": "2022-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.49617031808115813
+  },
+  {
+    "date": "2022-12-26",
+    "observed_home_win": 0,
+    "home_probability": 0.4717741598108389
+  },
+  {
+    "date": "2022-12-29",
+    "observed_home_win": 0,
+    "home_probability": 0.3678732968353139
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6086180787365798
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.5602037148025026
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6977198258711685
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 0,
+    "home_probability": 0.6135803437429351
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.8521732109900497
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6231890205719238
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 0,
+    "home_probability": 0.4377417342005634
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.5874327566464703
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6063596289373376
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.5405336471211883
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 0,
+    "home_probability": 0.7112517907972032
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6500795763527341
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 0,
+    "home_probability": 0.6235350698546713
+  },
+  {
+    "date": "2023-01-01",
+    "observed_home_win": 0,
+    "home_probability": 0.3799782668421568
+  },
+  {
+    "date": "2023-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.32008612279561016
+  },
+  {
+    "date": "2023-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.5774229745662962
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.8363770789133973
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6492795591555641
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 0,
+    "home_probability": 0.6370236439981947
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6052875023339502
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.30134922311535534
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 0,
+    "home_probability": 0.5937613474975003
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 0,
+    "home_probability": 0.6041085992465437
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.36506523934162394
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6610296885549858
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 0,
+    "home_probability": 0.3821403504625165
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7279167275564346
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7363959573123795
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6964410518499545
+  },
+  {
+    "date": "2023-01-08",
+    "observed_home_win": 1,
+    "home_probability": 0.4993223795521557
+  },
+  {
+    "date": "2023-01-14",
+    "observed_home_win": 1,
+    "home_probability": 0.5042127854183721
+  },
+  {
+    "date": "2023-01-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7864703898912379
+  },
+  {
+    "date": "2023-01-15",
+    "observed_home_win": 1,
+    "home_probability": 0.657333241779293
+  },
+  {
+    "date": "2023-01-15",
+    "observed_home_win": 1,
+    "home_probability": 0.717601923326965
+  },
+  {
+    "date": "2023-01-15",
+    "observed_home_win": 0,
+    "home_probability": 0.642914867056251
+  },
+  {
+    "date": "2023-01-16",
+    "observed_home_win": 0,
+    "home_probability": 0.37418339655841326
+  },
+  {
+    "date": "2023-01-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7788956461132449
+  },
+  {
+    "date": "2023-01-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7525897020671899
+  },
+  {
+    "date": "2023-01-22",
+    "observed_home_win": 0,
+    "home_probability": 0.6170560068666522
+  },
+  {
+    "date": "2023-01-22",
+    "observed_home_win": 1,
+    "home_probability": 0.6912830196422848
+  },
+  {
+    "date": "2023-01-29",
+    "observed_home_win": 1,
+    "home_probability": 0.609075647961867
+  },
+  {
+    "date": "2023-01-29",
+    "observed_home_win": 1,
+    "home_probability": 0.416432811164853
+  },
+  {
+    "date": "2023-02-12",
+    "observed_home_win": 0,
+    "home_probability": 0.38427227084797144
+  },
+  {
+    "date": "2023-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.7070167996819878
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 1,
+    "home_probability": 0.7097420792314822
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 1,
+    "home_probability": 0.5649301748450005
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 1,
+    "home_probability": 0.3940300820352335
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.32518976658903814
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.2689981529359127
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 1,
+    "home_probability": 0.7720590752378541
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.39612246204089524
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.592103988874788
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4659167472566913
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.6023297677957324
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.42246185834398164
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4131487797209564
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.5978964698446039
+  },
+  {
+    "date": "2023-09-10",
+    "observed_home_win": 1,
+    "home_probability": 0.6771032981570816
+  },
+  {
+    "date": "2023-09-11",
+    "observed_home_win": 1,
+    "home_probability": 0.29107512839121236
+  },
+  {
+    "date": "2023-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7646297529658583
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.6408689919811938
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 1,
+    "home_probability": 0.7524001586989596
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 1,
+    "home_probability": 0.4297411193799241
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.5620230223807844
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.389238113804395
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 1,
+    "home_probability": 0.44549593574804164
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 1,
+    "home_probability": 0.70736949000946
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.5677800465563253
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.5664412599649642
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 1,
+    "home_probability": 0.8036607012571929
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.7063314081291027
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.33202814946544
+  },
+  {
+    "date": "2023-09-17",
+    "observed_home_win": 0,
+    "home_probability": 0.4267233101543579
+  },
+  {
+    "date": "2023-09-18",
+    "observed_home_win": 1,
+    "home_probability": 0.6383825736204264
+  },
+  {
+    "date": "2023-09-18",
+    "observed_home_win": 0,
+    "home_probability": 0.49563451288991406
+  },
+  {
+    "date": "2023-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.8493858049224546
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6397907333075405
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.39889235781597815
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5772495750290265
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.8977854369597217
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.24737326328523015
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.7042302673306
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.7669971232889925
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.7335986181028151
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.5412397627158549
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.4592235267810159
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6400515583355914
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.47723499190599555
+  },
+  {
+    "date": "2023-09-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6468313818321243
+  },
+  {
+    "date": "2023-09-25",
+    "observed_home_win": 1,
+    "home_probability": 0.6570000343014033
+  },
+  {
+    "date": "2023-09-25",
+    "observed_home_win": 0,
+    "home_probability": 0.3585906187643776
+  },
+  {
+    "date": "2023-09-28",
+    "observed_home_win": 0,
+    "home_probability": 0.6142114135956643
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.860252725068097
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.4388196078423799
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 0,
+    "home_probability": 0.6064878044429525
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.352524343902238
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 0,
+    "home_probability": 0.4705807400597964
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 0,
+    "home_probability": 0.21739539090031737
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 0,
+    "home_probability": 0.42677512724647726
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6787955257717742
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.7207409473396682
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 0,
+    "home_probability": 0.518765618804424
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.7049143762103284
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.3291017860920608
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 0,
+    "home_probability": 0.6676134611222184
+  },
+  {
+    "date": "2023-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.7406399957489518
+  },
+  {
+    "date": "2023-10-02",
+    "observed_home_win": 0,
+    "home_probability": 0.4486231868321929
+  },
+  {
+    "date": "2023-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.7781843730579242
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 1,
+    "home_probability": 0.5390269373577454
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7366461779607896
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.39584470189969245
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 1,
+    "home_probability": 0.642714627640818
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6153410701634083
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.6308462906791746
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.3198213088897485
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.4872951081023182
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7305566226922371
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.5749635084983781
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.44879348922900575
+  },
+  {
+    "date": "2023-10-08",
+    "observed_home_win": 1,
+    "home_probability": 0.4949314576998112
+  },
+  {
+    "date": "2023-10-09",
+    "observed_home_win": 1,
+    "home_probability": 0.37014498026409953
+  },
+  {
+    "date": "2023-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.8804818904799517
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.733736168626689
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 0,
+    "home_probability": 0.31256599723005724
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.7388325469805203
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 0,
+    "home_probability": 0.48419408187464175
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.7113516831131129
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 0,
+    "home_probability": 0.3553495778019007
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.582453011435569
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.39531380752614637
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.8632723452970487
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.25615526484262247
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.5695759547920247
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.35159944898841144
+  },
+  {
+    "date": "2023-10-15",
+    "observed_home_win": 0,
+    "home_probability": 0.6309165309348276
+  },
+  {
+    "date": "2023-10-16",
+    "observed_home_win": 0,
+    "home_probability": 0.5506882387817884
+  },
+  {
+    "date": "2023-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.6048580121987116
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.7326601929330184
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 0,
+    "home_probability": 0.6098847445606456
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.24191580944752947
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 0,
+    "home_probability": 0.4538667175950165
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.5345024518820561
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.27450702555284223
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.7517079786059153
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.39953342302221584
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.6419575385694488
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 0,
+    "home_probability": 0.5503817747199391
+  },
+  {
+    "date": "2023-10-22",
+    "observed_home_win": 1,
+    "home_probability": 0.4976515985696697
+  },
+  {
+    "date": "2023-10-23",
+    "observed_home_win": 1,
+    "home_probability": 0.3258316986778598
+  },
+  {
+    "date": "2023-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.7321540771816829
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.5717251276369388
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.30529570157169594
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.7715422622423502
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.675354582408728
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.5855378978773995
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.47549725971657353
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.6032407488277581
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.18030105151948814
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.6646474219892504
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.6410161436253059
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 1,
+    "home_probability": 0.7508352891318025
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.39876352048664376
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.4552905460852492
+  },
+  {
+    "date": "2023-10-29",
+    "observed_home_win": 0,
+    "home_probability": 0.27615950749939716
+  },
+  {
+    "date": "2023-10-30",
+    "observed_home_win": 1,
+    "home_probability": 0.7182735970583637
+  },
+  {
+    "date": "2023-11-02",
+    "observed_home_win": 1,
+    "home_probability": 0.6337678436189689
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.7328416163460819
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.44639859747165733
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.7829839962517163
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.595721596149744
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 0,
+    "home_probability": 0.5392136679842693
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.6339645462014193
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.49141971385300454
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 0,
+    "home_probability": 0.47151734139434115
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.6389344941900175
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.6153344656021192
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 1,
+    "home_probability": 0.5137969851654334
+  },
+  {
+    "date": "2023-11-05",
+    "observed_home_win": 0,
+    "home_probability": 0.5411680812907628
+  },
+  {
+    "date": "2023-11-06",
+    "observed_home_win": 0,
+    "home_probability": 0.4314047071197711
+  },
+  {
+    "date": "2023-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.5880270986389129
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.4010477687323517
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 0,
+    "home_probability": 0.695011609063305
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 0,
+    "home_probability": 0.48343575415468043
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.559503007203034
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 0,
+    "home_probability": 0.6881267463031737
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 0,
+    "home_probability": 0.31660240317607646
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.5684674953694855
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.8727320000034904
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6006360811125259
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 0,
+    "home_probability": 0.4488376408593899
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.5570352004700739
+  },
+  {
+    "date": "2023-11-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6378933165462651
+  },
+  {
+    "date": "2023-11-13",
+    "observed_home_win": 0,
+    "home_probability": 0.7780270971386498
+  },
+  {
+    "date": "2023-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.7204242227532592
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7144473904561554
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7349650244358508
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 0,
+    "home_probability": 0.24201634830263352
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5424438650967947
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7313256906972324
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.38682694316459776
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 0,
+    "home_probability": 0.7071061098480128
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7870603024582224
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5830711761988644
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5597130809316037
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7335136600040367
+  },
+  {
+    "date": "2023-11-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5942079005712344
+  },
+  {
+    "date": "2023-11-20",
+    "observed_home_win": 0,
+    "home_probability": 0.6321786395681227
+  },
+  {
+    "date": "2023-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.6124634688602371
+  },
+  {
+    "date": "2023-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.359689787285706
+  },
+  {
+    "date": "2023-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.8495225054830379
+  },
+  {
+    "date": "2023-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.32716285810972195
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 0,
+    "home_probability": 0.39018550564740545
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 1,
+    "home_probability": 0.5225031897876792
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 1,
+    "home_probability": 0.7082854913915498
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 1,
+    "home_probability": 0.39381704089075215
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 0,
+    "home_probability": 0.5470237082236301
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 0,
+    "home_probability": 0.3205018027476986
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 0,
+    "home_probability": 0.41426069840619695
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 1,
+    "home_probability": 0.5028062351269578
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 1,
+    "home_probability": 0.4542272049951277
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 0,
+    "home_probability": 0.586165567267163
+  },
+  {
+    "date": "2023-11-26",
+    "observed_home_win": 1,
+    "home_probability": 0.5679350164098492
+  },
+  {
+    "date": "2023-11-27",
+    "observed_home_win": 0,
+    "home_probability": 0.7419702339990523
+  },
+  {
+    "date": "2023-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.7488158133652613
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.7872974446260941
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.48075157051793777
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 1,
+    "home_probability": 0.7464116891443597
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 1,
+    "home_probability": 0.5403689368609231
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 1,
+    "home_probability": 0.6413394345218202
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.52644346048142
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.5098786405259252
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 1,
+    "home_probability": 0.37796403968573006
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.41392905936510166
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.2554910616033695
+  },
+  {
+    "date": "2023-12-03",
+    "observed_home_win": 0,
+    "home_probability": 0.4893763658431006
+  },
+  {
+    "date": "2023-12-04",
+    "observed_home_win": 0,
+    "home_probability": 0.5639997886721497
+  },
+  {
+    "date": "2023-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.7175566725650655
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 0,
+    "home_probability": 0.5660983499489829
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.7630017215358288
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 0,
+    "home_probability": 0.6693533145048808
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.4301849425993822
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.37514980165859263
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.6045369120326878
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.5538985116897918
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.7533573087610175
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4509003617356802
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.6620851105965456
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 1,
+    "home_probability": 0.784669559613905
+  },
+  {
+    "date": "2023-12-10",
+    "observed_home_win": 0,
+    "home_probability": 0.5330249395427286
+  },
+  {
+    "date": "2023-12-11",
+    "observed_home_win": 1,
+    "home_probability": 0.3901480590066157
+  },
+  {
+    "date": "2023-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.7893548512064309
+  },
+  {
+    "date": "2023-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.5215977286660488
+  },
+  {
+    "date": "2023-12-16",
+    "observed_home_win": 1,
+    "home_probability": 0.5693584132554185
+  },
+  {
+    "date": "2023-12-16",
+    "observed_home_win": 1,
+    "home_probability": 0.5424778206740415
+  },
+  {
+    "date": "2023-12-16",
+    "observed_home_win": 1,
+    "home_probability": 0.5210822579347987
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.38523934980515673
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 0,
+    "home_probability": 0.3801204613727108
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.5667574312895773
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.4399179509631009
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 0,
+    "home_probability": 0.5583240682461461
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 0,
+    "home_probability": 0.313653425689966
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.7273528979825631
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.7549496557738308
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 0,
+    "home_probability": 0.19518836587286234
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 0,
+    "home_probability": 0.5817135411934572
+  },
+  {
+    "date": "2023-12-17",
+    "observed_home_win": 1,
+    "home_probability": 0.7321746165407754
+  },
+  {
+    "date": "2023-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.4624442582839071
+  },
+  {
+    "date": "2023-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.508796452823746
+  },
+  {
+    "date": "2023-12-23",
+    "observed_home_win": 0,
+    "home_probability": 0.38415537445781706
+  },
+  {
+    "date": "2023-12-23",
+    "observed_home_win": 1,
+    "home_probability": 0.4617582756560151
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.7228331551410999
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.5025597438347773
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5824849907182568
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.5917019226796852
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.3398545165164412
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5242219107941567
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5880962717292098
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.6624958803505019
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 0,
+    "home_probability": 0.5519351417653574
+  },
+  {
+    "date": "2023-12-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6180320845533518
+  },
+  {
+    "date": "2023-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.6040052242030566
+  },
+  {
+    "date": "2023-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.6745927761137592
+  },
+  {
+    "date": "2023-12-25",
+    "observed_home_win": 1,
+    "home_probability": 0.7318501454687983
+  },
+  {
+    "date": "2023-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.7415460900971818
+  },
+  {
+    "date": "2023-12-30",
+    "observed_home_win": 1,
+    "home_probability": 0.7270109867541421
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 0,
+    "home_probability": 0.7767964916295462
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.5514057806231325
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.7087889509184895
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.6268864791884192
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 0,
+    "home_probability": 0.599051663956595
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.6278418289595853
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 0,
+    "home_probability": 0.3694988529329296
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.4979647290490555
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.6421034197280777
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.7448846335726339
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 0,
+    "home_probability": 0.5852210837957578
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 0,
+    "home_probability": 0.5005742578574722
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 0,
+    "home_probability": 0.23795555106122482
+  },
+  {
+    "date": "2023-12-31",
+    "observed_home_win": 1,
+    "home_probability": 0.579392486400647
+  },
+  {
+    "date": "2024-01-06",
+    "observed_home_win": 0,
+    "home_probability": 0.5995407952727799
+  },
+  {
+    "date": "2024-01-06",
+    "observed_home_win": 0,
+    "home_probability": 0.7952905270878139
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6568846797480192
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.5197137455887594
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6297199100611371
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.5190577874441951
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.18862984242270087
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.5663457514898951
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.5003785002427175
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.37935493255271674
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.7268641784651942
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.567199894966247
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.6781588190208598
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 1,
+    "home_probability": 0.39861771733819584
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.48538553028309833
+  },
+  {
+    "date": "2024-01-07",
+    "observed_home_win": 0,
+    "home_probability": 0.32471801264664024
+  },
+  {
+    "date": "2024-01-13",
+    "observed_home_win": 1,
+    "home_probability": 0.5073816106685854
+  },
+  {
+    "date": "2024-01-13",
+    "observed_home_win": 1,
+    "home_probability": 0.5734252943559233
+  },
+  {
+    "date": "2024-01-14",
+    "observed_home_win": 0,
+    "home_probability": 0.6737143190671798
+  },
+  {
+    "date": "2024-01-14",
+    "observed_home_win": 1,
+    "home_probability": 0.5796430751838384
+  },
+  {
+    "date": "2024-01-15",
+    "observed_home_win": 1,
+    "home_probability": 0.6372953948780197
+  },
+  {
+    "date": "2024-01-15",
+    "observed_home_win": 1,
+    "home_probability": 0.6609666216716202
+  },
+  {
+    "date": "2024-01-20",
+    "observed_home_win": 1,
+    "home_probability": 0.6905496102021174
+  },
+  {
+    "date": "2024-01-20",
+    "observed_home_win": 1,
+    "home_probability": 0.7807844388925453
+  },
+  {
+    "date": "2024-01-21",
+    "observed_home_win": 0,
+    "home_probability": 0.5852099180985522
+  },
+  {
+    "date": "2024-01-21",
+    "observed_home_win": 1,
+    "home_probability": 0.5288523355598387
+  },
+  {
+    "date": "2024-01-28",
+    "observed_home_win": 1,
+    "home_probability": 0.7256006152553346
+  },
+  {
+    "date": "2024-01-28",
+    "observed_home_win": 0,
+    "home_probability": 0.6759178917234461
+  },
+  {
+    "date": "2024-02-11",
+    "observed_home_win": 1,
+    "home_probability": 0.3770066271574346
+  },
+  {
+    "date": "2024-09-05",
+    "observed_home_win": 1,
+    "home_probability": 0.5335396846316751
+  },
+  {
+    "date": "2024-09-06",
+    "observed_home_win": 1,
+    "home_probability": 0.2631682837403475
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.8286305084904729
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.8416134379689634
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 0,
+    "home_probability": 0.3332644999470356
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.507486574816603
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 0,
+    "home_probability": 0.5689062016615113
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6717193495091156
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.5407446087686609
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.40187541726722154
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 0,
+    "home_probability": 0.47626248057247095
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 0,
+    "home_probability": 0.6885902302119896
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 0,
+    "home_probability": 0.45031515881169615
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6318917740027585
+  },
+  {
+    "date": "2024-09-08",
+    "observed_home_win": 1,
+    "home_probability": 0.8262971831811243
+  },
+  {
+    "date": "2024-09-09",
+    "observed_home_win": 1,
+    "home_probability": 0.8418885723737006
+  },
+  {
+    "date": "2024-09-12",
+    "observed_home_win": 0,
+    "home_probability": 0.44414541716168726
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 1,
+    "home_probability": 0.5406403302485626
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 1,
+    "home_probability": 0.7429977676369411
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.5590094085772865
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 1,
+    "home_probability": 0.6777036182805003
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.41708885175303057
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 1,
+    "home_probability": 0.3323557162617576
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.702989696040695
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.5992306881098891
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 1,
+    "home_probability": 0.4398280903164105
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.6258924278534406
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.4842767556683345
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.5235407742094094
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 1,
+    "home_probability": 0.40263594317717216
+  },
+  {
+    "date": "2024-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.5358509300180454
+  },
+  {
+    "date": "2024-09-16",
+    "observed_home_win": 0,
+    "home_probability": 0.6216573363867369
+  },
+  {
+    "date": "2024-09-19",
+    "observed_home_win": 1,
+    "home_probability": 0.4970125984779764
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.5196677004115864
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.8342747546019836
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 1,
+    "home_probability": 0.514064621606252
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.7476313359723341
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.4471600020182395
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.37591016567043595
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 1,
+    "home_probability": 0.5802272827920579
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.29771922499347914
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 1,
+    "home_probability": 0.6920863555104425
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 1,
+    "home_probability": 0.526967880526706
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.6121680528706357
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.7838945196873075
+  },
+  {
+    "date": "2024-09-22",
+    "observed_home_win": 1,
+    "home_probability": 0.4862429340705116
+  },
+  {
+    "date": "2024-09-23",
+    "observed_home_win": 1,
+    "home_probability": 0.7877761929149637
+  },
+  {
+    "date": "2024-09-23",
+    "observed_home_win": 0,
+    "home_probability": 0.7948982761585682
+  },
+  {
+    "date": "2024-09-26",
+    "observed_home_win": 0,
+    "home_probability": 0.4696896466029572
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.4800409792868152
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 0,
+    "home_probability": 0.33141020796943554
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.6289070834298615
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 0,
+    "home_probability": 0.5492995926632372
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.6561535929856079
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 0,
+    "home_probability": 0.3008954939188844
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.5370243974965933
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 0,
+    "home_probability": 0.6342750421510238
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.727087961465126
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.3115786892969476
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.7148371574373813
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.45719708088015404
+  },
+  {
+    "date": "2024-09-29",
+    "observed_home_win": 0,
+    "home_probability": 0.7176862655052351
+  },
+  {
+    "date": "2024-09-30",
+    "observed_home_win": 1,
+    "home_probability": 0.6351242150273284
+  },
+  {
+    "date": "2024-09-30",
+    "observed_home_win": 0,
+    "home_probability": 0.6259472373785252
+  },
+  {
+    "date": "2024-10-03",
+    "observed_home_win": 1,
+    "home_probability": 0.36327932158635695
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 0,
+    "home_probability": 0.7594816177652693
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 0,
+    "home_probability": 0.4249395558490358
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.3660700965638529
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.7876005250072848
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.4394686236609738
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 0,
+    "home_probability": 0.5831362617151001
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 0,
+    "home_probability": 0.44937173244743367
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.45875833131943494
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.4978083942560803
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 0,
+    "home_probability": 0.5784946512379562
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 0,
+    "home_probability": 0.6584486712433447
+  },
+  {
+    "date": "2024-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.5043409162788531
+  },
+  {
+    "date": "2024-10-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6004866187502151
+  },
+  {
+    "date": "2024-10-10",
+    "observed_home_win": 0,
+    "home_probability": 0.47859858770026115
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 1,
+    "home_probability": 0.7529536542532372
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.36288120485548503
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.48015735390013675
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 1,
+    "home_probability": 0.6280790714540595
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.4894948130412316
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.4514328334296957
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.5756132222474645
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 1,
+    "home_probability": 0.5926076709466521
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.6078547235207385
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.5140488955464381
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.6366134929364448
+  },
+  {
+    "date": "2024-10-13",
+    "observed_home_win": 1,
+    "home_probability": 0.7932499059122529
+  },
+  {
+    "date": "2024-10-14",
+    "observed_home_win": 0,
+    "home_probability": 0.3653321819059808
+  },
+  {
+    "date": "2024-10-17",
+    "observed_home_win": 0,
+    "home_probability": 0.7112470398190117
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.7544127068440712
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 0,
+    "home_probability": 0.4507584632193769
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 0,
+    "home_probability": 0.5341138854122616
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.6682194777518242
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 0,
+    "home_probability": 0.4374087763575066
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.586070568728048
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.6187612140162073
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.40232504652875434
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.7621068584250404
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 0,
+    "home_probability": 0.5001096162860978
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 0,
+    "home_probability": 0.49691422493652615
+  },
+  {
+    "date": "2024-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.7771942116874276
+  },
+  {
+    "date": "2024-10-21",
+    "observed_home_win": 0,
+    "home_probability": 0.5036896652634631
+  },
+  {
+    "date": "2024-10-21",
+    "observed_home_win": 1,
+    "home_probability": 0.5193288130544332
+  },
+  {
+    "date": "2024-10-24",
+    "observed_home_win": 1,
+    "home_probability": 0.49215737667805454
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 0,
+    "home_probability": 0.5090892809917582
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 0,
+    "home_probability": 0.7173657904440316
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.3098370704562012
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 0,
+    "home_probability": 0.422430046604265
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.8501905036189028
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.4740616644733594
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.6243252739257479
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 0,
+    "home_probability": 0.3290643836145994
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.6130224616794628
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 0,
+    "home_probability": 0.2669225555559642
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.45261557650058143
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.48130757430046744
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 0,
+    "home_probability": 0.569186166648672
+  },
+  {
+    "date": "2024-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.7959747751923688
+  },
+  {
+    "date": "2024-10-28",
+    "observed_home_win": 1,
+    "home_probability": 0.7686935301427015
+  },
+  {
+    "date": "2024-10-31",
+    "observed_home_win": 1,
+    "home_probability": 0.45537862111283567
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.44755009151133646
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.48943723627309565
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.6448338920654252
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 0,
+    "home_probability": 0.514040712283579
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.631201762512242
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.6974268129196924
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 0,
+    "home_probability": 0.39347226755962084
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 0,
+    "home_probability": 0.573985553741525
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.6843174720240642
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.8600328635994807
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.5629431752504966
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 1,
+    "home_probability": 0.23254179047966658
+  },
+  {
+    "date": "2024-11-03",
+    "observed_home_win": 0,
+    "home_probability": 0.45184341803165884
+  },
+  {
+    "date": "2024-11-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7178411166969677
+  },
+  {
+    "date": "2024-11-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6439407635569749
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 1,
+    "home_probability": 0.6057765101093429
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.3423251402544922
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 1,
+    "home_probability": 0.7730009868856723
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.3402203487911789
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.36668802413164425
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.7242402756970858
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 1,
+    "home_probability": 0.24735029938121572
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 1,
+    "home_probability": 0.5666510077731755
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4830352095607745
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4577755688001373
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.45634493703597
+  },
+  {
+    "date": "2024-11-10",
+    "observed_home_win": 1,
+    "home_probability": 0.7591246073254273
+  },
+  {
+    "date": "2024-11-11",
+    "observed_home_win": 0,
+    "home_probability": 0.6852621231158317
+  },
+  {
+    "date": "2024-11-14",
+    "observed_home_win": 1,
+    "home_probability": 0.6193426465707458
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.5841303382255897
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.5257643809642185
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.613299123533085
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.6524075326133733
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 0,
+    "home_probability": 0.4000994846500033
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 0,
+    "home_probability": 0.5019392576171808
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.8398621087789606
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.563345063957187
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 0,
+    "home_probability": 0.4825811759204238
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 1,
+    "home_probability": 0.5579454187334101
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 0,
+    "home_probability": 0.32541554871653977
+  },
+  {
+    "date": "2024-11-17",
+    "observed_home_win": 0,
+    "home_probability": 0.6407728611907598
+  },
+  {
+    "date": "2024-11-18",
+    "observed_home_win": 0,
+    "home_probability": 0.47927350950899333
+  },
+  {
+    "date": "2024-11-21",
+    "observed_home_win": 1,
+    "home_probability": 0.28170932728930287
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5462621044266979
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.768938354117647
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.34259672610521835
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.27895609710449054
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.17907622507041182
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.3835844391518192
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6569493708451478
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.37270843374421847
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 1,
+    "home_probability": 0.5732518867431317
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.39568391480691006
+  },
+  {
+    "date": "2024-11-24",
+    "observed_home_win": 0,
+    "home_probability": 0.7367771457790651
+  },
+  {
+    "date": "2024-11-25",
+    "observed_home_win": 0,
+    "home_probability": 0.5188009227362698
+  },
+  {
+    "date": "2024-11-28",
+    "observed_home_win": 1,
+    "home_probability": 0.8475063677500584
+  },
+  {
+    "date": "2024-11-28",
+    "observed_home_win": 1,
+    "home_probability": 0.7271572096797522
+  },
+  {
+    "date": "2024-11-28",
+    "observed_home_win": 1,
+    "home_probability": 0.5935725647165657
+  },
+  {
+    "date": "2024-11-29",
+    "observed_home_win": 1,
+    "home_probability": 0.852982697339279
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 1,
+    "home_probability": 0.6891037090647203
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.40644153050671733
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.45663377922708215
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.48253585771101587
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.5728964501845448
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.5471674217955451
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.4823673705283056
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.4839522318896815
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 1,
+    "home_probability": 0.7677490366665322
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 0,
+    "home_probability": 0.3114449812182985
+  },
+  {
+    "date": "2024-12-01",
+    "observed_home_win": 1,
+    "home_probability": 0.7561851106247173
+  },
+  {
+    "date": "2024-12-02",
+    "observed_home_win": 1,
+    "home_probability": 0.7402288131160557
+  },
+  {
+    "date": "2024-12-05",
+    "observed_home_win": 1,
+    "home_probability": 0.7010156742410558
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.728441434688091
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.3622968771465057
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.8779058646470126
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6214183565415615
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7973051511548328
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 0,
+    "home_probability": 0.5974018520942533
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7101025431838341
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.7532314581164506
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 0,
+    "home_probability": 0.5241854205465363
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.6813571822504199
+  },
+  {
+    "date": "2024-12-08",
+    "observed_home_win": 0,
+    "home_probability": 0.49038226727595413
+  },
+  {
+    "date": "2024-12-09",
+    "observed_home_win": 0,
+    "home_probability": 0.48522872095943276
+  },
+  {
+    "date": "2024-12-12",
+    "observed_home_win": 0,
+    "home_probability": 0.5808720255119402
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.2269212134461098
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.6985769212719259
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.3740346952497013
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.42993167704404195
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.4381383481096895
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 1,
+    "home_probability": 0.6934025283699679
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.2480040533262941
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 1,
+    "home_probability": 0.6144835492244085
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 1,
+    "home_probability": 0.6123779407307947
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.5945586210232862
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 1,
+    "home_probability": 0.645350956283065
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.546104264911949
+  },
+  {
+    "date": "2024-12-15",
+    "observed_home_win": 0,
+    "home_probability": 0.35771031625952787
+  },
+  {
+    "date": "2024-12-16",
+    "observed_home_win": 0,
+    "home_probability": 0.4685721044023392
+  },
+  {
+    "date": "2024-12-16",
+    "observed_home_win": 1,
+    "home_probability": 0.7476747641414867
+  },
+  {
+    "date": "2024-12-19",
+    "observed_home_win": 1,
+    "home_probability": 0.4947487109770722
+  },
+  {
+    "date": "2024-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7131523008115382
+  },
+  {
+    "date": "2024-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.6043238064954853
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.33148482049954653
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.7498973793786543
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 0,
+    "home_probability": 0.20619755800955483
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.5061880070766664
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 0,
+    "home_probability": 0.3550962045495644
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 0,
+    "home_probability": 0.44300271901947047
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.8537534191540885
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.6895628616320036
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.36854684218111317
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.5840895381502116
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.39110072616202796
+  },
+  {
+    "date": "2024-12-22",
+    "observed_home_win": 1,
+    "home_probability": 0.6826679750518583
+  },
+  {
+    "date": "2024-12-23",
+    "observed_home_win": 1,
+    "home_probability": 0.7903182201813673
+  },
+  {
+    "date": "2024-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.4229175054097327
+  },
+  {
+    "date": "2024-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.46278057053407173
+  },
+  {
+    "date": "2024-12-26",
+    "observed_home_win": 0,
+    "home_probability": 0.3743563707029699
+  },
+  {
+    "date": "2024-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.673120475387138
+  },
+  {
+    "date": "2024-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.5574781111582624
+  },
+  {
+    "date": "2024-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.3750241427237574
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.6539191537488945
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.8156246922319358
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.8283213554363669
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.5017642163469345
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.3757609188219394
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 0,
+    "home_probability": 0.6088581598438373
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 0,
+    "home_probability": 0.3613790705099117
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.8649531047734085
+  },
+  {
+    "date": "2024-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.6202777809534277
+  },
+  {
+    "date": "2024-12-30",
+    "observed_home_win": 0,
+    "home_probability": 0.31686944792381666
+  },
+  {
+    "date": "2025-01-04",
+    "observed_home_win": 0,
+    "home_probability": 0.5490258646176224
+  },
+  {
+    "date": "2025-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.873885338714945
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.189913004704865
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 0,
+    "home_probability": 0.6982215289555396
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 0,
+    "home_probability": 0.8596812657248861
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 0,
+    "home_probability": 0.3911924858240717
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.5969841102069559
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.40969071679334207
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 0,
+    "home_probability": 0.35458782169374975
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.30607670713704355
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.6688704702656039
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.7749508965604748
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.9029512501400553
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 0,
+    "home_probability": 0.613482211185213
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 1,
+    "home_probability": 0.6177445267277206
+  },
+  {
+    "date": "2025-01-05",
+    "observed_home_win": 0,
+    "home_probability": 0.4253098901823431
+  },
+  {
+    "date": "2025-01-11",
+    "observed_home_win": 1,
+    "home_probability": 0.4561906786491941
+  },
+  {
+    "date": "2025-01-11",
+    "observed_home_win": 1,
+    "home_probability": 0.7719613365432564
+  },
+  {
+    "date": "2025-01-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6805268042595367
+  },
+  {
+    "date": "2025-01-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6591859259448721
+  },
+  {
+    "date": "2025-01-12",
+    "observed_home_win": 0,
+    "home_probability": 0.6711654894069443
+  },
+  {
+    "date": "2025-01-13",
+    "observed_home_win": 1,
+    "home_probability": 0.3429973422076014
+  },
+  {
+    "date": "2025-01-18",
+    "observed_home_win": 1,
+    "home_probability": 0.7186122410849917
+  },
+  {
+    "date": "2025-01-18",
+    "observed_home_win": 0,
+    "home_probability": 0.7652525621121151
+  },
+  {
+    "date": "2025-01-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5247395637526303
+  },
+  {
+    "date": "2025-01-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7347511711897049
+  },
+  {
+    "date": "2025-01-26",
+    "observed_home_win": 1,
+    "home_probability": 0.4991641171396279
+  },
+  {
+    "date": "2025-01-26",
+    "observed_home_win": 1,
+    "home_probability": 0.7179322452911168
+  },
+  {
+    "date": "2025-02-09",
+    "observed_home_win": 1,
+    "home_probability": 0.5171222883219571
+  },
+  {
+    "date": "2025-09-04",
+    "observed_home_win": 1,
+    "home_probability": 0.844522436227573
+  },
+  {
+    "date": "2025-09-05",
+    "observed_home_win": 1,
+    "home_probability": 0.315272838363636
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.43466120055186114
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.5586276456689732
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.5725635405053223
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.2980110108566653
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.4961321685750068
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6366144265418897
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.5818634234464121
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.4065650829557128
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.7632834273913837
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.4752388944909921
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.6528361596740405
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 0,
+    "home_probability": 0.3579789153238796
+  },
+  {
+    "date": "2025-09-07",
+    "observed_home_win": 1,
+    "home_probability": 0.7553826262549628
+  },
+  {
+    "date": "2025-09-08",
+    "observed_home_win": 0,
+    "home_probability": 0.2888827436490585
+  },
+  {
+    "date": "2025-09-11",
+    "observed_home_win": 1,
+    "home_probability": 0.6698482617181598
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.7225326212870566
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.26013595116710786
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.754141573473007
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.8491045346396837
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.8810113044290967
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.4163004072144611
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7701782270550102
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.3107893895641356
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.7278241076515154
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7058104077092782
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.40620716653081884
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.5019818979112125
+  },
+  {
+    "date": "2025-09-14",
+    "observed_home_win": 0,
+    "home_probability": 0.5395662476372666
+  },
+  {
+    "date": "2025-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.4126590470528004
+  },
+  {
+    "date": "2025-09-15",
+    "observed_home_win": 0,
+    "home_probability": 0.40856018478743716
+  },
+  {
+    "date": "2025-09-18",
+    "observed_home_win": 1,
+    "home_probability": 0.7380424932604339
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.48224068175042034
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.4572097723167855
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.5151507399999786
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.3899381732337075
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.5166887064798453
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.19225302693932442
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.4884209233592476
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 0,
+    "home_probability": 0.40525760828465507
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 0,
+    "home_probability": 0.2731695663385466
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7079273688719416
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7261217371882297
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7285939904459076
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.8413977507056065
+  },
+  {
+    "date": "2025-09-21",
+    "observed_home_win": 0,
+    "home_probability": 0.510660968359724
+  },
+  {
+    "date": "2025-09-22",
+    "observed_home_win": 0,
+    "home_probability": 0.6600770392701053
+  },
+  {
+    "date": "2025-09-25",
+    "observed_home_win": 0,
+    "home_probability": 0.44443927557500135
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.4742082694066014
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.5489891078295446
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 0,
+    "home_probability": 0.6346740113469722
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.832749577902109
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.6501587521803424
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 0,
+    "home_probability": 0.6183022452379843
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.2849092447805232
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.2915619836649011
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.8601067576127607
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 0,
+    "home_probability": 0.447566097225366
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.7209468775585108
+  },
+  {
+    "date": "2025-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.412099724411781
+  },
+  {
+    "date": "2025-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.5754100093448319
+  },
+  {
+    "date": "2025-09-29",
+    "observed_home_win": 1,
+    "home_probability": 0.6848438532471104
+  },
+  {
+    "date": "2025-10-02",
+    "observed_home_win": 0,
+    "home_probability": 0.6969809428804661
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.40764706130132067
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.7642651573681671
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.4039476706228785
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.754790643537101
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 1,
+    "home_probability": 0.6671510205825445
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 1,
+    "home_probability": 0.44660699197604076
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.16429375756848327
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.8313301548731988
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 1,
+    "home_probability": 0.546843974662243
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.5567029303418448
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.794028825670814
+  },
+  {
+    "date": "2025-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.5916261316648119
+  },
+  {
+    "date": "2025-10-06",
+    "observed_home_win": 1,
+    "home_probability": 0.4251519815351597
+  },
+  {
+    "date": "2025-10-09",
+    "observed_home_win": 1,
+    "home_probability": 0.19537304829230825
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6555334321523327
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.7168199875367761
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.7657389574604468
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.4255152662130108
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 0,
+    "home_probability": 0.20548002119979056
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.47230411576058695
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 0,
+    "home_probability": 0.5009151229500586
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 0,
+    "home_probability": 0.57758929321557
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 0,
+    "home_probability": 0.4598748615403135
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 0,
+    "home_probability": 0.4767510154900778
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6528015630326818
+  },
+  {
+    "date": "2025-10-12",
+    "observed_home_win": 1,
+    "home_probability": 0.6367918294179548
+  },
+  {
+    "date": "2025-10-13",
+    "observed_home_win": 1,
+    "home_probability": 0.3472419608688347
+  },
+  {
+    "date": "2025-10-13",
+    "observed_home_win": 0,
+    "home_probability": 0.7390000157587647
+  },
+  {
+    "date": "2025-10-16",
+    "observed_home_win": 1,
+    "home_probability": 0.570910819636088
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5586262921557187
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.5366911124813293
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.4359572139419156
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.5533473708236775
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.29325240959303955
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7478660679294984
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.3946670072242639
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.3847530459275351
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.6103076098123836
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7436909434058003
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 0,
+    "home_probability": 0.4571795236267122
+  },
+  {
+    "date": "2025-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.5018429392399492
+  },
+  {
+    "date": "2025-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.5985568866063137
+  },
+  {
+    "date": "2025-10-20",
+    "observed_home_win": 1,
+    "home_probability": 0.6336268333811241
+  },
+  {
+    "date": "2025-10-23",
+    "observed_home_win": 1,
+    "home_probability": 0.5822558944246968
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 0,
+    "home_probability": 0.3098040113793413
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.7336984108303752
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.7314718210118795
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.6296657083436284
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 0,
+    "home_probability": 0.4178897490907556
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 0,
+    "home_probability": 0.6459014283377743
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.8223679613992072
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 0,
+    "home_probability": 0.7241642218901706
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.5969903512178314
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 0,
+    "home_probability": 0.2851372889365735
+  },
+  {
+    "date": "2025-10-26",
+    "observed_home_win": 1,
+    "home_probability": 0.8596650776730946
+  },
+  {
+    "date": "2025-10-27",
+    "observed_home_win": 1,
+    "home_probability": 0.7440723532490429
+  },
+  {
+    "date": "2025-10-30",
+    "observed_home_win": 0,
+    "home_probability": 0.4572998857125115
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 1,
+    "home_probability": 0.6606773730807954
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.8085766253635259
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.5806267802591317
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.5434314220511195
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 1,
+    "home_probability": 0.3921335379840935
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.4809083729728282
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 1,
+    "home_probability": 0.5677098173710949
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.2747063369025045
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.7633116493433487
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 1,
+    "home_probability": 0.8514238653501267
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.3717147202747694
+  },
+  {
+    "date": "2025-11-02",
+    "observed_home_win": 0,
+    "home_probability": 0.4615730040086832
+  },
+  {
+    "date": "2025-11-03",
+    "observed_home_win": 0,
+    "home_probability": 0.5320237305001971
+  },
+  {
+    "date": "2025-11-06",
+    "observed_home_win": 1,
+    "home_probability": 0.7700270506814119
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.7291750929577321
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.6657524754046774
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 0,
+    "home_probability": 0.488077374059416
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.2864037832352528
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.5801612106666788
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 0,
+    "home_probability": 0.3177278347864011
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.6647577220389398
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 0,
+    "home_probability": 0.4046226487771259
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 0,
+    "home_probability": 0.5815265102815403
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 0,
+    "home_probability": 0.6817871984904671
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.6703240693711349
+  },
+  {
+    "date": "2025-11-09",
+    "observed_home_win": 1,
+    "home_probability": 0.5682698024057468
+  },
+  {
+    "date": "2025-11-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4208643333489466
+  },
+  {
+    "date": "2025-11-13",
+    "observed_home_win": 1,
+    "home_probability": 0.7579182241343235
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 0,
+    "home_probability": 0.3566671591631793
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 0,
+    "home_probability": 0.5844279940563236
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 0,
+    "home_probability": 0.5900975687669353
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.6358439989650105
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.5694843057484144
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 0,
+    "home_probability": 0.3520366692537957
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 0,
+    "home_probability": 0.28992504851449286
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.47967810739869565
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.42975576632865775
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.5568068794218805
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 0,
+    "home_probability": 0.5185494666249345
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.6642667018912866
+  },
+  {
+    "date": "2025-11-16",
+    "observed_home_win": 1,
+    "home_probability": 0.4243774074317222
+  },
+  {
+    "date": "2025-11-17",
+    "observed_home_win": 0,
+    "home_probability": 0.4400692804816776
+  },
+  {
+    "date": "2025-11-20",
+    "observed_home_win": 1,
+    "home_probability": 0.4673388814853601
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.5284943894744375
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.5196440447308359
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.566607653549674
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.48718198327425205
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.6500454828452762
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.298955656462372
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.822344738060399
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.7501750766376992
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.41307556944316165
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.4899746601327468
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 0,
+    "home_probability": 0.17858461489276795
+  },
+  {
+    "date": "2025-11-23",
+    "observed_home_win": 1,
+    "home_probability": 0.7224378849044251
+  },
+  {
+    "date": "2025-11-24",
+    "observed_home_win": 1,
+    "home_probability": 0.6894733847488106
+  },
+  {
+    "date": "2025-11-27",
+    "observed_home_win": 0,
+    "home_probability": 0.7765988893777117
+  },
+  {
+    "date": "2025-11-27",
+    "observed_home_win": 0,
+    "home_probability": 0.6305816085418813
+  },
+  {
+    "date": "2025-11-27",
+    "observed_home_win": 1,
+    "home_probability": 0.3764736718812022
+  },
+  {
+    "date": "2025-11-28",
+    "observed_home_win": 0,
+    "home_probability": 0.6999823904750064
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.664902335784412
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.4716322137747796
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 0,
+    "home_probability": 0.4381019511523079
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 0,
+    "home_probability": 0.33598253379682363
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 0,
+    "home_probability": 0.5894509528085137
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 0,
+    "home_probability": 0.3300249729426237
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.2562654079701699
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.8058659797098879
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.7673224502703487
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 1,
+    "home_probability": 0.7408797851132755
+  },
+  {
+    "date": "2025-11-30",
+    "observed_home_win": 0,
+    "home_probability": 0.3969654741322536
+  },
+  {
+    "date": "2025-12-01",
+    "observed_home_win": 1,
+    "home_probability": 0.8077221001732376
+  },
+  {
+    "date": "2025-12-04",
+    "observed_home_win": 1,
+    "home_probability": 0.6623515207729797
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6439305090914355
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 1,
+    "home_probability": 0.8017998536164374
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.23128441543223738
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.6746745459914005
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 1,
+    "home_probability": 0.47493819502456425
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.2575998598934543
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.4471658444921311
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.736183557920949
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.5708092157084333
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.2612344503617461
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 0,
+    "home_probability": 0.7185129485436983
+  },
+  {
+    "date": "2025-12-07",
+    "observed_home_win": 1,
+    "home_probability": 0.6390566835965197
+  },
+  {
+    "date": "2025-12-08",
+    "observed_home_win": 1,
+    "home_probability": 0.4836012435313125
+  },
+  {
+    "date": "2025-12-11",
+    "observed_home_win": 0,
+    "home_probability": 0.6474328334917123
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.8231259964069269
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 0,
+    "home_probability": 0.4643857636863081
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 0,
+    "home_probability": 0.6119714949739451
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.5250860432619362
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7119423773990012
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.65494042309891
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.5802787849716207
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7183221978820147
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 0,
+    "home_probability": 0.6941067571936654
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.8236561720747796
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 0,
+    "home_probability": 0.642281870705317
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.7497415889702606
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 1,
+    "home_probability": 0.8451773748989475
+  },
+  {
+    "date": "2025-12-14",
+    "observed_home_win": 0,
+    "home_probability": 0.6211527442618198
+  },
+  {
+    "date": "2025-12-15",
+    "observed_home_win": 1,
+    "home_probability": 0.5615773767515558
+  },
+  {
+    "date": "2025-12-18",
+    "observed_home_win": 1,
+    "home_probability": 0.5306207163187573
+  },
+  {
+    "date": "2025-12-20",
+    "observed_home_win": 1,
+    "home_probability": 0.5077934367314086
+  },
+  {
+    "date": "2025-12-20",
+    "observed_home_win": 0,
+    "home_probability": 0.29892848844170405
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.4710862133421274
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.28854015390648685
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.6607436461441268
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.6223637424902215
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.23908691204712232
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.5313087635649101
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.8739072093905547
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.4147375432133851
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.5224903602794091
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.6534538971237955
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 0,
+    "home_probability": 0.6234640983052807
+  },
+  {
+    "date": "2025-12-21",
+    "observed_home_win": 1,
+    "home_probability": 0.49059693150135736
+  },
+  {
+    "date": "2025-12-22",
+    "observed_home_win": 0,
+    "home_probability": 0.5183529699505304
+  },
+  {
+    "date": "2025-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.4022790292774407
+  },
+  {
+    "date": "2025-12-25",
+    "observed_home_win": 0,
+    "home_probability": 0.5810464460642986
+  },
+  {
+    "date": "2025-12-25",
+    "observed_home_win": 1,
+    "home_probability": 0.4738074427427766
+  },
+  {
+    "date": "2025-12-27",
+    "observed_home_win": 0,
+    "home_probability": 0.554762227616082
+  },
+  {
+    "date": "2025-12-27",
+    "observed_home_win": 0,
+    "home_probability": 0.5807125455654916
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.7260833590086303
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.6236902599954174
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.449705337221884
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.2473687393855128
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.4644071665999875
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.5089423591755801
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.5811890011195788
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.38176540118215824
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 0,
+    "home_probability": 0.25711939548094653
+  },
+  {
+    "date": "2025-12-28",
+    "observed_home_win": 1,
+    "home_probability": 0.5885482379649722
+  },
+  {
+    "date": "2025-12-29",
+    "observed_home_win": 1,
+    "home_probability": 0.2238780613933197
+  },
+  {
+    "date": "2026-01-03",
+    "observed_home_win": 1,
+    "home_probability": 0.6162301088769748
+  },
+  {
+    "date": "2026-01-03",
+    "observed_home_win": 0,
+    "home_probability": 0.4847930623176104
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.8916085766894871
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.4346992124618305
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 0,
+    "home_probability": 0.6816809669562791
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.4094933825106844
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 0,
+    "home_probability": 0.5369729612672302
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.5292539752129427
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7247659617115136
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.23064943905004126
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.5898559365850653
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7326015694630581
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.5489241011506752
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.8793906520100423
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 1,
+    "home_probability": 0.8261203237271659
+  },
+  {
+    "date": "2026-01-04",
+    "observed_home_win": 0,
+    "home_probability": 0.8604777490462414
+  },
+  {
+    "date": "2026-01-10",
+    "observed_home_win": 1,
+    "home_probability": 0.6058604471780948
+  },
+  {
+    "date": "2026-01-10",
+    "observed_home_win": 0,
+    "home_probability": 0.2483365293890949
+  },
+  {
+    "date": "2026-01-11",
+    "observed_home_win": 0,
+    "home_probability": 0.610927675866476
+  },
+  {
+    "date": "2026-01-11",
+    "observed_home_win": 1,
+    "home_probability": 0.6656968499217887
+  },
+  {
+    "date": "2026-01-11",
+    "observed_home_win": 0,
+    "home_probability": 0.5862409160902918
+  },
+  {
+    "date": "2026-01-12",
+    "observed_home_win": 0,
+    "home_probability": 0.5016549968646385
+  },
+  {
+    "date": "2026-01-17",
+    "observed_home_win": 1,
+    "home_probability": 0.5656667507636842
+  },
+  {
+    "date": "2026-01-17",
+    "observed_home_win": 1,
+    "home_probability": 0.6921675560934172
+  },
+  {
+    "date": "2026-01-18",
+    "observed_home_win": 1,
+    "home_probability": 0.5905330237164812
+  },
+  {
+    "date": "2026-01-18",
+    "observed_home_win": 0,
+    "home_probability": 0.4420381514671989
+  },
+  {
+    "date": "2026-01-25",
+    "observed_home_win": 1,
+    "home_probability": 0.6686615019489551
+  },
+  {
+    "date": "2026-01-25",
+    "observed_home_win": 0,
+    "home_probability": 0.48081773708598197
+  },
+  {
+    "date": "2026-02-08",
+    "observed_home_win": 0,
+    "home_probability": 0.3647627110064224
+  },
+  {
+    "date": "2026-09-09",
+    "observed_home_win": 1,
+    "home_probability": 0.6834045345344406
+  },
+  {
+    "date": "2026-09-10",
+    "observed_home_win": 0,
+    "home_probability": 0.4744718601363259
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 0,
+    "home_probability": 0.8022170116052137
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.6117065153586699
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 0,
+    "home_probability": 0.3603846361866291
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 0,
+    "home_probability": 0.5270928843062629
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 0,
+    "home_probability": 0.42323589290228286
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.8302535713685584
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.5173886937482761
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.6237330893172036
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.35734655597394643
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.6713085221679074
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 0,
+    "home_probability": 0.6283399624505898
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.6082578364648595
+  },
+  {
+    "date": "2026-09-13",
+    "observed_home_win": 1,
+    "home_probability": 0.8016770492361385
+  },
+  {
+    "date": "2026-09-14",
+    "observed_home_win": 1,
+    "home_probability": 0.4873952490599365
+  },
+  {
+    "date": "2026-09-17",
+    "observed_home_win": 1,
+    "home_probability": 0.6709290285422176
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.6579042920689581
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.6647584499758997
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.622394585070145
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.32569996179297817
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 1,
+    "home_probability": 0.7106569383633565
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 1,
+    "home_probability": 0.3782193965851191
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.7414442550175229
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 1,
+    "home_probability": 0.7751067558460724
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.5530551853954547
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.7181228050732144
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.26329943520924665
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 1,
+    "home_probability": 0.6836404263335476
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 0,
+    "home_probability": 0.12864004737002155
+  },
+  {
+    "date": "2026-09-20",
+    "observed_home_win": 1,
+    "home_probability": 0.6462757346070448
+  },
+  {
+    "date": "2026-09-21",
+    "observed_home_win": 1,
+    "home_probability": 0.7317170701441612
+  },
+  {
+    "date": "2026-09-24",
+    "observed_home_win": 0,
+    "home_probability": 0.6419160044991976
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.8695047202836432
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 0,
+    "home_probability": 0.29915231098204587
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.5340453242914973
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.49955677082236133
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.350966030673548
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 0,
+    "home_probability": 0.45378678542395734
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.7942751914445585
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.5120744070748021
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 0,
+    "home_probability": 0.7411205663518388
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 0,
+    "home_probability": 0.3658445037419928
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.6094066878498609
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.8202197422012266
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.19506045170309183
+  },
+  {
+    "date": "2026-09-27",
+    "observed_home_win": 1,
+    "home_probability": 0.6711954685595599
+  },
+  {
+    "date": "2026-09-28",
+    "observed_home_win": 1,
+    "home_probability": 0.513707956349081
+  },
+  {
+    "date": "2026-10-01",
+    "observed_home_win": 1,
+    "home_probability": 0.47952670958192944
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7096171855812824
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.6811443494939801
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.642809768472899
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.43729820343977804
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.5439215269012885
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.45117888019927227
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.4113971011681858
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.37642089130224565
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7931611641487256
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.5699262190995216
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.7920407534396698
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 0,
+    "home_probability": 0.6397998202014693
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.8412612296318254
+  },
+  {
+    "date": "2026-10-04",
+    "observed_home_win": 1,
+    "home_probability": 0.8240434723405483
+  },
+  {
+    "date": "2026-10-05",
+    "observed_home_win": 0,
+    "home_probability": 0.589079839641156
+  },
+  {
+    "date": "2026-10-08",
+    "observed_home_win": 0,
+    "home_probability": 0.5826848095541051
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.44128360143125017
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 1,
+    "home_probability": 0.3898026441511154
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.36122935379876747
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 1,
+    "home_probability": 0.3860546821184328
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.4569377261342387
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.3182450846064833
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.320353304126422
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 1,
+    "home_probability": 0.6878381998266635
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 1,
+    "home_probability": 0.7719332647526754
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.3679296066984189
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 1,
+    "home_probability": 0.5402788062292018
+  },
+  {
+    "date": "2026-10-11",
+    "observed_home_win": 0,
+    "home_probability": 0.6634743138932364
+  },
+  {
+    "date": "2026-10-12",
+    "observed_home_win": 0,
+    "home_probability": 0.4841496692521791
+  },
+  {
+    "date": "2026-10-15",
+    "observed_home_win": 1,
+    "home_probability": 0.38718673883375326
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.8408043057405976
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 1,
+    "home_probability": 0.3510552881453594
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.2859041213071692
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.6693525175292752
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.4975223628435654
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 1,
+    "home_probability": 0.5762863838195411
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.5624739340302368
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 1,
+    "home_probability": 0.7363175203289833
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.5923232936059515
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 1,
+    "home_probability": 0.8581862900882407
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.5125883346461446
+  },
+  {
+    "date": "2026-10-18",
+    "observed_home_win": 0,
+    "home_probability": 0.6675354530483547
+  },
+  {
+    "date": "2026-10-19",
+    "observed_home_win": 1,
+    "home_probability": 0.7682088753543875
+  }
+]

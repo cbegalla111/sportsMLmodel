@@ -1,0 +1,31 @@
+# Methods, sources and limitations
+
+## Primary sources consulted
+
+- FiveThirtyEight historical NBA dataset and field dictionary: https://github.com/fivethirtyeight/data/tree/master/nba-elo . This is historical game data from Basketball-Reference, distributed under the repository's [CC BY 4.0 license](https://github.com/fivethirtyeight/data/blob/master/LICENSE). We transform it into result-only rows; supplied source Elo/forecasts are excluded. The saved raw-byte SHA-256 and retrieval timestamp identify the exact download.
+- FiveThirtyEight's own baseline implementation: https://github.com/fivethirtyeight/nfl-elo-game . Supports transparent rating baselines; we implement our own fixed K=20, home bonus=60 baseline, not a claim of reproducing their full model.
+- nflverse documented schedules loader: https://github.com/nflverse/nflreadr/blob/main/R/load_schedules.R . Public results and schedules are maintained at https://github.com/nflverse/nfldata/blob/master/data/games.csv . The project explicitly supplies the dataset for analysis. Keep raw NFL archives private; no blanket redistribution license is asserted here. Attribution: Lee Sharpe and nflverse contributors. Only selected results and schedule fields are consumed.
+- scikit-learn primary documentation on chronological validation: https://github.com/scikit-learn/scikit-learn/blob/main/doc/modules/cross_validation.rst . Time-series dependency makes random splitting inappropriate.
+- scikit-learn probability calibration: https://github.com/scikit-learn/scikit-learn/blob/main/doc/modules/calibration.rst . Probability quality is evaluated with proper scoring rules and reliability diagrams. No fitted post-hoc calibrator is claimed.
+
+References were retrieved during implementation. The hosted scikit-learn site was blocked, so its authoritative repository documentation was used instead.
+
+## Fixed computing budget
+
+One CPU, five fixed candidate definitions, three expanding date-block validation folds. First 80% of distinct dates are development data; the last 20% are sealed final test. Development folds train before 40/60/80% of development dates and validate in the next 20% block. Dates are never divided across partitions.
+
+Candidates: transparent Elo; standardized L2 logistic regression C=0.1 with 10- or 20-game rolling histories; logistic with a complete pregame sport-feature group as ablation; histogram gradient boosting (60 rounds, 7 leaves, learning rate 0.05, L2=10). Sport-feature ablation is explicitly skipped when inputs are missing. Preprocessing fits on each training fold only. Lowest mean validation log loss chooses the model. The chosen model and fixed Elo baseline are evaluated once on the final test. Final-test metrics are not used to pick models or parameters. Seed=42 where needed. No random forest, ensemble, recency-weight tuning, broad hyperparameter search, scoring simulations or post-hoc calibration has been validated. Extra complexity requires separate future-only evaluation.
+
+After evaluation, the chosen specification is refit on available history for inference. Those full-data weights are distinct from the development-trained weights used for final-test reporting. Automatic refresh updates the frozen specification, never reopens its old test or claims new performance. A second selection run on changed data is deliberately refused. A future version should use a prospectively reserved new evaluation period before changing specifications. Exact held-out forecasts and reports are committed under artifacts; `scripts.export_experiments` verifies reproduction of the existing metrics, without repeating model selection.
+
+## Interpretation
+
+The NBA and NFL models are limited result-history baselines. They do not implement possession-adjusted efficiency, EPA, quarterback injuries, opponent-adjusted college statistics, starting-pitcher models, goalie models or fighter-specific models. All other leagues are data-entry interfaces and schemas until adequate data and validation exist. A generic result baseline is not represented as a validated sport-specific model for those leagues.
+
+Logistic explanations are standardized input contributions to fitted log odds, not causal effects. Other model explanations show inputs without inventing importance values. Advanced inputs that the chosen model does not use are rejected as scenario overrides. Changing neutral venue is supported only if the fitted model has seen neutral-venue variation; otherwise the adjustment is withheld. The home-only historical NBA archive cannot validate that sensitivity. Changing a pitcher/player requires a validated feature model, not a guessed adjustment.
+
+Brier and log loss are primary probability measures; accuracy and AUC are secondary. Reliability bands show sample sizes, mean probability and empirical frequency. Reports group final-test performance by inferred season and calendar year. NBA/NHL seasons are labeled by ending year; NFL/CFB by starting year. Intervals use 200 resamples of calendar-week blocks on fixed test predictions. They approximate performance uncertainty, may understate longer dependence, and do not give game-specific confidence intervals or account for all model-selection uncertainty. No model-disagreement confidence interval is displayed.
+
+Predictions condition on a decisive eventual winner. NFL ties and UFC draws/no contests are excluded, so summing two opponents to one is conditional, not an unconditional three-way outcome. Probabilities are not estimates of settlement under a particular bookmaker's rules. No outcome is certain. No odds comparison is populated without real odds, and no odds affect training.
+
+Models require at least 700 decisive observations over 100 dates. Live forecasts require recent results (at most 30 days old), event date within 14 days, and five prior games per opponent. Date-only features force the forecast date after the latest known result date. Historical test results are not represented as pre-event saved forecasts. Scenarios may use old data but are labeled hypothetical. Injuries, lineups, pitchers, goalies and weather remain unconfirmed. Even fresh NFL output is a limited baseline, not a complete moneyline product.

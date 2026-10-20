@@ -1,0 +1,339 @@
+{
+  "id": "NBA-f02cf4bf8cfe566f",
+  "league": "NBA",
+  "created": "2026-10-20T19:39:27.968364+00:00",
+  "dataset_sha256": "f02cf4bf8cfe566fd07d28bf7f9f3b95dfdbe50634e17ebc53cb7667783ad633",
+  "n_rows": 14208,
+  "first_date": "2004-11-02",
+  "last_date": "2015-06-16",
+  "final_test_start": "2013-04-28",
+  "budget": "5 fixed candidates, 3 expanding date-block folds; no random split, no tuning on final 20% of dates; single CPU.",
+  "selected": "logistic_w20",
+  "candidates": [
+    {
+      "name": "elo_w20",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 2187,
+          "log_loss": 0.5812067454399915,
+          "brier": 0.19848613604865137,
+          "accuracy": 0.7032464563328761,
+          "roc_auc": 0.7416018404788364,
+          "train_end": "2008-01-31",
+          "validation_start": "2008-02-01",
+          "validation_end": "2009-11-28"
+        },
+        {
+          "n": 2355,
+          "log_loss": 0.5997740119660757,
+          "brier": 0.20696076558337279,
+          "accuracy": 0.6721868365180467,
+          "roc_auc": 0.7216772311476323,
+          "train_end": "2009-11-28",
+          "validation_start": "2009-11-29",
+          "validation_end": "2011-05-06"
+        },
+        {
+          "n": 2347,
+          "log_loss": 0.602005249999966,
+          "brier": 0.20736100015109166,
+          "accuracy": 0.6697912228376651,
+          "roc_auc": 0.7184420438488535,
+          "train_end": "2011-05-06",
+          "validation_start": "2011-05-07",
+          "validation_end": "2013-04-26"
+        }
+      ],
+      "mean_log_loss": 0.5943286691353443
+    },
+    {
+      "name": "logistic_w10",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 2187,
+          "log_loss": 0.5765554552822134,
+          "brier": 0.19684778394103825,
+          "accuracy": 0.6977594878829446,
+          "roc_auc": 0.7411649394453395,
+          "train_end": "2008-01-31",
+          "validation_start": "2008-02-01",
+          "validation_end": "2009-11-28"
+        },
+        {
+          "n": 2355,
+          "log_loss": 0.5904563041040317,
+          "brier": 0.20285263894529926,
+          "accuracy": 0.6798301486199575,
+          "roc_auc": 0.7286044799821776,
+          "train_end": "2009-11-28",
+          "validation_start": "2009-11-29",
+          "validation_end": "2011-05-06"
+        },
+        {
+          "n": 2347,
+          "log_loss": 0.5980629013206873,
+          "brier": 0.20597273136864228,
+          "accuracy": 0.671921602045164,
+          "roc_auc": 0.7185917012322044,
+          "train_end": "2011-05-06",
+          "validation_start": "2011-05-07",
+          "validation_end": "2013-04-26"
+        }
+      ],
+      "mean_log_loss": 0.5883582202356441
+    },
+    {
+      "name": "logistic_w20",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 2187,
+          "log_loss": 0.5764743961516843,
+          "brier": 0.19654493475700624,
+          "accuracy": 0.6995884773662552,
+          "roc_auc": 0.7429639437009151,
+          "train_end": "2008-01-31",
+          "validation_start": "2008-02-01",
+          "validation_end": "2009-11-28"
+        },
+        {
+          "n": 2355,
+          "log_loss": 0.5893416457127176,
+          "brier": 0.20221499281763594,
+          "accuracy": 0.6832271762208068,
+          "roc_auc": 0.7303551080557492,
+          "train_end": "2009-11-28",
+          "validation_start": "2009-11-29",
+          "validation_end": "2011-05-06"
+        },
+        {
+          "n": 2347,
+          "log_loss": 0.5951758829160366,
+          "brier": 0.20473360026054604,
+          "accuracy": 0.6731998295696634,
+          "roc_auc": 0.7218925201695612,
+          "train_end": "2011-05-06",
+          "validation_start": "2011-05-07",
+          "validation_end": "2013-04-26"
+        }
+      ],
+      "mean_log_loss": 0.5869973082601462
+    },
+    {
+      "name": "logistic_w20_sport_features",
+      "status": "skipped",
+      "reason": "Complete timestamped sport-specific features unavailable"
+    },
+    {
+      "name": "boost_w20",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 2187,
+          "log_loss": 0.5807241241103055,
+          "brier": 0.19807487947470206,
+          "accuracy": 0.6968449931412894,
+          "roc_auc": 0.7411915257151263,
+          "train_end": "2008-01-31",
+          "validation_start": "2008-02-01",
+          "validation_end": "2009-11-28"
+        },
+        {
+          "n": 2355,
+          "log_loss": 0.5949582024630914,
+          "brier": 0.20432185643688924,
+          "accuracy": 0.6815286624203821,
+          "roc_auc": 0.7260609513602365,
+          "train_end": "2009-11-28",
+          "validation_start": "2009-11-29",
+          "validation_end": "2011-05-06"
+        },
+        {
+          "n": 2347,
+          "log_loss": 0.5985532594037314,
+          "brier": 0.2060568667096968,
+          "accuracy": 0.6689390711546656,
+          "roc_auc": 0.7190672622574714,
+          "train_end": "2011-05-06",
+          "validation_start": "2011-05-07",
+          "validation_end": "2013-04-26"
+        }
+      ],
+      "mean_log_loss": 0.591411861992376
+    }
+  ],
+  "test": {
+    "n": 2676,
+    "log_loss": 0.6082724637061506,
+    "brier": 0.2105838435707883,
+    "accuracy": 0.6621823617339312,
+    "roc_auc": 0.7180110819814767,
+    "calibration": [
+      {
+        "band": [
+          0.0,
+          0.1
+        ],
+        "n": 1,
+        "predicted": 0.0866696732961443,
+        "observed": 0.0
+      },
+      {
+        "band": [
+          0.1,
+          0.2
+        ],
+        "n": 37,
+        "predicted": 0.16869328003141978,
+        "observed": 0.16216216216216217
+      },
+      {
+        "band": [
+          0.2,
+          0.3
+        ],
+        "n": 138,
+        "predicted": 0.2579622205286302,
+        "observed": 0.26811594202898553
+      },
+      {
+        "band": [
+          0.3,
+          0.4
+        ],
+        "n": 249,
+        "predicted": 0.35187720455616195,
+        "observed": 0.3333333333333333
+      },
+      {
+        "band": [
+          0.4,
+          0.5
+        ],
+        "n": 369,
+        "predicted": 0.4514069999481345,
+        "observed": 0.4281842818428184
+      },
+      {
+        "band": [
+          0.5,
+          0.6
+        ],
+        "n": 446,
+        "predicted": 0.5512250511705743,
+        "observed": 0.5067264573991032
+      },
+      {
+        "band": [
+          0.6,
+          0.7
+        ],
+        "n": 513,
+        "predicted": 0.6511746596947563,
+        "observed": 0.6101364522417154
+      },
+      {
+        "band": [
+          0.7,
+          0.8
+        ],
+        "n": 492,
+        "predicted": 0.7498008353546908,
+        "observed": 0.7317073170731707
+      },
+      {
+        "band": [
+          0.8,
+          0.9
+        ],
+        "n": 363,
+        "predicted": 0.846689607727338,
+        "observed": 0.8264462809917356
+      },
+      {
+        "band": [
+          0.9,
+          1.0
+        ],
+        "n": 68,
+        "predicted": 0.9219911540852319,
+        "observed": 0.9264705882352942
+      }
+    ],
+    "by_year": {
+      "2013": {
+        "n": 520,
+        "log_loss": 0.6398058735032711,
+        "brier": 0.22431562761232104,
+        "accuracy": 0.6346153846153846,
+        "roc_auc": 0.6750120656370656
+      },
+      "2014": {
+        "n": 1327,
+        "log_loss": 0.6044211664058796,
+        "brier": 0.20876696771595551,
+        "accuracy": 0.6706857573474001,
+        "roc_auc": 0.7281132774510258
+      },
+      "2015": {
+        "n": 829,
+        "log_loss": 0.5946576246506102,
+        "brier": 0.20487873688534325,
+        "accuracy": 0.6658624849215923,
+        "roc_auc": 0.7277384624690014
+      }
+    },
+    "by_season": {
+      "2013": {
+        "n": 59,
+        "log_loss": 0.6992819831970261,
+        "brier": 0.24814351366044912,
+        "accuracy": 0.6101694915254238,
+        "roc_auc": 0.5635294117647058
+      },
+      "2014": {
+        "n": 1313,
+        "log_loss": 0.6102689143818988,
+        "brier": 0.211649814091597,
+        "accuracy": 0.6572734196496572,
+        "roc_auc": 0.7129556854395016
+      },
+      "2015": {
+        "n": 1304,
+        "log_loss": 0.6021444718447865,
+        "brier": 0.20781111364048785,
+        "accuracy": 0.6694785276073619,
+        "roc_auc": 0.7288736462093863
+      }
+    },
+    "brier_week_block_bootstrap_95": [
+      0.2037948541222218,
+      0.2182106110570157
+    ],
+    "interval_note": "200 calendar-week block bootstrap samples of fixed final-test predictions; approximate performance uncertainty, not a game probability interval."
+  },
+  "baseline_test": {
+    "n": 2676,
+    "log_loss": 0.6141888392923675,
+    "brier": 0.21298619239688,
+    "accuracy": 0.6599402092675636,
+    "roc_auc": 0.7094059462615485
+  },
+  "feature_names": [
+    "elo_difference",
+    "home_advantage",
+    "win_rate_difference",
+    "scoring_margin_difference",
+    "rest_difference"
+  ],
+  "outcome_rules": "Conditional on a decisive eventual winner, including overtime. Draws and no contests excluded; this is NOT an unconditional win probability or a sportsbook settlement forecast.",
+  "calibration": "No post-hoc calibration; reliability measured on held-out data.",
+  "limitations": [
+    "Result-only baseline; no confirmed injuries, starters, travel, weather or lineups.",
+    "Score margin is not possession-adjusted efficiency.",
+    "Pre-event feature timestamps are uploader assertions, not independently verified.",
+    "Historical performance does not establish present-day calibration."
+  ]
+}
