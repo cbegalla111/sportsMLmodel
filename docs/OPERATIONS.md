@@ -27,13 +27,13 @@ The start script supervises the web process and a six-hour refresh worker. If ei
 
 The worker:
 
-1. Fetches NFL public schedules/results (season >=2005), current-season NBA CDN results/schedule, three calendar years of MLB finals/schedule, and a rolling NHL schedule window. NHL still needs a historical CSV for initial training.
+1. Fetches NFL public schedules/results (season >=2005), current-season NBA CDN results/schedule, MLB history from 2024 on initial seed and the current year thereafter, and a rolling NHL schedule window. Initial installation backfills NHL weekly official schedules from October 2024 when history is insufficient.
 2. Archives exact source bytes, hashes and fetch times; imports only supported result fields, refusing conflicting revisions. Feed failures retain old data and are visible in the UI.
 3. Imports CSV files dropped into `$SPORTSLAB_HOME/inbox`; accepted files move to processed, rejected files to rejected with an error reason. Write temporary files elsewhere and atomically rename completed CSVs into inbox.
 4. Refits weights only for a previously selected frozen model when its data digest changes. It does not invent or automatically validate models for empty leagues. For a new league, run `python -m scripts.train --league MLB` (or UI comparison) once sufficient data exist. UI comparison returns existing results for an unchanged dataset; changing an already evaluated league does not restart selection.
 5. Makes one consistent private backup daily, retaining seven local copies. Local backups do not protect against machine loss. Copy them to your own encrypted off-machine storage.
 
-Current verified feed: NFL. Archived NBA source works but ends in June 2015. Current NBA CDN, MLB Stats API and NHL API are implemented but network-denied in this cloud environment and have NOT been validated against live responses here. Required added destinations are cdn.nba.com, statsapi.mlb.com, api-web.nhle.com. Review environment settings and apply the network configuration, then rerun refresh and inspect results. No claim that allowing domains alone validates connector schemas or permissions.
+Verified feeds: NFL, MLB Stats API and NHL API. MLB regular-season/postseason filtering excludes tied preseason games; a regression test covers that case. NHL historical backfill and rolling schedule updates were exercised. The saved domain additions (cdn.nba.com, statsapi.mlb.com, api-web.nhle.com) became effective during setup and MLB/NHL requests succeeded. Current NBA CDN endpoints still return origin HTTP 403, so current NBA results/schedules are unavailable; the archived NBA source ends in June 2015. Keep failed-feed status visible and do not treat a successful DNS/network change as data readiness.
 
 CFB/WNBA/UFC have no verified credential-free connector in this implementation. Use a documented, permitted CSV export or manual entry; drop recurring exports into inbox for automatic ingestion. No credential or paid-service requirement is invented. Advanced pregame data, confirmed availability and live odds are not automatically supplied. Different source identifiers and neutral-site conventions must be reviewed before mixing datasets; the first current NBA source is a separate source namespace.
 
@@ -46,13 +46,13 @@ CFB/WNBA/UFC have no verified credential-free connector in this implementation. 
 
 Backups include a SQLite-consistent database copy, models, source archives and checksum manifest. Authentication secrets and sessions are excluded. Restore requires a new/empty destination, rejects unsafe archive paths and verifies file hashes and SQLite integrity. Set SPORTSLAB_HOME to the restored directory and start the service; initialize a new password. User CSV originals in inbox/processed/rejected and logs are not included in these archives; their accepted normalized records and provenance are in SQLite. Keep original exports separately if required.
 
-Source recovery: clone the GitHub repository, install pinned dependencies, restore a private backup, then restart. Committed artifacts contain actual benchmark reports, held-out predictions and the selected full-history model weights for NBA/NFL; they contain no passwords. `scripts.seed_models` can restore benchmarks only when historical imported data match their saved digest. If a feed revises old results, it refuses to silently validate a different dataset. Saved installation/startup instructions are a configuration draft, not publication. Publish the cloud environment through its settings to retain the prepared filesystem snapshot.
+Source recovery: clone the GitHub repository, install pinned dependencies, restore a private backup, then restart. Committed artifacts contain actual benchmark reports, held-out predictions and the selected full-history model weights for NBA/NFL/MLB/NHL; they contain no passwords. `scripts.seed_models` can restore benchmarks only when historical imported data match their saved digest. If a feed revises old results, it refuses to silently validate a different dataset. Saved installation/startup instructions are a configuration draft, not publication. Publish the cloud environment through its settings to retain the prepared filesystem snapshot.
 
 ## Private hosting
 
 GitHub stores source and model artifacts; GitHub Pages cannot run the Python server, SQLite or scheduled worker. No remote deployment has been performed.
 
-A Docker recipe is included. Normal in-container package fetching hit DNS restrictions in this cloud environment; the optional wheelhouse cache supports verified offline builds (see wheelhouse/README.md). An offline build, 21 in-container tests, and the running authenticated service were verified here. No remote hosting was performed. On your server:
+A Docker recipe is included. Normal in-container package fetching hit DNS restrictions in this cloud environment; the optional wheelhouse cache supports verified offline builds (see wheelhouse/README.md). An offline build, the in-container test suite, and the running authenticated service were verified here. No remote hosting was performed. On your server:
 
 ```bash
 docker compose up --build -d

@@ -8,6 +8,8 @@
 - scikit-learn primary documentation on chronological validation: https://github.com/scikit-learn/scikit-learn/blob/main/doc/modules/cross_validation.rst . Time-series dependency makes random splitting inappropriate.
 - scikit-learn probability calibration: https://github.com/scikit-learn/scikit-learn/blob/main/doc/modules/calibration.rst . Probability quality is evaluated with proper scoring rules and reliability diagrams. No fitted post-hoc calibrator is claimed.
 
+Additional verified primary feeds: MLB official Stats API `/api/v1/schedule` at https://statsapi.mlb.com and NHL official schedule `/v1/schedule/YYYY-MM-DD` at https://api-web.nhle.com . Their raw observed responses, fetch timestamps and hashes are stored privately. No blanket redistribution permission for their raw archives is asserted. MLB uses regular/postseason games only; NHL uses regular/postseason eventual-winner results. Neutral venue is not independently resolved for these feeds; designated home labels may be misleading at special venues. The public NBA CDN was tried at cdn.nba.com but returned HTTP 403.
+
 References were retrieved during implementation. The hosted scikit-learn site was blocked, so its authoritative repository documentation was used instead.
 
 ## Fixed computing budget
@@ -20,7 +22,7 @@ After evaluation, the chosen specification is refit on available history for inf
 
 ## Interpretation
 
-The NBA and NFL models are limited result-history baselines. They do not implement possession-adjusted efficiency, EPA, quarterback injuries, opponent-adjusted college statistics, starting-pitcher models, goalie models or fighter-specific models. All other leagues are data-entry interfaces and schemas until adequate data and validation exist. A generic result baseline is not represented as a validated sport-specific model for those leagues.
+The NBA, NFL, MLB and NHL models are limited result-history baselines. They do not implement possession-adjusted efficiency, EPA, quarterback injuries, opponent-adjusted college statistics, starting-pitcher models, goalie models or fighter-specific models. CFB, WNBA and UFC are data-entry interfaces and schemas until adequate data and validation exist. A generic result baseline is not represented as a validated sport-specific model for those leagues.
 
 Logistic explanations are standardized input contributions to fitted log odds, not causal effects. Other model explanations show inputs without inventing importance values. Advanced inputs that the chosen model does not use are rejected as scenario overrides. Changing neutral venue is supported only if the fitted model has seen neutral-venue variation; otherwise the adjustment is withheld. The home-only historical NBA archive cannot validate that sensitivity. Changing a pitcher/player requires a validated feature model, not a guessed adjustment.
 

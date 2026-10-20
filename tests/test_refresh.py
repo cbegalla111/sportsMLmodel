@@ -19,3 +19,12 @@ def test_feed_error_preserves_existing_history(tmp_path,monkeypatch):
  assert all(s['status']=='error' for s in statuses)
  assert all('source unavailable'==s['error'] for s in statuses)
  assert connect(tmp_path).execute('SELECT COUNT(*) FROM games').fetchone()[0]==0
+
+
+def test_mlb_excludes_tied_preseason_without_losing_regular_games(tmp_path,monkeypatch):
+ def item(eid,kind,hs,aws):
+  return {'gamePk':eid,'gameType':kind,'officialDate':'2025-06-01','status':{'abstractGameState':'Final'},'teams':{'home':{'team':{'name':'Test A'},'score':hs},'away':{'team':{'name':'Test B'},'score':aws}}}
+ payload={'dates':[{'date':'2025-06-01','games':[item(1,'S',0,0),item(2,'R',3,2)]}]}
+ monkeypatch.setattr(refresh,'fetch',lambda *a:(json.dumps(payload).encode(),{'url':'synthetic mocked MLB feed','fetched':'2025-06-02','sha256':'test'}))
+ result=refresh_one(tmp_path,'MLB');rows=load(connect(tmp_path),'MLB')
+ assert len(rows)==1 and rows[0]['event_id']=='mlb-2';assert result['status']=='ok'

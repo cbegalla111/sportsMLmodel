@@ -6,7 +6,7 @@ import time
 from sportslab.data import connect, ingest
 from sportslab.refresh import fetch, game, FEEDS
 root=os.environ.get('SPORTSLAB_HOME','/workspace/.sportsml-private');db=connect(root)
-start=date(date.today().year-2,10,1);end=date.today();day=start;total=0;manifests=[]
+start=date(2024,10,1);end=date.today();day=start;total=0;manifests=[]
 while day<=end:
  raw,m=fetch(root,FEEDS['NHL']['url']+day.isoformat(),'NHL');manifests.append(m);rows=[]
  for week_day in json.loads(raw).get('gameWeek',[]):

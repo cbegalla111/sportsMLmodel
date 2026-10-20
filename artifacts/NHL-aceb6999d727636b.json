@@ -1,0 +1,273 @@
+{
+  "id": "NHL-aceb6999d727636b",
+  "league": "NHL",
+  "created": "2026-10-20T19:53:55.047833+00:00",
+  "dataset_sha256": "aceb6999d727636badace7a2adac38104da735c713258fbc20d3ba1c48efd401",
+  "n_rows": 2932,
+  "first_date": "2024-10-04",
+  "last_date": "2026-10-19",
+  "final_test_start": "2026-03-20",
+  "budget": "5 fixed candidates, 3 expanding date-block folds; no random split, no tuning on final 20% of dates; single CPU.",
+  "selected": "logistic_w20",
+  "candidates": [
+    {
+      "name": "elo_w20",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 328,
+          "log_loss": 0.6539948149560247,
+          "brier": 0.2308418326506278,
+          "accuracy": 0.6219512195121951,
+          "roc_auc": 0.6065268065268065,
+          "train_end": "2025-03-15",
+          "validation_start": "2025-03-16",
+          "validation_end": "2025-05-29"
+        },
+        {
+          "n": 519,
+          "log_loss": 0.7281561965633454,
+          "brier": 0.2662356008757024,
+          "accuracy": 0.48554913294797686,
+          "roc_auc": 0.4967443658203009,
+          "train_end": "2025-05-29",
+          "validation_start": "2025-06-04",
+          "validation_end": "2025-12-14"
+        },
+        {
+          "n": 569,
+          "log_loss": 0.6952527009814813,
+          "brier": 0.2503843208227992,
+          "accuracy": 0.5659050966608085,
+          "roc_auc": 0.5675092936802975,
+          "train_end": "2025-12-14",
+          "validation_start": "2025-12-15",
+          "validation_end": "2026-03-18"
+        }
+      ],
+      "mean_log_loss": 0.6924679041669505
+    },
+    {
+      "name": "logistic_w10",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 328,
+          "log_loss": 0.65405856005147,
+          "brier": 0.23087163179213963,
+          "accuracy": 0.6280487804878049,
+          "roc_auc": 0.6194250194250194,
+          "train_end": "2025-03-15",
+          "validation_start": "2025-03-16",
+          "validation_end": "2025-05-29"
+        },
+        {
+          "n": 519,
+          "log_loss": 0.7339511300490138,
+          "brier": 0.2675760258074387,
+          "accuracy": 0.48554913294797686,
+          "roc_auc": 0.49600107034548374,
+          "train_end": "2025-05-29",
+          "validation_start": "2025-06-04",
+          "validation_end": "2025-12-14"
+        },
+        {
+          "n": 569,
+          "log_loss": 0.6846989582732911,
+          "brier": 0.24575107179831643,
+          "accuracy": 0.5659050966608085,
+          "roc_auc": 0.5730359355638166,
+          "train_end": "2025-12-14",
+          "validation_start": "2025-12-15",
+          "validation_end": "2026-03-18"
+        }
+      ],
+      "mean_log_loss": 0.6909028827912582
+    },
+    {
+      "name": "logistic_w20",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 328,
+          "log_loss": 0.6552498725174245,
+          "brier": 0.23151994907668472,
+          "accuracy": 0.6097560975609756,
+          "roc_auc": 0.6087801087801088,
+          "train_end": "2025-03-15",
+          "validation_start": "2025-03-16",
+          "validation_end": "2025-05-29"
+        },
+        {
+          "n": 519,
+          "log_loss": 0.728574690210442,
+          "brier": 0.2654239238876105,
+          "accuracy": 0.48554913294797686,
+          "roc_auc": 0.49225486115240524,
+          "train_end": "2025-05-29",
+          "validation_start": "2025-06-04",
+          "validation_end": "2025-12-14"
+        },
+        {
+          "n": 569,
+          "log_loss": 0.6843750721763776,
+          "brier": 0.2456371980244354,
+          "accuracy": 0.5553602811950791,
+          "roc_auc": 0.5733085501858736,
+          "train_end": "2025-12-14",
+          "validation_start": "2025-12-15",
+          "validation_end": "2026-03-18"
+        }
+      ],
+      "mean_log_loss": 0.6893998783014147
+    },
+    {
+      "name": "logistic_w20_sport_features",
+      "status": "skipped",
+      "reason": "Complete timestamped sport-specific features unavailable"
+    },
+    {
+      "name": "boost_w20",
+      "status": "completed",
+      "folds": [
+        {
+          "n": 328,
+          "log_loss": 0.6697790745120389,
+          "brier": 0.23862623078843292,
+          "accuracy": 0.5701219512195121,
+          "roc_auc": 0.5645493395493396,
+          "train_end": "2025-03-15",
+          "validation_start": "2025-03-16",
+          "validation_end": "2025-05-29"
+        },
+        {
+          "n": 519,
+          "log_loss": 0.7128734680287195,
+          "brier": 0.2593892568211939,
+          "accuracy": 0.4932562620423892,
+          "roc_auc": 0.5003716477374085,
+          "train_end": "2025-05-29",
+          "validation_start": "2025-06-04",
+          "validation_end": "2025-12-14"
+        },
+        {
+          "n": 569,
+          "log_loss": 0.6905586931062322,
+          "brier": 0.2487163768156818,
+          "accuracy": 0.5289982425307557,
+          "roc_auc": 0.5414374225526641,
+          "train_end": "2025-12-14",
+          "validation_start": "2025-12-15",
+          "validation_end": "2026-03-18"
+        }
+      ],
+      "mean_log_loss": 0.6910704118823302
+    }
+  ],
+  "test": {
+    "n": 441,
+    "log_loss": 0.6706680454619285,
+    "brier": 0.23889325833309236,
+    "accuracy": 0.6009070294784581,
+    "roc_auc": 0.6260070233422845,
+    "calibration": [
+      {
+        "band": [
+          0.3,
+          0.4
+        ],
+        "n": 8,
+        "predicted": 0.3365884658386629,
+        "observed": 0.375
+      },
+      {
+        "band": [
+          0.4,
+          0.5
+        ],
+        "n": 100,
+        "predicted": 0.4690910761885967,
+        "observed": 0.36
+      },
+      {
+        "band": [
+          0.5,
+          0.6
+        ],
+        "n": 244,
+        "predicted": 0.5514475324004181,
+        "observed": 0.5573770491803278
+      },
+      {
+        "band": [
+          0.6,
+          0.7
+        ],
+        "n": 80,
+        "predicted": 0.6340455191811327,
+        "observed": 0.675
+      },
+      {
+        "band": [
+          0.7,
+          0.8
+        ],
+        "n": 9,
+        "predicted": 0.7221336301826404,
+        "observed": 0.6666666666666666
+      }
+    ],
+    "by_year": {
+      "2026": {
+        "n": 441,
+        "log_loss": 0.6706680454619285,
+        "brier": 0.23889325833309236,
+        "accuracy": 0.6009070294784581,
+        "roc_auc": 0.6260070233422845
+      }
+    },
+    "by_season": {
+      "2026": {
+        "n": 301,
+        "log_loss": 0.6764518521319698,
+        "brier": 0.2416611985803595,
+        "accuracy": 0.5913621262458472,
+        "roc_auc": 0.6190476190476191
+      },
+      "2027": {
+        "n": 140,
+        "log_loss": 0.65823286112134,
+        "brier": 0.232942186801468,
+        "accuracy": 0.6214285714285714,
+        "roc_auc": 0.6361163423310316
+      }
+    },
+    "brier_week_block_bootstrap_95": [
+      0.23392201609422053,
+      0.2450277804326922
+    ],
+    "interval_note": "200 calendar-week block bootstrap samples of fixed final-test predictions; approximate performance uncertainty, not a game probability interval."
+  },
+  "baseline_test": {
+    "n": 441,
+    "log_loss": 0.6770149471722892,
+    "brier": 0.2413144672355366,
+    "accuracy": 0.5873015873015873,
+    "roc_auc": 0.6090064036356124
+  },
+  "feature_names": [
+    "elo_difference",
+    "home_advantage",
+    "win_rate_difference",
+    "scoring_margin_difference",
+    "rest_difference"
+  ],
+  "outcome_rules": "Conditional on a decisive eventual winner, including overtime. Draws and no contests excluded; this is NOT an unconditional win probability or a sportsbook settlement forecast.",
+  "calibration": "No post-hoc calibration; reliability measured on held-out data.",
+  "limitations": [
+    "Result-only baseline; no confirmed injuries, starters, travel, weather or lineups.",
+    "Score margin is not possession-adjusted efficiency.",
+    "Pre-event feature timestamps are uploader assertions, not independently verified.",
+    "Historical performance does not establish present-day calibration."
+  ]
+}

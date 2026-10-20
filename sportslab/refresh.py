@@ -38,7 +38,8 @@ def refresh_one(root,league):
    records.append(game('nflverse-'+r['game_id'],league,r['gameday'],r['home_team'],r['away_team'],r['home_score'],r['away_score'],src,'1' if r['location']=='Neutral' else '0'))
  elif league=='MLB':
   # Three calendar seasons; idempotent refresh. Never import incomplete or suspended games.
-  for year in range(today.year-2,today.year+1):
+  first_year=2024 if db.execute("SELECT COUNT(*) FROM games WHERE league='MLB'").fetchone()[0]==0 else today.year
+  for year in range(first_year,today.year+1):
    url=FEEDS[league]['url']+f'?sportId=1&startDate={year}-01-01&endDate={min(today+timedelta(days=14),date(year,12,31)).isoformat()}'
    raw,m=fetch(root,url,league); manifests.append(m)
    for day in json.loads(raw).get('dates',[]):

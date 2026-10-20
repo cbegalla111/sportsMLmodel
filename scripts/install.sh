@@ -15,6 +15,15 @@ empty=db.execute("SELECT COUNT(*) FROM games WHERE league='NBA'").fetchone()[0]=
 if empty:runpy.run_module('scripts.import_nba',run_name='__main__')
 PY
 /workspace/.sportsml-venv/bin/python -m scripts.refresh
+/workspace/.sportsml-venv/bin/python - <<'PYCODE'
+import os, subprocess, sys
+from sportslab.data import connect
+with connect(os.environ['SPORTSLAB_HOME']) as db:
+ needs=db.execute("SELECT COUNT(*) FROM games WHERE league='NHL'").fetchone()[0]<700
+if needs:
+ result=subprocess.run([sys.executable,'-m','scripts.backfill_nhl'])
+ if result.returncode:print('NHL backfill incomplete; inspect source/network status. Other setup continues.')
+PYCODE
 /workspace/.sportsml-venv/bin/python -m scripts.seed_models
 /workspace/.sportsml-venv/bin/python -m scripts.backup "$SPORTSLAB_HOME/backups"
 /workspace/.sportsml-venv/bin/python -m pytest -q

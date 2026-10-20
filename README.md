@@ -5,9 +5,9 @@ A working password-protected research dashboard for statistics-only conditional 
 ## What works
 
 - SQLite-persisted real result imports, settings and prediction history; CSV/manual entry with immutable event IDs and validation.
-- NBA and NFL chronological baseline comparisons: Elo, regularized logistic regression and small boosted trees. No sportsbook inputs; transparent leakage-resistant date grouping and shifted history.
+- NBA, NFL, MLB and NHL chronological baseline comparisons: Elo, regularized logistic regression and small boosted trees. No sportsbook inputs; transparent leakage-resistant date grouping and shifted history.
 - Final held-out log loss, Brier, accuracy, AUC, calibration plots/bands, season reports, baseline comparisons and approximate block-bootstrap performance intervals.
-- Matchup selection and scenario labeling, limited live NFL forecasts with fresh result history, provenance, stale-data withholding, and source-backed upcoming NFL fixtures.
+- Matchup selection and scenario labeling, limited live forecasts on fresh NFL/MLB/NHL result history with fresh result history, provenance, stale-data withholding, and source-backed upcoming NFL/MLB/NHL fixtures.
 - Six-hour feed updater, source archives/hashes, CSV inbox, frozen-specification weight refresh, daily local backups and verified restoration.
 - Random-password login, hashed credentials, authenticated APIs, CSRF protection, cookie controls and loopback-only defaults.
 
@@ -17,10 +17,12 @@ A working password-protected research dashboard for statistics-only conditional 
 |---|---:|---:|---|---:|---:|
 | NBA | 14,208 | 2,676 | logistic, 20-game window | 0.60827 | 0.21058 |
 | NFL | 5,776 (plus 15 stored ties) | 1,048 | logistic, 10-game window | 0.63577 | 0.22275 |
+| MLB | 7,413 | 1,462 | logistic, 20-game window | 0.68569 | 0.24628 |
+| NHL | 2,932 | 441 | logistic, 20-game window | 0.67067 | 0.23889 |
 
-NBA archive: November 2004–June 2015; **current NBA forecasts are withheld**. NFL import: September 2005–October 19, 2026. These are limited result-only historical benchmarks, not validated injury-aware, pitcher-aware or fighter-specific models. NFL output is conditional on no tie; it does not price ties or bookmaker settlement. Advanced-feature ablation is recorded as skipped because inputs are absent.
+NBA archive: November 2004–June 2015; **current NBA forecasts are withheld**. NFL/MLB/NHL data run through October 19, 2026. These are limited result-only historical benchmarks, not injury-aware, pitcher-aware or goalie-aware models. MLB's weak predictive signal especially calls for better pregame data. NFL output is conditional on no tie; it does not price ties or bookmaker settlement. Advanced-feature ablation is recorded as skipped because inputs are absent.
 
-NHL/CFB/WNBA/MLB/UFC have schemas and entry workflows but **no validated models or loaded historical dataset**. NBA current/CDN, MLB and NHL connectors currently encounter cloud network denials and are unverified. CFB/WNBA/UFC require permitted CSV data or a future verified feed. Auto updates do not provide missing inputs or keep a sleeping/unpublished environment running. No live odds, player props or parlays are populated.
+CFB/WNBA/UFC have schemas and entry workflows but **no validated models or loaded historical dataset**. Their data require a permitted CSV export or a future verified feed. The current NBA CDN returns HTTP 403; its connector is not operational. NFL, MLB and NHL public feed ingestion and upcoming schedules were verified. Auto updates do not supply missing player inputs or keep a sleeping/unpublished environment running. No live odds, player props or parlays are populated.
 
 ## Start
 
