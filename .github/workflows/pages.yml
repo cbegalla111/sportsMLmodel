@@ -2,16 +2,6 @@ name: Daily model dashboard
 on:
   push:
     branches: [main]
-    paths:
-      - index.html
-      - .nojekyll
-      - web/**
-      - sportslab/**
-      - scripts/**
-      - artifacts/**
-      - requirements.txt
-      - tests/**
-      - .github/workflows/pages.yml
   workflow_dispatch:
   schedule:
     - cron: '17 11 * * *'

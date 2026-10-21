@@ -44,3 +44,11 @@ The user explicitly approved a public GitHub Pages dashboard and requested daily
 - Daily training uses the selected specification; source data and training hashes/timestamps are shown separately from sealed archived test scores. Fresh verified event-start timestamps permit eligible same-day forecasts; date-only uncertain starts are withheld conservatively.
 
 Remote deployment and scheduled run status are verified separately after pushing the workflow. A local build by itself is not evidence of successful GitHub publication or future scheduled runs.
+
+### Verified GitHub publication
+
+Commit 0694683 was pushed to main. Remote Verify lab CI succeeded. The first [Daily model dashboard build and deployment](https://github.com/cbegalla111/sportsMLmodel/actions/runs/39640719167) completed successfully, including fresh public-source ingestion, daily refits, cache save, Pages artifact upload and deployment. HTTPS requests to the exact public site returned the real root dashboard and a newer runtime-generated model snapshot (October 21, 2026, 17:07 UTC) containing 28 NFL, 95 NHL and 7 MLB forecasts at that time. No future scheduled execution is claimed: the daily cron is configured and the same pipeline's push-triggered run was actually verified.
+
+The app integration lacks administrative permission to change the Pages source setting, but that did not prevent a successful custom Pages deployment under the existing main/root configuration. The workflow now runs for every main-branch push as well as daily, preventing a documentation-only legacy deployment from remaining the final stale snapshot after a successful refresh. The backend updater was restarted with its new daily default and authenticated readiness/persisted history were verified.
+
+The cloud Chromium trust store does not include this environment's outbound proxy CA. Direct browser navigation hit a sandbox certificate error; TLS verification was not disabled. Public HTML/JSON were verified using Python's default trusted TLS configuration, and live resources were rendered through a same-origin TLS-verified fetch bridge for the browser check.

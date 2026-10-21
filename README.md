@@ -8,7 +8,7 @@ A detailed statistics-only sports dashboard, with a separate password-protected 
 
 Seven sport views: **NBA, NFL, NHL, CFB, WNBA, MLB, UFC**. Each has Forecasts, Model Lab, and Data & Sources sections. Browse ranked source-backed matchups, conditional win probabilities, model factors, calibration plots, chronological comparisons, season scores, team statistics, recent results, freshness and missing inputs.
 
-**Daily at 11:17 UTC**, GitHub Actions refreshes public history/schedules, refits frozen model specifications, exports current forecasts, and publishes the static dashboard. Relevant pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Daily update and privacy details](docs/PAGES.md).
+**Daily at 11:17 UTC**, GitHub Actions refreshes public history/schedules, refits frozen model specifications, exports current forecasts, and publishes the static dashboard. Main-branch pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Daily update and privacy details](docs/PAGES.md).
 
 | League | Historical decisive results | Held-out n | Selected specification | Log loss | Brier |
 |---|---:|---:|---|---:|---:|

@@ -19,7 +19,7 @@ NBA currently has only archived 2004–2015 results in this workspace; its curre
 `.github/workflows/pages.yml` runs:
 
 - Daily at **11:17 UTC** (7:17 AM in New York during daylight saving, 6:17 AM during standard time).
-- On relevant pushes to main, or manually via **Actions → Daily model dashboard → Run workflow**.
+- On every push to main, or manually via **Actions → Daily model dashboard → Run workflow**.
 
 The job installs exact dependencies, runs tests, restores its public-data cache, downloads available results and schedules, refits frozen per-league specifications, generates forecasts, and deploys ONLY the public `_site` bundle to GitHub Pages. Data/model counts and source status are written into the run summary. Historical backtest scores stay sealed and are never tuned repeatedly by the daily job. Refitting current weights is not new held-out validation. No sportsbook-derived features are ingested.
 
@@ -46,6 +46,6 @@ python -m scripts.build_pages --runtime /workspace/.sportsml-private --output _s
 python -m scripts.build_pages --runtime .pages-runtime --output _site --refresh
 ```
 
-GitHub repository settings: **Settings → Pages → Build and deployment → Source: GitHub Actions**. The root index and committed initial public snapshot also replace the README when using legacy main/root publishing. The scheduled custom workflow is the supported path for daily updates; it deploys generated data without committing data changes with a personal token. No API keys or paid data service is required for the currently verified public feeds. GitHub's runner supplies its own scoped deployment token.
+The existing repository uses main/root Pages publishing. The custom GitHub Actions deployment was verified successfully with those existing settings; no settings change is required to use the daily job. Selecting **Settings → Pages → Build and deployment → Source: GitHub Actions** is an optional owner action to avoid redundant legacy builds. This integration cannot change that administrative setting. Every main-branch push also runs the custom publisher so a legacy build cannot remain the final outdated snapshot after a successful refresh. The scheduled custom workflow is the supported path for daily updates; it deploys generated data without committing data changes with a personal token. No API keys or paid data service is required for the currently verified public feeds. GitHub's runner supplies its own scoped deployment token.
 
 Source code and the first public snapshot are committed. Daily later snapshots are built/deployed by Actions and need not produce source commits. The private runtime and personal ledger need separate backups; neither a public Pages deployment nor an Actions data cache backs those up.
