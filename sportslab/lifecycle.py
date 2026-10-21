@@ -59,7 +59,7 @@ def checkpoint_public_lineage(root,artifacts):
     art['training_event_ids']=[r['event_id'] for r in history];joblib.dump(art,path)
  db.close()
 
-def prepare(root,rows,report,original_path):
+def prepare(root,rows,report,original_path,outcomes=None):
  root=Path(root);root.mkdir(parents=True,exist_ok=True);state_path=root/'state.json';champion_path=root/'champion.joblib'
  state=json.loads(state_path.read_text()) if state_path.exists() else {'benchmark':report['dataset_sha256'],'ledger':{},'reviews':[],'consumed_losses':0}
  if state['benchmark']!=report['dataset_sha256']:raise ValueError('Champion benchmark lineage changed; explicit review required')
@@ -78,10 +78,17 @@ def prepare(root,rows,report,original_path):
  if len(rows)>=700 and 'final_test_start' in report:
   from .research import saved_review
   backtest_review=saved_review(root,rows,report,champion)
- by_match={(r['date'],r['home'],r['away']):r for r in rows}
+ final_rows=outcomes if outcomes is not None else rows
+ by_id={r['event_id']:r for r in final_rows};by_match={}
+ for r in final_rows:by_match.setdefault((r['date'],r['home'],r['away']),[]).append(r)
  for entry in state['ledger'].values():
   if entry.get('settled'):continue
-  result=by_match.get((entry['date'],entry['home'],entry['away']))
+  identity=(entry['date'],entry['home'],entry['away']);result=None
+  for eid in (entry['id'],*[(prefix+entry['id']) for prefix in ('mlb-','nhl-','nflverse-','nba-cdn-')]):
+   found=by_id.get(eid)
+   if found and (found['date'],found['home'],found['away'])==identity:
+    result=found;break
+  if result is None and len(by_match.get(identity,[]))==1:result=by_match[identity][0]
   if result:
    entry.update(settled=True,outcome=result['outcome'])
    if result['outcome'] in ('home','away'):entry['correct']=(entry['home_probability']>=.5)==(result['outcome']=='home')

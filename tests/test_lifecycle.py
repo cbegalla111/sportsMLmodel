@@ -45,3 +45,25 @@ def test_loss_locks_challenger_without_immediately_changing_weights(tmp_path):
  for c in review['research']['candidates']:
   for f in c['folds']:
    assert f['train_end']<f['validation_start']<=f['validation_end']<report['final_test_start']
+
+
+def test_nondecisive_result_settles_without_becoming_a_win_or_loss(tmp_path):
+ rows=synthetic_rows(120);original=tmp_path/'original.joblib';root=tmp_path/'draw';report={'league':'NBA','selected':'elo_w20','dataset_sha256':version(rows),'last_date':rows[-1]['date']}
+ joblib.dump({'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA'},original)
+ prepare(root,rows,report,original)
+ result=dict(rows[-1],date='2010-02-01',outcome='no_contest')
+ record(root,[{'id':'draw','date':result['date'],'home':result['home'],'away':result['away'],'home_probability':.7,'generated_at':'2010-01-31T00:00:00+00:00','model':'elo_w20','dataset_sha256':version(rows)}])
+ _,summary=prepare(root,rows,report,original,outcomes=[*rows,result])
+ assert summary['live_record']=={'wins':0,'losses':0,'pending':0}
+ assert not summary['trial']
+
+
+def test_doubleheader_predictions_settle_against_distinct_event_ids(tmp_path,monkeypatch):
+ monkeypatch.setattr('sportslab.lifecycle.candidate',lambda *args:(None,{'status':'settlement test only'}))
+ rows=synthetic_rows(120);original=tmp_path/'original.joblib';root=tmp_path/'doubleheader';report={'league':'NBA','selected':'elo_w20','dataset_sha256':version(rows),'last_date':rows[-1]['date']}
+ joblib.dump({'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA'},original)
+ prepare(root,rows,report,original)
+ r=dict(rows[-1],date='2010-02-01');one=dict(r,event_id='mlb-one',outcome='home');two=dict(r,event_id='mlb-two',outcome='away')
+ picks=[{'id':i,'date':r['date'],'home':r['home'],'away':r['away'],'home_probability':.7,'generated_at':'2010-01-31T00:00:00+00:00','model':'elo_w20','dataset_sha256':version(rows)} for i in ('one','two')]
+ record(root,picks);_,summary=prepare(root,rows,report,original,outcomes=[*rows,one,two])
+ assert summary['live_record']=={'wins':1,'losses':1,'pending':0}

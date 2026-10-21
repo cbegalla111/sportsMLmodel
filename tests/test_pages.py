@@ -96,3 +96,11 @@ def test_backfill_preserves_verified_training_subset_and_original_benchmark(publ
  with db:db.execute('UPDATE games SET payload=? WHERE event_id=?',(json.dumps(row),row['event_id']))
  invalid=next(x for x in export_snapshot(root,artifacts,now)['leagues'] if x['name']=='NFL')
  assert not invalid['predictions'] and 'differs' in invalid['limitation']
+
+
+def test_distinct_same_day_matchups_are_not_collapsed(public_source):
+ root,artifacts,db,feed,now=public_source
+ first=feed['upcoming'][0];feed['upcoming']=[first,dict(first,id='second-game')]
+ with db:db.execute('UPDATE settings SET value=? WHERE key=?',(json.dumps(feed),'feed_NFL'))
+ item=next(l for l in export_snapshot(root,artifacts,now)['leagues'] if l['name']=='NFL')
+ assert {p['id'] for p in item['predictions']}=={first['id'],'second-game'}

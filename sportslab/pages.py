@@ -88,7 +88,7 @@ def export_snapshot(source_root,artifacts,asof=None):
      elif not artifact_path.exists():item['limitation']='Selected model artifact unavailable.'
      else:
       model_dir=Path(temporary)/'models';model_dir.mkdir(exist_ok=True)
-      champion,lifecycle=prepare(lifecycle_root,[r for r in rows if r['outcome'] in ('home','away')],report,artifact_path)
+      champion,lifecycle=prepare(lifecycle_root,[r for r in rows if r['outcome'] in ('home','away')],report,artifact_path,outcomes=rows)
       import joblib
       joblib.dump(champion,model_dir/(report['id']+'.joblib'))
       item['lifecycle']=lifecycle
@@ -108,8 +108,9 @@ def export_snapshot(source_root,artifacts,asof=None):
         safe={}
         try:
          identity=(fixture['date'],fixture['home'],fixture['away'])
-         if identity in seen:continue
-         seen.add(identity)
+         fixture_key=fixture.get('id') or identity
+         if fixture_key in seen:continue
+         seen.add(fixture_key)
          scheduled=date.fromisoformat(fixture['date'])
          safe={'date':fixture['date'],'home':fixture['home'],'away':fixture['away']}
          event_start=parse_time(fixture['start_time']) if fixture.get('start_time') else None

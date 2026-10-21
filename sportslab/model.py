@@ -197,7 +197,7 @@ def refit_frozen(db,root,league,force=False):
   if p.get('league')!=league or 'scenario' in p.get('mode','') or entry[1][:10]>=p.get('date',''):continue
   pending.append(dict(p,id=str(entry[0]),generated_at=entry[1]))
  record(state_root,pending)
- champion,summary=prepare(state_root,rows,report,path)
+ champion,summary=prepare(state_root,rows,report,path,outcomes=load(db,league))
  temporary=path.with_suffix('.tmp');joblib.dump(champion,temporary);temporary.replace(path)
  with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('refit_'+league,json.dumps(summary)))
  return summary['status']
