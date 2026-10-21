@@ -35,7 +35,7 @@ jobs:
           path: .pages-runtime
           key: ${{ runner.os }}-sportsml-public-v1-${{ github.run_id }}
           restore-keys: ${{ runner.os }}-sportsml-public-v1-
-      - name: Refresh data, refit frozen models and build dashboard
+      - name: Refresh all feeds, review model improvements and build dashboard
         run: python -m scripts.build_pages --runtime .pages-runtime --output _site --refresh
       - name: Retain public-source history
         uses: actions/cache/save@v4

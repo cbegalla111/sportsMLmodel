@@ -15,7 +15,7 @@ if args.refresh:
  if nba_empty:
   result=subprocess.run([sys.executable,'-m','scripts.import_nba'],env=env)
   if result.returncode:print('Archived NBA source unavailable; no data substituted.',flush=True)
- print('Public feed statuses:',[(f['league'],f['status']) for f in run(root)],flush=True)
+ print('Public feed statuses:',[{k:f.get(k) for k in ('league','status','latest_result','error')} for f in run(root)],flush=True)
  with connect(root) as db:nhl_small=db.execute("SELECT COUNT(*) FROM games WHERE league='NHL'").fetchone()[0]<700
  if nhl_small:
   result=subprocess.run([sys.executable,'-m','scripts.backfill_nhl'],env=env)
@@ -30,4 +30,4 @@ if summary:
   f.write('## Daily public data and model outputs\n\n| Sport | Results | Active forecasts at export | Feed |\n|---|---:|---:|---|\n')
   for item in snapshot['leagues']:
    f.write(f"| {item['name']} | {item['result_count']} | {len(item['predictions'])} | {item['feed_status']} |\n")
-  f.write('\nHistorical test scores remain sealed. Daily refits do not imply new validation. Missing/stale inputs withhold forecasts.\n')
+  f.write('\nHistorical test scores remain sealed. Losses trigger prospective challenger review; weights change only if every improvement check passes. Missing/stale inputs withhold forecasts.\n')

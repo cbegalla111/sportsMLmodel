@@ -44,7 +44,7 @@ def test_expanding_validation_persistence_probability_and_staleness(tmp_path):
  # New observations do not reopen the selection/final test.
  new=synthetic_rows(804)[-4:];ingest(db,new)
  with pytest.raises(ValueError,match='sealed'):train(db,tmp_path,'NBA')
- assert refit_frozen(db,tmp_path,'NBA')=='refitted frozen specification'
+ assert 'Champion retained' in refit_frozen(db,tmp_path,'NBA')
  p=predict(db,tmp_path,'NBA','T0','T1','2010-07-21',True)
  assert p['home_probability']+p['away_probability']==pytest.approx(1)
  assert json.loads(db.execute('SELECT payload FROM experiments').fetchone()[0])==r

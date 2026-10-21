@@ -16,6 +16,75 @@ FEEDS={
  'NHL':{'url':'https://api-web.nhle.com/v1/schedule/','description':'NHL public schedule API, rolling 21-day window; CSV required for initial long history'},
 }
 
+ESPN_PATHS={'NBA':'basketball/nba','WNBA':'basketball/wnba','CFB':'football/college-football','UFC':'mma/ufc'}
+ESPN_SOURCES={league:'ESPN public scoreboard; completed results and scheduled events only' for league in ESPN_PATHS}
+for _league,_path in ESPN_PATHS.items():
+ FEEDS.setdefault(_league,{'url':'https://site.api.espn.com/apis/site/v2/sports/'+_path+'/scoreboard','description':ESPN_SOURCES[_league]})
+
+def espn_url(league):
+ return 'https://site.api.espn.com/apis/site/v2/sports/'+ESPN_PATHS[league]+'/scoreboard'
+
+def espn_events(payload,league,source_url,today):
+ """Use explicit final/winner fields; never ingest odds or current career statistics."""
+ records=[];upcoming=[]
+ for event in payload.get('events',[]):
+  # UFC's competitions are individual bouts, not the whole fight card.
+  for bout in event.get('competitions',[]):
+   competitors=bout.get('competitors',[])
+   if len(competitors)!=2:continue
+   if league=='UFC':
+    competitors=sorted(competitors,key=lambda c:str(c.get('id','')))
+    h,a=competitors
+   else:
+    sides={c.get('homeAway'):c for c in competitors}
+    if not all(k in sides for k in ('home','away')):continue
+    h,a=sides['home'],sides['away']
+   name=lambda c: c.get('athlete' if league=='UFC' else 'team',{}).get('displayName')
+   hn,an=name(h),name(a)
+   if not hn or not an:continue
+   start=bout.get('date') or event.get('date');day=start[:10] if start else None
+   if not day:continue
+   identity='espn-'+league.lower()+'-'+str(bout['id'])
+   status=bout.get('status',event.get('status',{})).get('type',{})
+   if status.get('completed') and day<=today.isoformat():
+    if league=='UFC':
+     # Winner flags represent outcomes; 1–0 is an encoding, never a fight score.
+     if h.get('winner') is True:hs,aws,outcome=1,0,'home'
+     elif a.get('winner') is True:hs,aws,outcome=0,1,'away'
+     else:hs,aws,outcome=0,0,'no_contest'
+    else:
+     try:hs,aws=float(h['score']),float(a['score'])
+     except (ValueError,KeyError,TypeError):continue
+     outcome='draw' if hs==aws else 'home' if hs>aws else 'away'
+     if outcome=='draw' and league in ('NBA','WNBA'):continue
+    row=game(identity,league,day,hn,an,hs,aws,ESPN_SOURCES[league],'1' if league=='UFC' or bout.get('neutralSite') else '0')
+    row['outcome']=outcome;records.append(row)
+   elif status.get('state')=='pre' and today.isoformat()<=day<=(today+timedelta(days=14)).isoformat():
+    upcoming.append({'id':identity,'start_time':start,'date':day,'home':hn,'away':an,'neutral':'1' if league=='UFC' or bout.get('neutralSite') else '0','confirmed_source':True,'source':source_url})
+ return records,upcoming
+
+def refresh_espn(root,league,db,today):
+ records=[];upcoming=[];manifests=[]
+ # Checkpoint each historical month: interrupted first runs resume safely.
+ import calendar
+ for year in range(2022,today.year+1):
+  for month in range(1,13):
+   start=date(year,month,1)
+   if start>today:break
+   end=date(year,month,calendar.monthrange(year,month)[1]);key=f'espn_month_{league}_{year}_{month}'
+   if end<today-timedelta(days=35) and db.execute('SELECT 1 FROM settings WHERE key=?',(key,)).fetchone():continue
+   url=espn_url(league)+f'?dates={start:%Y%m%d}-{min(end,today):%Y%m%d}&limit=1000'+('&groups=80' if league=='CFB' else '')
+   raw,manifest=fetch(root,url,league);payload=json.loads(raw)
+   if len(payload.get('events',[]))>=1000:raise ValueError('Scoreboard response may be truncated; backfill requires smaller windows')
+   found,_=espn_events(payload,league,url,today)
+   if found:ingest(db,found)
+   records.extend(found);manifests.append(manifest)
+   if end<today-timedelta(days=35):
+    with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',(key,now()))
+ url=espn_url(league)+f'?dates={today:%Y%m%d}-{today+timedelta(days=14):%Y%m%d}&limit=1000'+('&groups=80' if league=='CFB' else '')
+ raw,manifest=fetch(root,url,league);found,upcoming=espn_events(json.loads(raw),league,url,today);records.extend(found);manifests.append(manifest)
+ return records,upcoming,manifests
+
 def fetch(root,url,league):
  req=urllib.request.Request(url,headers={'User-Agent':'SportsMLLab/0.1 (private research; result-only importer)'})
  with urllib.request.urlopen(req,timeout=45) as r: raw=r.read(40_000_001)
@@ -34,7 +103,9 @@ def game(eid,league,day,home,away,hs,aws,source,neutral='0'):
 
 def refresh_one(root,league):
  db=connect(root); records=[]; upcoming=[]; manifests=[]; src=FEEDS[league]['description']; today=date.today()
- if league=='NFL':
+ if league in ESPN_PATHS:
+  records,upcoming,manifests=refresh_espn(root,league,db,today)
+ elif league=='NFL':
   raw,m=fetch(root,FEEDS[league]['url'],league); manifests.append(m)
   for r in csv.DictReader(io.StringIO(raw.decode())):
    if int(r['season'])<2005: continue
@@ -76,7 +147,7 @@ def refresh_one(root,league):
      elif r['gameState']=='FUT' and today.isoformat()<=d: upcoming.append({'id':str(r['id']),'start_time':r.get('startTimeUTC'),'date':d,'home':h['abbrev'],'away':a['abbrev'],'confirmed_source':True,'source':m['url']})
  records=list({r['event_id']:r for r in records}.values())
  accepted=ingest(db,records) if records else 0
- status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':max((r['date'] for r in records),default=None),'notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
+ status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'feed_type':'Daily final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
  with db: db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('feed_'+league,json.dumps(status)))
  db.close(); return status
 

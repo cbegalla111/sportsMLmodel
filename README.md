@@ -40,3 +40,9 @@ For an editable private development environment, [open GitHub Codespaces](https:
 - [Actual validation evidence](docs/VALIDATION.md)
 
 Public benchmark reports, exact held-out predictions and selected model artifacts live in artifacts/. Raw archives, private data and authentication stay outside Git. Keep an off-machine private backup; Pages and Actions caches do not preserve your personal ledger.
+
+### Daily feed and model checks
+
+The public dashboard has a compact seven-sport feed overview, team/fighter search, upcoming schedules, recent final results and per-sport model review status. All sports have daily result/schedule connectors; successful connection and actual coverage are shown separately. New sport models are validated only after enough real history is collected. Public APIs provide daily snapshots, not continuous in-game streaming.
+
+Production weights are now guarded: a settled forecast loss triggers a locked challenger, and an independent subsequent backtest must improve log loss without worsening Brier or accuracy before promotion. Fresh result-derived inputs still update daily. Original final-test scores stay sealed. See [promotion policy](docs/METHODS.md#loss-triggered-model-improvement).

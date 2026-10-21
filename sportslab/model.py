@@ -40,7 +40,7 @@ def features(rows, window=20, extra=False):
 
 def estimator(kind):
  if kind=='boost': return HistGradientBoostingClassifier(max_iter=60,max_leaf_nodes=7,l2_regularization=10,learning_rate=.05,random_state=42)
- return make_pipeline(StandardScaler(),LogisticRegression(C=.1,max_iter=500,random_state=42))
+ return make_pipeline(StandardScaler(),LogisticRegression(C={'logistic_strong':.01,'logistic_weak':1.}.get(kind,.1),max_iter=500,random_state=42))
 
 def elo(X): return 1/(1+10**(-(X[:,0]+60*X[:,1])/400))
 
@@ -113,13 +113,15 @@ def train(db,root,league):
  with db: db.execute('INSERT INTO experiments VALUES(?,?,?,?)',(eid,league,now(),json.dumps(result)))
  return result
 
-def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None):
+def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,allow_updated_history=False,neutral=False):
  rows=[r for r in load(db,league) if r['outcome'] in ('home','away')]
  experiments=db.execute('SELECT payload FROM experiments WHERE league=? ORDER BY created DESC',(league,)).fetchall()
  if not experiments: raise ValueError('Train and validate this league first')
  report=json.loads(experiments[0][0]); art=joblib.load(Path(root)/'models'/(report['id']+'.joblib'))
- if version(rows)!=art['digest']: raise ValueError('Dataset changed; rerun validation')
- d=date.fromisoformat(event_date); latest=date.fromisoformat(art['last_date'])
+ if version(rows)!=art['digest']:
+  history=[r for r in rows if r['date']<=art['last_date']]
+  if not allow_updated_history or version(history)!=art['digest']: raise ValueError('Dataset changed; rerun validation')
+ d=date.fromisoformat(event_date); latest=date.fromisoformat(rows[-1]['date'])
  if d<=latest: raise ValueError('Prediction date must follow all training results; historical backtests are in the experiment panel')
  if home==away or not all(any(r['home']==t or r['away']==t for r in rows) for t in (home,away)): raise ValueError('Choose two known opponents')
  if not scenario and (date.today()-latest).days>30: raise ValueError('Data are stale. Only explicitly hypothetical scenarios are available.')
@@ -129,7 +131,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None):
   for team in (home,away):
    recent=[r for r in rows if team in (r['home'],r['away']) and 0<(d-date.fromisoformat(r['date'])).days<=365]
    if len(recent)<5 or (d-date.fromisoformat(recent[-1]['date'])).days>30: raise ValueError('Opponent has insufficient recent history; use a labeled scenario or withhold')
- future={'event_id':'__query__','league':league,'date':event_date,'home':home,'away':away,'home_score':'0','away_score':'0','outcome':'no_contest','neutral':'0','source':'manual unconfirmed matchup'}
+ future={'event_id':'__query__','league':league,'date':event_date,'home':home,'away':away,'home_score':'0','away_score':'0','outcome':'no_contest','neutral':'1' if neutral else '0','source':'manual unconfirmed matchup'}
  if overrides:
   if not scenario: raise ValueError('Overrides require scenario mode')
   permitted={'home_'+f for f in FEATURES[league]}|{'away_'+f for f in FEATURES[league]}|{'neutral'}
@@ -147,28 +149,31 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None):
  if m is not None and hasattr(m,'named_steps'):
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
- result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':report['selected'],'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':art['last_date'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
+ result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':version(rows),'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
  return result
 
 def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):
- result=estimate(db,root,league,home,away,event_date,scenario,overrides)
+ result=estimate(db,root,league,home,away,event_date,scenario,overrides,allow_updated_history=True)
  with db: db.execute('INSERT INTO predictions(created,payload) VALUES(?,?)',(now(),json.dumps(result)))
  return result
 
 
 def refit_frozen(db,root,league,force=False):
- """Refresh weights of the selected specification; never reselect or reopen its test."""
+ """Compatibility entry point: automatic refreshes now use guarded loss review."""
+ from .lifecycle import prepare, record
  rows=[r for r in load(db,league) if r['outcome'] in ('home','away')]
  stored=db.execute('SELECT payload FROM experiments WHERE league=? ORDER BY created LIMIT 1',(league,)).fetchone()
- if not stored: return 'No frozen specification; run the initial comparison explicitly'
- report=json.loads(stored[0]); path=Path(root)/'models'/(report['id']+'.joblib'); art=joblib.load(path)
- digest=version(rows)
- if digest==art['digest'] and not force: return 'unchanged'
- built,names=features(rows,art['window'],art['extra']); warm=np.array([r[2]>=5 for r in built]); X=np.array([r[1] for r in built]); y=np.array([int(r[0]['outcome']=='home') for r in built])
- if art['model'] is not None:
-  kind='boost' if report['selected'].startswith('boost') else 'logistic'
-  model=estimator(kind); model.fit(X[warm],y[warm]); art['model']=model
- art.update(digest=digest,last_date=rows[-1]['date'],refitted=now(),neutral_variation=len(np.unique(X[warm,1]))>1)
- temporary=path.with_suffix('.tmp'); joblib.dump(art,temporary); temporary.replace(path)
- with db: db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('refit_'+league,json.dumps({'updated':now(),'dataset_sha256':digest,'last_date':art['last_date'],'frozen_specification':report['selected'],'note':'Weights refreshed only. Original sealed historical test metrics unchanged; no claim of updated validation.'})))
- return 'refitted frozen specification'
+ if not stored:return 'No frozen specification; run the initial comparison explicitly'
+ report=json.loads(stored[0]);path=Path(root)/'models'/(report['id']+'.joblib');state_root=Path(root)/'private-lifecycle'/league
+ # Private history remains private. Score only saved pre-event forecasts, never scenarios.
+ if not (state_root/'state.json').exists():prepare(state_root,rows,report,path)
+ pending=[]
+ for entry in db.execute('SELECT id,created,payload FROM predictions ORDER BY id'):
+  p=json.loads(entry[2])
+  if p.get('league')!=league or 'scenario' in p.get('mode','') or entry[1][:10]>=p.get('date',''):continue
+  pending.append(dict(p,id=str(entry[0]),generated_at=entry[1]))
+ record(state_root,pending)
+ champion,summary=prepare(state_root,rows,report,path)
+ temporary=path.with_suffix('.tmp');joblib.dump(champion,temporary);temporary.replace(path)
+ with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('refit_'+league,json.dumps(summary)))
+ return summary['status']
