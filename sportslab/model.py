@@ -13,7 +13,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import log_loss, brier_score_loss, accuracy_score, roc_auc_score
 from .data import FEATURES, load, now, version
 
-BUDGET='5 fixed candidates, 3 expanding date-block folds; no random split, no tuning on final 20% of dates; single CPU.'
+BUDGET='10 fixed candidates, 3 expanding date-block folds; no random split, no tuning on final 20% of dates; single CPU.'
 
 def features(rows, window=20, extra=False):
  history=defaultdict(lambda:deque(maxlen=window)); ratings=defaultdict(lambda:1500.); last={}; output=[]
@@ -25,7 +25,7 @@ def features(rows, window=20, extra=False):
   for r in group:
    h,a=r['home'],r['away']; d=date.fromisoformat(day)
    def avg(t,k,default): return float(np.mean([v[k] for v in history[t]])) if history[t] else default
-   rest=lambda t:min(14,(d-last[t]).days) if t in last else 7
+   rest=lambda t:min(730 if r['league']=='UFC' else 14,(d-last[t]).days) if t in last else (180 if r['league']=='UFC' else 7)
    x=[ratings[h]-ratings[a],1-int(r['neutral']),avg(h,0,.5)-avg(a,0,.5),avg(h,1,0)-avg(a,1,0),rest(h)-rest(a)]
    if extra: x += [float(r['home_'+f])-float(r['away_'+f]) for f in FEATURES[r['league']]]
    output.append((r,x,min(len(history[h]),len(history[a]))))
@@ -83,13 +83,13 @@ def train(db,root,league):
  days=sorted({r['date'] for r in rows})
  if len(rows)<700 or len(days)<100: raise ValueError('At least 700 decisive results across 100 dates are required; no fitted prediction available.')
  cutoff=days[int(len(days)*.8)]; dev_days=[d for d in days if d<cutoff]
- definitions=[('elo',20,False),('logistic',10,False),('logistic',20,False),('logistic',20,True),('boost',20,False)]
+ definitions=[('elo',20,False),('logistic',10,False),('logistic',20,False),('logistic',40,False),('logistic_strong',20,False),('logistic_weak',20,False),('logistic',20,True),('boost',10,False),('boost',20,False),('boost',40,False)]
  candidates=[]; caches={}
  for kind,window,extra in definitions:
   label=f'{kind}_w{window}'+('_sport_features' if extra else '')
   if extra and not all(all(s+'_'+f in r for f in FEATURES[league] for s in ('home','away')) for r in rows):
    candidates.append({'name':label,'status':'skipped','reason':'Complete timestamped sport-specific features unavailable'}); continue
-  built,names=features(rows,window,extra); X=np.array([v[1] for v in built]); y=np.array([int(v[0]['outcome']=='home') for v in built]); ds=np.array([v[0]['date'] for v in built]); warm=np.array([v[2]>=5 for v in built]); folds=[]
+  built,names=features(rows,window,extra); X=np.array([v[1] for v in built]); y=np.array([int(v[0]['outcome']=='home') for v in built]); ds=np.array([v[0]['date'] for v in built]); warm=np.array([v[2]>=(3 if league=='UFC' else 5) for v in built]); folds=[]
   for left,right in ((.4,.6),(.6,.8),(.8,1.0)):
    start=dev_days[int(len(dev_days)*left)]; end=dev_days[min(len(dev_days)-1,int(len(dev_days)*right))]
    tr=(ds<start)&warm; va=(ds>=start)&(ds<end)&warm
@@ -113,7 +113,14 @@ def train(db,root,league):
  with db: db.execute('INSERT INTO experiments VALUES(?,?,?,?)',(eid,league,now(),json.dumps(result)))
  return result
 
-def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,allow_updated_history=False,neutral=False):
+def fixture_inputs(rows,fixtures,window,extra=False):
+ queries=[]
+ for i,f in enumerate(fixtures):
+  queries.append({'event_id':'__fixture_'+str(i),'league':rows[0]['league'],'date':f['date'],'home':f['home'],'away':f['away'],'home_score':'0','away_score':'0','outcome':'no_contest','neutral':f.get('neutral','0'),'source':'verified schedule'})
+ built,names=features(rows+queries,window,extra)
+ return {(r['date'],r['home'],r['away'],r['neutral']):(x,n,names) for r,x,n in built if r['event_id'].startswith('__fixture_')}
+
+def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,allow_updated_history=False,neutral=False,prepared_inputs=None):
  rows=[r for r in load(db,league) if r['outcome'] in ('home','away')]
  experiments=db.execute('SELECT payload FROM experiments WHERE league=? ORDER BY created DESC',(league,)).fetchall()
  if not experiments: raise ValueError('Train and validate this league first')
@@ -129,8 +136,8 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if not scenario and (d-latest).days>30: raise ValueError('Latest results too far from event date')
  if not scenario:
   for team in (home,away):
-   recent=[r for r in rows if team in (r['home'],r['away']) and 0<(d-date.fromisoformat(r['date'])).days<=365]
-   if len(recent)<5 or (d-date.fromisoformat(recent[-1]['date'])).days>30: raise ValueError('Opponent has insufficient recent history; use a labeled scenario or withhold')
+   recent=[r for r in rows if team in (r['home'],r['away']) and 0<(d-date.fromisoformat(r['date'])).days<=(1095 if league=='UFC' else 365)]
+   if len(recent)<(3 if league=='UFC' else 5) or (d-date.fromisoformat(recent[-1]['date'])).days>(730 if league=='UFC' else 30): raise ValueError('Opponent has insufficient recent history; use a labeled scenario or withhold')
  future={'event_id':'__query__','league':league,'date':event_date,'home':home,'away':away,'home_score':'0','away_score':'0','outcome':'no_contest','neutral':'1' if neutral else '0','source':'manual unconfirmed matchup'}
  if overrides:
   if not scenario: raise ValueError('Overrides require scenario mode')
@@ -142,8 +149,11 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
   if any(not math.isfinite(float(v)) for v in overrides.values()): raise ValueError('Scenario values must be finite')
   future.update({k:str(v) for k,v in overrides.items()})
  if art['extra'] and not all(s+'_'+f in future for f in FEATURES[league] for s in ('home','away')): raise ValueError('Selected model requires complete pregame sport-specific inputs; use scenario inputs or withhold')
- built,names=features(rows+[future],art['window'],art['extra']); _,x,n=built[-1]
- if n<5: raise ValueError('Fewer than five prior games for an opponent')
+ if prepared_inputs is not None and not overrides:
+  x,n,names=prepared_inputs[(event_date,home,away,future['neutral'])]
+ else:
+  built,names=features(rows+[future],art['window'],art['extra']); _,x,n=built[-1]
+ if n<(3 if league=='UFC' else 5): raise ValueError('Insufficient prior appearances for an opponent')
  X=np.array([x]); m=art['model']; p=float(elo(X)[0] if m is None else m.predict_proba(X)[0,1])
  factors=[{'factor':name,'difference':float(v)} for name,v in zip(names,x)]
  if m is not None and hasattr(m,'named_steps'):

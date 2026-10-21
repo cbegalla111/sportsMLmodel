@@ -7,7 +7,7 @@ import sqlite3
 import tempfile
 from urllib.parse import quote, urlparse
 from .data import BASE, FEATURES, LEAGUES, connect, ingest, load, now, version
-from .model import estimate, train
+from .model import estimate, train, fixture_inputs
 from .lifecycle import prepare, record
 from .refresh import FEEDS, ESPN_PATHS, ESPN_SOURCES, espn_url
 
@@ -99,6 +99,7 @@ def export_snapshot(source_root,artifacts,asof=None):
       if not feed_fresh:item['limitation']='Current source feed unavailable or stale; no current forecasts. Archived backtest remains visible.'
       elif (today-date.fromisoformat(rows[-1]['date'])).days>30:item['limitation']='Results are over 30 days old; current forecasts withheld.'
       else:
+       inputs=fixture_inputs([r for r in rows if r['outcome'] in ('home','away')],feed.get('upcoming',[]),champion['window'],champion['extra'])
        seen=set()
        for fixture in feed.get('upcoming',[]):
         safe={}
@@ -117,7 +118,7 @@ def export_snapshot(source_root,artifacts,asof=None):
          url=fixture.get('source','')
          if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else [])}:
           item['withheld'].append(dict(safe,reason='Fixture source could not be verified.'));continue
-         result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1')
+         result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1',prepared_inputs=inputs)
          result.update(id=str(fixture.get('id','-'.join(identity))),mode='limited pre-event model forecast',generated_at=asof.isoformat(),valid_until=min(parse_time(feed['checked'])+timedelta(hours=24),event_start or datetime.combine(scheduled,datetime.min.time(),timezone.utc),asof+timedelta(hours=24)).isoformat(),event_start_utc=event_start.isoformat() if event_start else None,schedule_source=url,schedule_checked=feed['checked'],availability='Schedule date from public source; injuries, starters, pitchers, goalies and lineups unconfirmed.')
          item['predictions'].append(result)
         except (ValueError,KeyError,TypeError) as e:

@@ -30,7 +30,7 @@ def candidate(rows,report):
  ds=np.array([r['date'] for r in rows]);days=sorted(set(ds));cut=report.get('final_test_start',days[int(len(days)*.8)])
  allowed=(ds<cut)|(ds>report['last_date']);candidates=[];cache={}
  for kind,window in [('logistic',10),('logistic',20),('logistic_strong',20),('logistic_weak',20),('boost',20),('logistic',40),('boost',40)]:
-  built,names=features(rows,window);X=np.array([v[1] for v in built]);y=np.array([v[0]['outcome']=='home' for v in built],dtype=int);warm=np.array([v[2]>=5 for v in built]);folds=[]
+  built,names=features(rows,window);X=np.array([v[1] for v in built]);y=np.array([v[0]['outcome']=='home' for v in built],dtype=int);warm=np.array([v[2]>=(3 if rows[0]['league']=='UFC' else 5) for v in built]);folds=[]
   for left,right in ((.4,.6),(.6,.8),(.8,1.0)):
    start=days[int(len(days)*left)];end=days[min(len(days)-1,int(len(days)*right))];tr=(ds<start)&warm;va=(ds>=start)&(ds<end)&warm&allowed
    if va.sum()<20 or len(set(y[tr]))<2:continue
@@ -43,7 +43,7 @@ def candidate(rows,report):
  return art,{'selected':selected,'candidates':candidates,'note':'Development comparison only; promotion requires a separate prospective confirmation window.'}
 
 def probabilities(art,rows,after):
- built,_=features(rows,art['window'],art['extra']);ix=[i for i,v in enumerate(built) if v[0]['date']>after and v[2]>=5];X=np.array([built[i][1] for i in ix])
+ built,_=features(rows,art['window'],art['extra']);ix=[i for i,v in enumerate(built) if v[0]['date']>after and v[2]>=(3 if rows[0]['league']=='UFC' else 5)];X=np.array([built[i][1] for i in ix])
  if not len(ix):return {},{}
  p=elo(X) if art['model'] is None else art['model'].predict_proba(X)[:,1]
  return {rows[i]['event_id']:float(v) for i,v in zip(ix,p)},{rows[i]['event_id']:rows[i] for i in ix}
