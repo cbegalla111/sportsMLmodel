@@ -24,3 +24,10 @@ A fresh separate runtime seed succeeded: archived NBA/NFL data digests verified,
 - Final timestamp validation normalizes timezone offsets before the pre-event cutoff, preventing a nominal previous-day timestamp from leaking next-day UTC information. Neutral-site scenarios are withheld when a fitted model has no neutral-site training variation.
 
 Final four-league backup restoration verified 30,344 stored results, all three saved prediction records, every archived checksum, and SQLite integrity. The final offline Docker image passed all 22 tests.
+
+## Private development preview — October 21, 2026
+
+- Added portable checkout/runtime paths, a GitHub Codespaces devcontainer and private port startup, VS Code tasks, and authenticated development-only automatic page refresh. The configuration validates against the official devcontainers draft-2019-09 JSON schema.
+- Final suite: 24 tests passed, including HTTPS-proxy Origin/CSRF checks, Secure cookies, ignored spoofed forwarded-host headers, and authenticated opt-in live refresh. Production framing restrictions and login requirements remain enabled.
+- Browser check: signed into the real local dashboard, changed and restored a temporary stylesheet comment, observed automatic navigation and authenticated state after each reload, and verified desktop/mobile rendering with no JavaScript page errors. The browser test was adjusted to observe navigation directly because the app's existing CSP correctly rejects string eval; CSP was not relaxed.
+- Repeated preview start reused the existing service. Managed restart succeeded and retained the existing prediction ledger/settings. A relocated checkout path with explicit runtime/venv overrides was verified. The current live service is private and local; no Codespaces instance has been provisioned or remote forwarded URL verified from this task. The user must open/create the linked Codespaces workspace for the configured remote preview.

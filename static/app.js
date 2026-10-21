@@ -10,13 +10,14 @@ async function refresh(){state=await api('/api/state');$('login').hidden=true;$(
 function render(){const l=state.leagues.find(x=>x.name===league),e=l.experiment;
 $('leagues').innerHTML=state.leagues.map(x=>`<button data-league="${x.name}" class="${x.name===league?'selected':''}">${x.name}</button>`).join('');
 $('count').textContent=l.n.toLocaleString();$('freshness').textContent=l.data_through||'No data';$('status').textContent=e?'Historical test complete':'Not validated';
-$('notice').textContent=l.n?'Historical data available. Current forecasts require fresh data and sufficient history. No confirmed schedule feed is connected.':'No real data loaded for this league. Import documented results; models and probabilities are withheld until validated.';
+$('notice').textContent=l.n?'Historical data available. Current forecasts require fresh data and sufficient history.':'No real data loaded for this league. Import documented results; models and probabilities are withheld until validated.';
 $('home').innerHTML=$('away').innerHTML=l.teams.map(t=>`<option>${esc(t)}</option>`).join('');if(l.teams.length>1)$('away').selectedIndex=1;
 $('date').value=l.data_through?new Date(Date.parse(l.data_through)+86400000).toISOString().slice(0,10):new Date().toISOString().slice(0,10);
 $('feature-list').textContent='Optional sport features: '+l.features.join(', ')+'. Prefix each with home_ or away_. CSV features also require feature_asof.';
 $('sources').textContent=league==='NBA'&&l.n?'Bundled import: FiveThirtyEight historical NBA results (CC BY 4.0), upstream Basketball-Reference. Additional uploads retain row-level source labels. Exact downloads and timestamps are saved in sources/nba-manifest.json.':'CSV/manual sources are user supplied and not independently verified.';
 const feed=JSON.parse(state.settings['feed_'+league]||'{}');
 const fixtures=feed.status==='ok' && Date.now()-Date.parse(feed.checked)<86400000 ? (feed.upcoming||[]) : [];
+$('schedule-status').textContent=fixtures.length?'✓ '+fixtures.length+' upcoming fixtures from the current source feed':'○ Current schedule unavailable or stale';
 $('fixtures').innerHTML='<option value="">Choose a source-backed fixture</option>'+fixtures.map((f,i)=>`<option value="${i}">${esc(f.date+' · '+f.home+' / '+f.away)}</option>`).join('');
 $('fixtures').onchange=()=>{const f=fixtures[$('fixtures').value];if(!f)return;$('date').value=f.date;for(const k of ['home','away']){if(![...$(k).options].some(o=>o.value===f[k]))$(k).add(new Option(f[k],f[k]));$(k).value=f[k];}};
 $('feed-status').textContent=feed.checked?'Last feed attempt: '+feed.checked+' · '+feed.status+(feed.error?' · '+feed.error:''):'No automatic feed configured; CSV/manual fallback.';
@@ -40,3 +41,14 @@ $('prediction-form').onsubmit=e=>{e.preventDefault();action(async()=>{const p=aw
 $('upload-form').onsubmit=e=>{e.preventDefault();action(async()=>{const csv=await $('csv').files[0].text();const r=await api('/api/import',{csv});await refresh();$('notice').textContent=r.accepted_rows+' validated rows accepted (duplicate identical IDs are idempotent).';});};
 $('manual-form').onsubmit=e=>{e.preventDefault();action(async()=>{await api('/api/manual',{game:{event_id:$('manual-id').value,league,date:$('manual-date').value,home:$('manual-home').value,away:$('manual-away').value,home_score:$('manual-hs').value,away_score:$('manual-as').value,outcome:$('manual-outcome').value,source:$('manual-source').value,neutral:$('manual-neutral').checked?'1':'0'}});await refresh();});};
 api('/api/state').then(s=>{state=s;league=s.settings.league||'NBA';$('login').hidden=true;$('workspace').hidden=false;$('logout').hidden=false;render();}).catch(()=>{});
+
+// Development-only live refresh; the server enables this explicitly, behind login.
+setInterval(async()=>{
+  if(!state?.preview_revision || document.hidden)return;
+  try{
+    const r=await fetch('/api/revision');
+    if(!r.ok)return;
+    const next=await r.json();
+    if(next.revision && next.revision!==state.preview_revision)location.reload();
+  }catch(_){} // A stopped/restarting development server must not discard user state.
+},2000);

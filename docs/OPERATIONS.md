@@ -2,6 +2,10 @@
 
 Use the existing isolated checkout. Do not create a Git worktree for a cloud task.
 
+## Working preview
+
+Use the [one-click Codespaces setup](PREVIEW.md) for automatic startup and private forwarding. Existing cloud paths remain compatible; install/start scripts now resolve the checkout location and honor SPORTSLAB_VENV and SPORTSLAB_HOME overrides.
+
 ## Install / run
 
 Python 3.12; exact scientific dependency versions in requirements.txt. On the cloud machine:

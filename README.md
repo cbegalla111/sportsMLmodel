@@ -24,6 +24,10 @@ NBA archive: November 2004–June 2015; **current NBA forecasts are withheld**. 
 
 CFB/WNBA/UFC have schemas and entry workflows but **no validated models or loaded historical dataset**. Their data require a permitted CSV export or a future verified feed. The current NBA CDN returns HTTP 403; its connector is not operational. NFL, MLB and NHL public feed ingestion and upcoming schedules were verified. Auto updates do not supply missing player inputs or keep a sleeping/unpublished environment running. No live odds, player props or parlays are populated.
 
+## Easiest working preview
+
+[Open private workspace in GitHub Codespaces](https://codespaces.new/cbegalla111/sportsMLmodel?quickstart=1). Setup and app startup are automatic; use the private forwarded browser tab alongside the editor. [Preview instructions](docs/PREVIEW.md) cover sign-in and live refresh. This chat’s right-hand pane cannot be activated from repository code.
+
 ## Start
 
 ```bash

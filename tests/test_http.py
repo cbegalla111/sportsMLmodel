@@ -40,3 +40,34 @@ def test_login_rate_limit(app):
  call,_=app
  for _ in range(10):assert call('/api/login',{'password':'bad'})[0]==401
  assert call('/api/login',{'password':'bad'})[0]==429
+
+def test_https_forwarding_keeps_origin_csrf_and_secure_cookie_checks(app,monkeypatch):
+ call,root=app
+ monkeypatch.setenv('SPORTSLAB_PUBLIC_ORIGIN','https://private-preview.app.github.dev')
+ monkeypatch.setenv('SPORTSLAB_SECURE_COOKIE','1')
+ password=(root/'initial-password.txt').read_text().strip()
+ origin={'Origin':'https://private-preview.app.github.dev'}
+ code,_,headers=call('/api/login',{'password':password},origin)
+ assert code==200 and '; Secure' in headers['Set-Cookie']
+ # Simulate a TLS-terminating proxy forwarding the browser's cookie to HTTP upstream.
+ cookie={'Cookie':headers['Set-Cookie'].split(';')[0]}
+ state=call('/api/state',headers=cookie)[1]
+ auth={**origin,**cookie,'X-CSRF-Token':state['csrf']}
+ assert call('/api/settings',{'league':'NHL'},auth)[0]==200
+ assert call('/api/settings',{'league':'NHL'},{**auth,'Origin':'https://evil.example','X-Forwarded-Host':'evil.example'})[0]==403
+ assert call('/api/settings',{'league':'NHL'},{**origin,**cookie})[0]==403
+
+
+def test_live_preview_refresh_requires_login_and_explicit_development_mode(app,monkeypatch,tmp_path):
+ call,root=app
+ assert call('/api/revision')[0]==401
+ call('/api/login',{'password':(root/'initial-password.txt').read_text().strip()})
+ monkeypatch.delenv('SPORTSLAB_DEV_PREVIEW',raising=False)
+ assert call('/api/revision')[0]==404
+ monkeypatch.setenv('SPORTSLAB_DEV_PREVIEW','1')
+ assets=tmp_path/'static';assets.mkdir();(assets/'app.js').write_text('// Test-only development asset v1')
+ monkeypatch.setattr(server,'WEB',tmp_path)
+ first=call('/api/revision')[1]['revision']
+ assert call('/api/state')[1]['preview_revision']==first
+ (assets/'app.js').write_text('// Test-only development asset v2')
+ assert call('/api/revision')[1]['revision']!=first

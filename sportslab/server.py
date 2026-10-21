@@ -1,5 +1,4 @@
 import argparse
-import base64
 import hashlib
 import hmac
 import http.cookies
@@ -30,6 +29,13 @@ def initialize(root):
   with os.fdopen(fd,'w') as f: f.write(password+'\n')
  connect(root).close()
 
+def preview_revision():
+ if os.environ.get('SPORTSLAB_DEV_PREVIEW')!='1': return None
+ digest=hashlib.sha256()
+ for path in sorted((WEB/'static').glob('*')):
+  if path.is_file(): digest.update(path.read_bytes())
+ return digest.hexdigest()
+
 class Handler(BaseHTTPRequestHandler):
  def log_message(self,fmt,*args): pass  # No request payloads, cookies or credentials in logs.
  def respond(self,status,payload,ctype='application/json',cookie=None):
@@ -57,6 +63,9 @@ class Handler(BaseHTTPRequestHandler):
    return self.respond(200,(WEB/'static'/file).read_text(),{'/':'text/html; charset=utf-8','/app.js':'text/javascript','/style.css':'text/css'}[path])
   s=self.session()
   if not s: return self.respond(401,{'error':'Authentication required'})
+  if path=='/api/revision':
+   revision=preview_revision()
+   return self.respond(200,{'revision':revision}) if revision else self.respond(404,{'error':'Preview mode disabled'})
   db=connect(ROOT)
   try:
    if path=='/api/state':
@@ -69,13 +78,13 @@ class Handler(BaseHTTPRequestHandler):
      p=json.loads(r['payload']); match=[g for g in load(db,p['league']) if g['date']==p['date'] and g['home']==p['home'] and g['away']==p['away']]
      history.append(dict(p,id=r['id'],created=r['created'],eventual_outcome=match[0]['outcome'] if match else 'not recorded'))
     settings={r[0]:r[1] for r in db.execute('SELECT key,value FROM settings')}
-    return self.respond(200,{'leagues':leagues,'history':history,'csrf':s['csrf'],'settings':settings,'server_time':now()})
+    return self.respond(200,{'leagues':leagues,'history':history,'csrf':s['csrf'],'settings':settings,'server_time':now(),'preview_revision':preview_revision()})
    return self.respond(404,{'error':'Not found'})
   finally: db.close()
  def do_POST(self):
   # Require same-origin JSON requests even for login; no CORS is enabled.
   origin=self.headers.get('Origin')
-  expected=('https' if os.environ.get('SPORTSLAB_SECURE_COOKIE')=='1' else 'http')+'://'+self.headers.get('Host','')
+  expected=os.environ.get('SPORTSLAB_PUBLIC_ORIGIN') or ('https' if os.environ.get('SPORTSLAB_SECURE_COOKIE')=='1' else 'http')+'://'+self.headers.get('Host','')
   if origin and origin!=expected: return self.respond(403,{'error':'Origin rejected'})
   if self.headers.get('Content-Type','').split(';')[0]!='application/json': return self.respond(415,{'error':'JSON required'})
   try:
