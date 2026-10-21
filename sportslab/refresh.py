@@ -68,6 +68,8 @@ def refresh_espn(root,league,db,today):
  records=[];upcoming=[];manifests=[]
  if league=='NBA':
   return refresh_nba_mirror(root,today)
+ if league=='CFB':
+  return refresh_cfb_mirror(root,today)
  if league!='UFC':
   # Basketball/CFB reject date ranges. Their scoreboard accepts a season year.
   for year in range(2022,today.year+1):
@@ -102,6 +104,32 @@ def refresh_espn(root,league,db,today):
   raw,manifest=fetch(root,url,league);found,upcoming=espn_events(json.loads(raw),league,url,today);records.extend(found);manifests.append(manifest)
 
  return records,upcoming,manifests
+
+CFB_MIRROR='https://raw.githubusercontent.com/sportsdataverse/cfbfastR-cfb-data/main/cfb/schedules/parquet/cfb_schedule_{year}.parquet'
+CFB_FIXTURES='https://raw.githubusercontent.com/sportsdataverse/cfbfastR-data/main/schedules/csv/cfb_schedules_{year}.csv'
+
+def refresh_cfb_mirror(root,today):
+ import pyarrow.parquet as pq
+ records=[];fixtures=[];manifests=[];teams={}
+ columns=['game_id','game_date','neutral_site','home_id','away_id','home_team','away_team','home_score','away_score','status']
+ # Small season files provide complete results; select no ratings or market fields.
+ for year in range(2022,today.year+1):
+  raw,m=fetch(root,CFB_MIRROR.format(year=year),'CFB');manifests.append(m)
+  for r in pq.read_table(io.BytesIO(raw),columns=columns).to_pylist():
+   teams[str(r['home_id'])]=r['home_team'];teams[str(r['away_id'])]=r['away_team']
+   day=str(r['game_date'])[:10]
+   if day>today.isoformat() or r['status'] not in ('STATUS_FINAL','STATUS_FINAL_OVERTIME'):continue
+   if r['home_score'] is None or r['away_score'] is None:continue
+   records.append(game('espn-cfb-'+str(r['game_id']),'CFB',day,r['home_team'],r['away_team'],float(r['home_score']),float(r['away_score']),ESPN_SOURCES['CFB'],'1' if r['neutral_site'] else '0'))
+ raw,m=fetch(root,CFB_FIXTURES.format(year=today.year),'CFB');manifests.append(m)
+ for r in csv.DictReader(io.StringIO(raw.decode())):
+  if r.get('completed')=='TRUE':continue
+  start=r.get('start_date','');day=start[:10]
+  if not today.isoformat()<=day<=(today+timedelta(days=14)).isoformat():continue
+  h,a=teams.get(r['home_id']),teams.get(r['away_id'])
+  if not h or not a:continue
+  fixtures.append({'id':'espn-cfb-'+r['game_id'],'date':day,'start_time':start if r.get('start_time_tbd')=='FALSE' else None,'home':h,'away':a,'neutral':'1' if r.get('neutral_site')=='TRUE' else '0','confirmed_source':True,'source':m['url']})
+ return records,fixtures,manifests
 
 NBA_MIRROR='https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/schedules/nba_schedule_master.csv'
 
@@ -184,7 +212,7 @@ def refresh_one(root,league):
      elif r['gameState']=='FUT' and today.isoformat()<=d: upcoming.append({'id':str(r['id']),'start_time':r.get('startTimeUTC'),'date':d,'home':h['abbrev'],'away':a['abbrev'],'confirmed_source':True,'source':m['url']})
  records=list({r['event_id']:r for r in records}.values())
  accepted=ingest(db,records) if records else 0
- status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':NBA_MIRROR if league=='NBA' else espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'feed_type':'Daily final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
+ status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':NBA_MIRROR if league=='NBA' else CFB_MIRROR.format(year=today.year) if league=='CFB' else espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'feed_type':'Daily final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
  with db: db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('feed_'+league,json.dumps(status)))
  db.close(); return status
 

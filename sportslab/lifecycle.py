@@ -39,7 +39,7 @@ def candidate(rows,report):
   name=f'{kind}_w{window}';candidates.append({'name':name,'folds':folds,'mean_log_loss':float(np.mean([f['log_loss'] for f in folds]))});cache[name]=(kind,window,X,y,warm,names)
  if not candidates:return None,{'status':'Not enough untouched development data for a challenger'}
  selected=min(candidates,key=lambda c:c['mean_log_loss'])['name'];kind,window,X,y,warm,names=cache[selected];model=estimator(kind);model.fit(X[warm],y[warm])
- art={'model':model,'window':window,'extra':False,'names':names,'digest':version(rows),'last_date':rows[-1]['date'],'league':report['league'],'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':selected,'refitted':now()}
+ art={'model':model,'window':window,'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':report['league'],'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':selected,'refitted':now()}
  return art,{'selected':selected,'candidates':candidates,'note':'Development comparison only; promotion requires a separate prospective confirmation window.'}
 
 def probabilities(art,rows,after):
@@ -48,6 +48,28 @@ def probabilities(art,rows,after):
  p=elo(X) if art['model'] is None else art['model'].predict_proba(X)[:,1]
  return {rows[i]['event_id']:float(v) for i,v in zip(ix,p)},{rows[i]['event_id']:rows[i] for i in ix}
 
+def checkpoint_public_lineage(root,artifacts):
+ """Record the exact verified training subset before backfilling earlier games."""
+ from .data import connect
+ from .pages import public_rows
+ db=connect(root)
+ for league_root in (Path(root)/'public-lifecycle').glob('*'):
+  state_path=league_root/'state.json'
+  if not state_path.exists():continue
+  state=json.loads(state_path.read_text());reports=[league_root/'initial-report.json',*Path(artifacts).glob(league_root.name+'-*.json')]
+  reports=[p for p in reports if p.exists() and not p.name.endswith('-heldout.json')]
+  if not reports:continue
+  report=json.loads(reports[0].read_text());rows=[r for r in public_rows(db,league_root.name) if r['outcome'] in ('home','away')]
+  history=[r for r in rows if r['date']<=report['last_date']]
+  if 'benchmark_event_ids' not in state and version(history)==report['dataset_sha256']:
+   state['benchmark_event_ids']=[r['event_id'] for r in history];write_json(state_path,state)
+  path=league_root/'champion.joblib'
+  if path.exists():
+   art=joblib.load(path);history=[r for r in rows if r['date']<=art['last_date']]
+   if 'training_event_ids' not in art and version(history)==art['digest']:
+    art['training_event_ids']=[r['event_id'] for r in history];joblib.dump(art,path)
+ db.close()
+
 def prepare(root,rows,report,original_path):
  root=Path(root);root.mkdir(parents=True,exist_ok=True);state_path=root/'state.json';champion_path=root/'champion.joblib'
  state=json.loads(state_path.read_text()) if state_path.exists() else {'benchmark':report['dataset_sha256'],'ledger':{},'reviews':[],'consumed_losses':0}
@@ -55,8 +77,14 @@ def prepare(root,rows,report,original_path):
  if not champion_path.exists():joblib.dump(joblib.load(original_path),champion_path)
  champion=joblib.load(champion_path)
  # Detect source revisions or a partially restored cache; never silently train through them.
- historical=[r for r in rows if r['date']<=champion['last_date']]
+ training_ids=set(champion.get('training_event_ids',[]))
+ historical=[r for r in rows if r['event_id'] in training_ids] if training_ids else [r for r in rows if r['date']<=champion['last_date']]
  if version(historical)!=champion['digest']:raise ValueError('Champion training history changed; forecasts withheld')
+ if not training_ids:
+  champion['training_event_ids']=[r['event_id'] for r in historical];joblib.dump(champion,champion_path)
+ if 'benchmark_event_ids' not in state:
+  benchmark_rows=[r for r in rows if r['date']<=report['last_date']]
+  if version(benchmark_rows)==report['dataset_sha256']:state['benchmark_event_ids']=[r['event_id'] for r in benchmark_rows]
  by_match={(r['date'],r['home'],r['away']):r for r in rows}
  for entry in state['ledger'].values():
   if entry.get('settled'):continue

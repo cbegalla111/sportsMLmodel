@@ -108,7 +108,7 @@ def train(db,root,league):
  result={'id':eid,'league':league,'created':now(),'dataset_sha256':digest,'n_rows':len(rows),'first_date':rows[0]['date'],'last_date':rows[-1]['date'],'final_test_start':cutoff,'budget':BUDGET,'selected':selected,'candidates':candidates,'test':evaluate(y[te],p,list(ds[te]),league),'baseline_test':scores(y[te],elo(X[te])),'feature_names':names,'outcome_rules':'Conditional on a decisive eventual winner, including overtime. Draws and no contests excluded; this is NOT an unconditional win probability or a sportsbook settlement forecast.','calibration':'No post-hoc calibration; reliability measured on held-out data.','limitations':['Result-only baseline; no confirmed injuries, starters, travel, weather or lineups.','Score margin is not possession-adjusted efficiency.','Pre-event feature timestamps are uploader assertions, not independently verified.','Historical performance does not establish present-day calibration.']}
  # Final test is now sealed; full-data refit is only for future/scenario inference, never reported as test performance.
  if kind!='elo': m=estimator(kind); m.fit(X[warm],y[warm])
- artifact={'model':m,'window':window,'extra':extra,'names':names,'digest':digest,'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1}
+ artifact={'model':m,'window':window,'extra':extra,'names':names,'digest':digest,'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1}
  dest=Path(root)/'models'; dest.mkdir(exist_ok=True); joblib.dump(artifact,dest/(eid+'.joblib'))
  with db: db.execute('INSERT INTO experiments VALUES(?,?,?,?)',(eid,league,now(),json.dumps(result)))
  return result
@@ -126,7 +126,8 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if not experiments: raise ValueError('Train and validate this league first')
  report=json.loads(experiments[0][0]); art=joblib.load(Path(root)/'models'/(report['id']+'.joblib'))
  if version(rows)!=art['digest']:
-  history=[r for r in rows if r['date']<=art['last_date']]
+  training_ids=set(art.get('training_event_ids',[]))
+  history=[r for r in rows if r['event_id'] in training_ids] if training_ids else [r for r in rows if r['date']<=art['last_date']]
   if not allow_updated_history or version(history)!=art['digest']: raise ValueError('Dataset changed; rerun validation')
  d=date.fromisoformat(event_date); latest=date.fromisoformat(rows[-1]['date'])
  if d<=latest: raise ValueError('Prediction date must follow all training results; historical backtests are in the experiment panel')

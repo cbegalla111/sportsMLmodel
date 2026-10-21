@@ -7,9 +7,11 @@ import sys
 from sportslab.data import connect
 from sportslab.pages import export_snapshot,write_site
 from sportslab.refresh import run
+from sportslab.lifecycle import checkpoint_public_lineage
 p=argparse.ArgumentParser();p.add_argument('--runtime',default=os.environ.get('SPORTSLAB_HOME','/workspace/.sportsml-private'));p.add_argument('--output',default='_site');p.add_argument('--refresh',action='store_true');args=p.parse_args()
 root=Path(args.runtime).resolve();env=dict(os.environ,SPORTSLAB_HOME=str(root),OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1')
 if args.refresh:
+ checkpoint_public_lineage(root,Path('artifacts'))
  with connect(root) as db:
   nba_empty=db.execute("SELECT COUNT(*) FROM games WHERE league='NBA'").fetchone()[0]==0
  if nba_empty:

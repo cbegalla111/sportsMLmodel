@@ -80,7 +80,9 @@ def export_snapshot(source_root,artifacts,asof=None):
     item['benchmark']=report
     if not rows:item['limitation']='Historical benchmark is available, but current public results are unavailable.'
     else:
-     history=[r for r in rows if r['outcome'] in ('home','away') and r['date']<=report['last_date']]
+     lineage=json.loads((lifecycle_root/'state.json').read_text()) if (lifecycle_root/'state.json').exists() else {}
+     benchmark_ids=set(lineage.get('benchmark_event_ids',[]))
+     history=[r for r in rows if r['outcome'] in ('home','away') and (r['event_id'] in benchmark_ids if benchmark_ids else r['date']<=report['last_date'])]
      if version(history)!=report['dataset_sha256']:
       item['limitation']='Public history differs from the archived benchmark inputs; current forecasts are withheld for review.'
      elif not artifact_path.exists():item['limitation']='Selected model artifact unavailable.'
@@ -92,7 +94,7 @@ def export_snapshot(source_root,artifacts,asof=None):
       item['lifecycle']=lifecycle
       with isolated:isolated.execute('INSERT INTO experiments VALUES(?,?,?,?)',(report['id'],league,report['created'],json.dumps(report)))
       item['model_refitted_at']=champion.get('refitted',report['created'])
-      item['model_training_rows']=len([r for r in rows if r['outcome'] in ('home','away') and r['date']<=champion['last_date']])
+      item['model_training_rows']=len(champion['training_event_ids'])
       item['model_training_sha256']=champion['digest']
       item['status']='historically backtested baseline'
       item['limitation']='Limited result-only model; important player and sport-specific inputs remain unconfirmed.'
@@ -116,7 +118,7 @@ def export_snapshot(source_root,artifacts,asof=None):
           item['withheld'].append(dict(safe,reason='Exact pregame start time is unverified; same-day/past forecasts withheld.'));continue
          if scheduled>today+timedelta(days=14):continue
          url=fixture.get('source','')
-         if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else []),*(['raw.githubusercontent.com'] if league=='NBA' else [])}:
+         if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else []),*(['raw.githubusercontent.com'] if league in ('NBA','CFB') else [])}:
           item['withheld'].append(dict(safe,reason='Fixture source could not be verified.'));continue
          result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1',prepared_inputs=inputs)
          result.update(id=str(fixture.get('id','-'.join(identity))),mode='limited pre-event model forecast',generated_at=asof.isoformat(),valid_until=min(parse_time(feed['checked'])+timedelta(hours=24),event_start or datetime.combine(scheduled,datetime.min.time(),timezone.utc),asof+timedelta(hours=24)).isoformat(),event_start_utc=event_start.isoformat() if event_start else None,schedule_source=url,schedule_checked=feed['checked'],availability='Schedule date from public source; injuries, starters, pitchers, goalies and lineups unconfirmed.')

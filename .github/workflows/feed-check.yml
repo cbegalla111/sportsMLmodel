@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test public scoreboard query formats
+      - name: Diagnose public college-football scoreboard limits
         run: |
           python - <<'PY'
           import urllib.request,json,concurrent.futures

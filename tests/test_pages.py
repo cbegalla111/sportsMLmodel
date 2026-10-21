@@ -79,3 +79,20 @@ def test_static_publish_directory_cannot_include_stray_private_files(tmp_path):
  output=tmp_path/'site';output.mkdir();(output/'auth.json').write_text('PRIVATE_SENTINEL')
  with pytest.raises(ValueError,match='unexpected files'):write_site({'leagues':[]},output,Path.cwd())
  assert (output/'auth.json').read_text()=='PRIVATE_SENTINEL'
+
+def test_backfill_preserves_verified_training_subset_and_original_benchmark(public_source):
+ root,artifacts,db,feed,now=public_source
+ before=next(x for x in export_snapshot(root,artifacts,now)['leagues'] if x['name']=='NFL')
+ row=json.loads(db.execute("SELECT payload FROM games WHERE event_id='nflverse-test-0'").fetchone()[0]);row['event_id']='nflverse-added-historical-game';ingest(db,[row])
+ after=next(x for x in export_snapshot(root,artifacts,now)['leagues'] if x['name']=='NFL')
+ assert after['result_count']==before['result_count']+1
+ assert after['benchmark']==before['benchmark']
+ assert after['model_training_sha256']==before['model_training_sha256']
+ assert after['model_training_rows']==before['model_training_rows']
+ assert after['predictions']
+ assert after['predictions'][0]['input_dataset_sha256']!=before['predictions'][0]['input_dataset_sha256']
+ # An actual revision of an observation used in training still invalidates lineage.
+ row=json.loads(db.execute("SELECT payload FROM games WHERE event_id='nflverse-test-1'").fetchone()[0]);row['home_score']='22'
+ with db:db.execute('UPDATE games SET payload=? WHERE event_id=?',(json.dumps(row),row['event_id']))
+ invalid=next(x for x in export_snapshot(root,artifacts,now)['leagues'] if x['name']=='NFL')
+ assert not invalid['predictions'] and 'differs' in invalid['limitation']

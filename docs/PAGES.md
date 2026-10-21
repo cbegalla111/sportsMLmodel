@@ -12,7 +12,7 @@ Public website: https://cbegalla111.github.io/sportsMLmodel/
 - Actual archived chronological model comparisons, final-test log loss/Brier/accuracy/AUC, reliability diagram with bin counts, season breakdowns, and approximate block-bootstrap Brier intervals.
 - Explicitly empty forecasts when a league lacks sufficient verified data, a source fails, the current dataset differs from archived benchmark lineage, a team lacks recent history, or an event has begun. No demonstration results substitute for missing content.
 
-All seven sports have daily result/schedule connectors. NBA uses the SportsDataverse/hoopR mirror of ESPN schedules; WNBA/CFB/UFC use the ESPN scoreboard; NFL/MLB/NHL retain their established providers. Current coverage and validated model status are reported per sport. Starting pitchers, goalies, injuries, lineups and advanced efficiency features are not supplied or claimed validated.
+All seven sports have daily result/schedule connectors. NBA uses the SportsDataverse/hoopR mirror of ESPN schedules; WNBA/UFC use the ESPN scoreboard; CFB uses SportsDataverse results and fixtures; NFL/MLB/NHL retain their established providers. Current coverage and validated model status are reported per sport. Starting pitchers, goalies, injuries, lineups and advanced efficiency features are not supplied or claimed validated.
 
 ## Daily operations
 
@@ -52,7 +52,7 @@ Source code and the first public snapshot are committed. Daily later snapshots a
 
 ## Feeds and guarded updates
 
-All seven sports have scheduled connectors: NFL uses nflverse, MLB the MLB Stats API, NHL the NHL schedule API, and WNBA/CFB/UFC the ESPN public scoreboard, and NBA the SportsDataverse/hoopR schedule mirror of ESPN. Modern ESPN history is backfilled from 2022 by season (monthly for UFC); NBA uses the mirror’s full schedule CSV filtered from 2022; completed periods are checkpointed so interrupted imports resume. Responses are archived and hashed. Only final outcomes, scores and fixtures are selected; odds are ignored. These public endpoints have no service-level guarantee and can change or refuse requests.
+All seven sports have scheduled connectors: NFL uses nflverse, MLB the MLB Stats API, NHL the NHL schedule API, and WNBA/UFC the ESPN public scoreboard, CFB the SportsDataverse college-football schedule mirrors, and NBA the SportsDataverse/hoopR schedule mirror of ESPN. Modern ESPN history is backfilled from 2022 by season (monthly for UFC); NBA uses the mirror’s full schedule CSV filtered from 2022; completed periods are checkpointed so interrupted imports resume. Responses are archived and hashed. Only final outcomes, scores and fixtures are selected; odds are ignored. These public endpoints have no service-level guarantee and can change or refuse requests.
 
 The website is a daily snapshot, not a real-time play-by-play service. Each sport displays its provider, checked time, last successful connection, result coverage and upcoming fixtures. An off-season empty schedule is distinct from a failed source. The compact feed overview does not conceal source errors; Data & Sources contains connection details.
 
