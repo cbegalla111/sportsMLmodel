@@ -8,7 +8,7 @@ A detailed statistics-only sports dashboard, with a separate password-protected 
 
 Seven sport views: **NBA, NFL, NHL, CFB, WNBA, MLB, UFC**. Each has Forecasts, Model Lab, and Data & Sources sections. Browse ranked source-backed matchups, conditional win probabilities, model factors, calibration plots, chronological comparisons, season scores, team statistics, recent results, freshness and missing inputs.
 
-**Daily at 11:17 UTC**, GitHub Actions refreshes public history/schedules, refits frozen model specifications, exports current forecasts, and publishes the static dashboard. Main-branch pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Daily update and privacy details](docs/PAGES.md).
+**Daily at 11:17 UTC**, GitHub Actions refreshes public history/schedules, reviews losses and locked challengers, exports current forecasts, and publishes the static dashboard. Main-branch pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Daily update and privacy details](docs/PAGES.md).
 
 | League | Historical decisive results | Held-out n | Selected specification | Log loss | Brier |
 |---|---:|---:|---|---:|---:|
@@ -17,7 +17,7 @@ Seven sport views: **NBA, NFL, NHL, CFB, WNBA, MLB, UFC**. Each has Forecasts, M
 | MLB | 7,413 | 1,462 | logistic, 20-game window | 0.68569 | 0.24628 |
 | NHL | 2,932 | 441 | logistic, 20-game window | 0.67067 | 0.23889 |
 
-These are archived benchmark sample sizes and results, not automatically updated validation claims. Current ingestion counts and daily training hashes are shown on the website. NFL/MLB/NHL have verified public feeds. NBA's archive ends in June 2015 and the current CDN is unavailable here. CFB/WNBA/UFC have no verified loaded data/fitted models; their pages show that honestly. Sport-specific advanced feature groups were skipped because complete inputs are absent. These limited result-history baselines are not injury-, pitcher- or goalie-aware models. MLB's predictive signal is modest. Probabilities condition on a decisive winner; NFL ties and UFC draws/no contests are excluded. No guarantee, sportsbook value, prop or parlay probability is invented.
+These are archived benchmark sample sizes and results, not automatically updated validation claims. Current ingestion counts and daily training hashes are shown on the website. All seven leagues now have daily result/schedule connectors. NBA uses the SportsDataverse mirror of ESPN schedules; WNBA/CFB/UFC use the ESPN scoreboard. Connection status, actual coverage and initial validation are displayed per sport. Sport-specific advanced feature groups were skipped because complete inputs are absent. These limited result-history baselines are not injury-, pitcher- or goalie-aware models. MLB's predictive signal is modest. Probabilities condition on a decisive winner; NFL ties and UFC draws/no contests are excluded. No guarantee, sportsbook value, prop or parlay probability is invented.
 
 ## Private Python workbench
 

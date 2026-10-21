@@ -66,14 +66,16 @@ def espn_events(payload,league,source_url,today):
 
 def refresh_espn(root,league,db,today):
  records=[];upcoming=[];manifests=[]
+ if league=='NBA':
+  return refresh_nba_mirror(root,today)
  if league!='UFC':
   # Basketball/CFB reject date ranges. Their scoreboard accepts a season year.
   for year in range(2022,today.year+1):
-   key=f'espn_year_{league}_{year}'
+   key=f'espn_year_v2_{league}_{year}'
    if year<today.year and db.execute('SELECT 1 FROM settings WHERE key=?',(key,)).fetchone():continue
-   url=espn_url(league)+f'?dates={year}&limit=10000'+('&groups=80' if league=='CFB' else '')
+   url=espn_url(league)+f'?dates={year}&limit=1000'+('&groups=80' if league=='CFB' else '')
    raw,manifest=fetch(root,url,league);payload=json.loads(raw)
-   if len(payload.get('events',[]))>=10000:raise ValueError('Season response may be truncated')
+   if len(payload.get('events',[]))>=1000:raise ValueError('Season response may be truncated')
    found,fixtures=espn_events(payload,league,url,today)
    if found:ingest(db,found)
    records.extend(found);upcoming.extend(fixtures);manifests.append(manifest)
@@ -101,10 +103,29 @@ def refresh_espn(root,league,db,today):
 
  return records,upcoming,manifests
 
+NBA_MIRROR='https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/schedules/nba_schedule_master.csv'
+
+def refresh_nba_mirror(root,today):
+ raw,manifest=fetch(root,NBA_MIRROR,'NBA');records=[];fixtures=[]
+ for r in csv.DictReader(io.StringIO(raw.decode())):
+  day=r.get('date','')[:10]
+  if day<'2022-01-01' or r.get('season_type') not in ('2','3','5'):continue
+  h,a=r.get('home_display_name'),r.get('away_display_name')
+  if not h or not a or h==a:continue
+  eid='espn-nba-'+r['id'];neutral='1' if r.get('neutral_site')=='true' else '0'
+  if r.get('status_type_completed')=='true' and day<=today.isoformat():
+   try:hs,aws=float(r['home_score']),float(r['away_score'])
+   except (ValueError,KeyError):continue
+   if hs==aws:continue
+   records.append(game(eid,'NBA',day,h,a,hs,aws,ESPN_SOURCES['NBA'],neutral))
+  elif r.get('status_type_state')=='pre' and today.isoformat()<=day<=(today+timedelta(days=14)).isoformat():
+   fixtures.append({'id':eid,'start_time':r['date'] if r.get('time_valid')=='true' else None,'date':day,'home':h,'away':a,'neutral':neutral,'confirmed_source':True,'source':NBA_MIRROR})
+ return records,fixtures,[manifest]
+
 def fetch(root,url,league):
  req=urllib.request.Request(url,headers={'User-Agent':'SportsMLLab/0.1 (private research; result-only importer)'})
- with urllib.request.urlopen(req,timeout=45) as r: raw=r.read(40_000_001)
- if len(raw)>40_000_000: raise ValueError('Source response exceeds 40 MB')
+ with urllib.request.urlopen(req,timeout=45) as r: raw=r.read(80_000_001)
+ if len(raw)>80_000_000: raise ValueError('Source response exceeds 80 MB')
  sha=hashlib.sha256(raw).hexdigest(); dest=Path(root)/'sources'; dest.mkdir(exist_ok=True)
  (dest/(sha+'.raw')).write_bytes(raw)
  return raw,{'url':url,'fetched':now(),'sha256':sha,'league':league}
@@ -163,7 +184,7 @@ def refresh_one(root,league):
      elif r['gameState']=='FUT' and today.isoformat()<=d: upcoming.append({'id':str(r['id']),'start_time':r.get('startTimeUTC'),'date':d,'home':h['abbrev'],'away':a['abbrev'],'confirmed_source':True,'source':m['url']})
  records=list({r['event_id']:r for r in records}.values())
  accepted=ingest(db,records) if records else 0
- status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'feed_type':'Daily final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
+ status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':NBA_MIRROR if league=='NBA' else espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'feed_type':'Daily final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
  with db: db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('feed_'+league,json.dumps(status)))
  db.close(); return status
 

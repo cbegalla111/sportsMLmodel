@@ -116,7 +116,7 @@ def export_snapshot(source_root,artifacts,asof=None):
           item['withheld'].append(dict(safe,reason='Exact pregame start time is unverified; same-day/past forecasts withheld.'));continue
          if scheduled>today+timedelta(days=14):continue
          url=fixture.get('source','')
-         if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else [])}:
+         if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else []),*(['raw.githubusercontent.com'] if league=='NBA' else [])}:
           item['withheld'].append(dict(safe,reason='Fixture source could not be verified.'));continue
          result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1',prepared_inputs=inputs)
          result.update(id=str(fixture.get('id','-'.join(identity))),mode='limited pre-event model forecast',generated_at=asof.isoformat(),valid_until=min(parse_time(feed['checked'])+timedelta(hours=24),event_start or datetime.combine(scheduled,datetime.min.time(),timezone.utc),asof+timedelta(hours=24)).isoformat(),event_start_utc=event_start.isoformat() if event_start else None,schedule_source=url,schedule_checked=feed['checked'],availability='Schedule date from public source; injuries, starters, pitchers, goalies and lineups unconfirmed.')

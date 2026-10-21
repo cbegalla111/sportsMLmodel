@@ -11,7 +11,7 @@ jobs:
           python - <<'PY'
           import urllib.request,json,concurrent.futures
           paths=['basketball/nba','basketball/wnba','football/college-football','mma/ufc']
-          queries=['dates=2022&limit=10000','dates=2026&limit=10000','dates=2026&limit=10000&groups=80']
+          queries=['dates=2022&limit=1000','dates=2022&limit=1000&offset=1000','dates=202201&limit=1000','dates=20261021&limit=1000']
           def probe(item):
            p,q=item;u='https://site.api.espn.com/apis/site/v2/sports/'+p+'/scoreboard?'+q
            try:
