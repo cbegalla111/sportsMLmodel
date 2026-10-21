@@ -52,3 +52,13 @@ def test_expanding_validation_persistence_probability_and_staleness(tmp_path):
 def test_withhold_small_dataset(tmp_path):
  db=connect(tmp_path);ingest(db,synthetic_rows(100))
  with pytest.raises(ValueError,match='700'):train(db,tmp_path,'NBA')
+
+def test_batch_fixtures_match_individual_pregame_inputs():
+ from sportslab.model import fixture_inputs
+ rows=synthetic_rows(120)
+ fixtures=[{'date':'2010-02-05','home':'T0','away':'T1','neutral':'0'},{'date':'2010-02-08','home':'T2','away':'T3','neutral':'1'}]
+ batched=fixture_inputs(rows,fixtures,20)
+ for f in fixtures:
+  future=dict(f,event_id='__query__',league='NBA',home_score='0',away_score='0',outcome='no_contest',source='synthetic only')
+  built,names=features(rows+[future],20);_,x,n=built[-1]
+  assert batched[(f['date'],f['home'],f['away'],f['neutral'])]==(x,n,names)

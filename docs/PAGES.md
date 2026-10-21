@@ -52,7 +52,7 @@ Source code and the first public snapshot are committed. Daily later snapshots a
 
 ## Feeds and guarded updates
 
-All seven sports have scheduled connectors: NFL uses nflverse, MLB the MLB Stats API, NHL the NHL schedule API, and NBA/WNBA/CFB/UFC the ESPN public scoreboard. ESPN history is backfilled monthly from 2022; completed months are checkpointed so interrupted imports resume. Responses are archived and hashed. Only final outcomes, scores and fixtures are selected; odds are ignored. These public endpoints have no service-level guarantee and can change or refuse requests.
+All seven sports have scheduled connectors: NFL uses nflverse, MLB the MLB Stats API, NHL the NHL schedule API, and NBA/WNBA/CFB/UFC the ESPN public scoreboard. ESPN history is backfilled from 2022 by season (monthly for UFC); completed periods are checkpointed so interrupted imports resume. Responses are archived and hashed. Only final outcomes, scores and fixtures are selected; odds are ignored. These public endpoints have no service-level guarantee and can change or refuse requests.
 
 The website is a daily snapshot, not a real-time play-by-play service. Each sport displays its provider, checked time, last successful connection, result coverage and upcoming fixtures. An off-season empty schedule is distinct from a failed source. The compact feed overview does not conceal source errors; Data & Sources contains connection details.
 

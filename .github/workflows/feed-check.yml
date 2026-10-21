@@ -11,7 +11,7 @@ jobs:
           python - <<'PY'
           import urllib.request,json,concurrent.futures
           paths=['basketball/nba','basketball/wnba','football/college-football','mma/ufc']
-          queries=['dates=20220101-20220131&limit=1000','dates=20220101-20220131&limit=100','dates=20220101','dates=20220101-20220107&limit=1000','dates=2026&limit=1000','dates=20261021-20261104&limit=1000']
+          queries=['dates=2022&limit=10000','dates=2026&limit=10000','dates=2026&limit=10000&groups=80']
           def probe(item):
            p,q=item;u='https://site.api.espn.com/apis/site/v2/sports/'+p+'/scoreboard?'+q
            try:
@@ -19,7 +19,8 @@ jobs:
             events=j.get('events',[]);result=f'{p} {q}: OK n={len(events)} first={events[0].get("date") if events else None} last={events[-1].get("date") if events else None}'
            except Exception as e:
             result=f'{p} {q}: {str(e)}'
-            if hasattr(e,'read'):result+=' '+e.read(700).decode(errors='replace').replace('\n',' ')
-           print('::notice title=Feed probe::'+result,flush=True)
-          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:list(executor.map(probe,[(p,q) for p in paths for q in queries]))
+            if hasattr(e,'read'):e.read(700)
+           return result
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:results=list(executor.map(probe,[(p,q) for p in paths for q in queries]))
+          print('::notice title=Feed compatibility::'+' | '.join(results),flush=True)
           PY

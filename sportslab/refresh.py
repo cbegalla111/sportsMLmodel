@@ -28,6 +28,7 @@ def espn_events(payload,league,source_url,today):
  """Use explicit final/winner fields; never ingest odds or current career statistics."""
  records=[];upcoming=[]
  for event in payload.get('events',[]):
+  if league in ('NBA','WNBA') and event.get('season',{}).get('type') not in (None,2,3,5):continue
   # UFC's competitions are individual bouts, not the whole fight card.
   for bout in event.get('competitions',[]):
    competitors=bout.get('competitors',[])
@@ -65,24 +66,39 @@ def espn_events(payload,league,source_url,today):
 
 def refresh_espn(root,league,db,today):
  records=[];upcoming=[];manifests=[]
- # Checkpoint each historical month: interrupted first runs resume safely.
- import calendar
- for year in range(2022,today.year+1):
-  for month in range(1,13):
-   start=date(year,month,1)
-   if start>today:break
-   end=date(year,month,calendar.monthrange(year,month)[1]);key=f'espn_month_{league}_{year}_{month}'
-   if end<today-timedelta(days=35) and db.execute('SELECT 1 FROM settings WHERE key=?',(key,)).fetchone():continue
-   url=espn_url(league)+f'?dates={start:%Y%m%d}-{min(end,today):%Y%m%d}&limit=1000'+('&groups=80' if league=='CFB' else '')
+ if league!='UFC':
+  # Basketball/CFB reject date ranges. Their scoreboard accepts a season year.
+  for year in range(2022,today.year+1):
+   key=f'espn_year_{league}_{year}'
+   if year<today.year and db.execute('SELECT 1 FROM settings WHERE key=?',(key,)).fetchone():continue
+   url=espn_url(league)+f'?dates={year}&limit=10000'+('&groups=80' if league=='CFB' else '')
    raw,manifest=fetch(root,url,league);payload=json.loads(raw)
-   if len(payload.get('events',[]))>=1000:raise ValueError('Scoreboard response may be truncated; backfill requires smaller windows')
-   found,_=espn_events(payload,league,url,today)
+   if len(payload.get('events',[]))>=10000:raise ValueError('Season response may be truncated')
+   found,fixtures=espn_events(payload,league,url,today)
    if found:ingest(db,found)
-   records.extend(found);manifests.append(manifest)
-   if end<today-timedelta(days=35):
+   records.extend(found);upcoming.extend(fixtures);manifests.append(manifest)
+   if year<today.year:
     with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',(key,now()))
- url=espn_url(league)+f'?dates={today:%Y%m%d}-{today+timedelta(days=14):%Y%m%d}&limit=1000'+('&groups=80' if league=='CFB' else '')
- raw,manifest=fetch(root,url,league);found,upcoming=espn_events(json.loads(raw),league,url,today);records.extend(found);manifests.append(manifest)
+ else:
+  # UFC supports date ranges and nests individual bouts in each fight card.
+  import calendar
+  for year in range(2022,today.year+1):
+   for month in range(1,13):
+    start=date(year,month,1)
+    if start>today:break
+    end=date(year,month,calendar.monthrange(year,month)[1]);key=f'espn_month_{league}_{year}_{month}'
+    if end<today-timedelta(days=35) and db.execute('SELECT 1 FROM settings WHERE key=?',(key,)).fetchone():continue
+    url=espn_url(league)+f'?dates={start:%Y%m%d}-{min(end,today):%Y%m%d}&limit=1000'
+    raw,manifest=fetch(root,url,league);payload=json.loads(raw)
+    if len(payload.get('events',[]))>=1000:raise ValueError('Scoreboard response may be truncated')
+    found,_=espn_events(payload,league,url,today)
+    if found:ingest(db,found)
+    records.extend(found);manifests.append(manifest)
+    if end<today-timedelta(days=35):
+     with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',(key,now()))
+  url=espn_url(league)+f'?dates={today:%Y%m%d}-{today+timedelta(days=14):%Y%m%d}&limit=1000'
+  raw,manifest=fetch(root,url,league);found,upcoming=espn_events(json.loads(raw),league,url,today);records.extend(found);manifests.append(manifest)
+
  return records,upcoming,manifests
 
 def fetch(root,url,league):
