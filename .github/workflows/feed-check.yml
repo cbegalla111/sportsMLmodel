@@ -6,17 +6,20 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Test public scoreboard query formats
         run: |
           python - <<'PY'
           import urllib.request,json,concurrent.futures
-          paths=['basketball/nba','basketball/wnba','football/college-football','mma/ufc']
-          queries=['dates=2022&limit=1000','dates=2022&limit=1000&offset=1000','dates=202201&limit=1000','dates=20261021&limit=1000']
+          from datetime import date
+          from sportslab.refresh import espn_events
+          paths=['football/college-football']
+          queries=['dates=2026&limit=1000&groups=80','dates=2022&limit=1000','dates=202610&limit=1000','dates=202610&limit=1000&groups=80','dates=20261024&limit=1000&groups=80']
           def probe(item):
            p,q=item;u='https://site.api.espn.com/apis/site/v2/sports/'+p+'/scoreboard?'+q
            try:
             with urllib.request.urlopen(u,timeout=30) as r:j=json.load(r)
-            events=j.get('events',[]);result=f'{p} {q}: OK n={len(events)} first={events[0].get("date") if events else None} last={events[-1].get("date") if events else None}'
+            events=j.get('events',[]);rows,fixtures=espn_events(j,'CFB',u,date.today());result=f'{p} {q}: OK n={len(events)} first={events[0].get("date") if events else None} last={events[-1].get("date") if events else None} parsed={len(rows)} scheduled={len(fixtures)} latest={max((r["date"] for r in rows),default=None)} states={dict((state,sum(e.get("status",{}).get("type",{}).get("state")==state for e in events)) for state in ("pre","in","post"))}'
            except Exception as e:
             result=f'{p} {q}: {str(e)}'
             if hasattr(e,'read'):e.read(700)

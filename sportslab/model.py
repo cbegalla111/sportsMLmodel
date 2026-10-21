@@ -137,7 +137,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if not scenario:
   for team in (home,away):
    recent=[r for r in rows if team in (r['home'],r['away']) and 0<(d-date.fromisoformat(r['date'])).days<=(1095 if league=='UFC' else 365)]
-   if len(recent)<(3 if league=='UFC' else 5) or (d-date.fromisoformat(recent[-1]['date'])).days>(730 if league=='UFC' else 30): raise ValueError('Opponent has insufficient recent history; use a labeled scenario or withhold')
+   if len(recent)<(3 if league=='UFC' else 5) or (d-date.fromisoformat(recent[-1]['date'])).days>{'UFC':730,'NBA':240,'WNBA':240,'NFL':240,'CFB':300,'MLB':180,'NHL':240}[league]: raise ValueError('Opponent has insufficient recent history; use a labeled scenario or withhold')
  future={'event_id':'__query__','league':league,'date':event_date,'home':home,'away':away,'home_score':'0','away_score':'0','outcome':'no_contest','neutral':'1' if neutral else '0','source':'manual unconfirmed matchup'}
  if overrides:
   if not scenario: raise ValueError('Overrides require scenario mode')
