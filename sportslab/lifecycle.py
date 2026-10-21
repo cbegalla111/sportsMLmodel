@@ -26,24 +26,13 @@ def gate(y,incumbent,challenger,days):
  return {'status':'promoted' if promote else 'retained champion','n':len(y),'weeks':len(unique),'promote':bool(promote),'champion':old,'challenger':new,'paired_log_loss_delta_95':interval,'from':days[0],'through':days[-1]}
 
 def candidate(rows,report):
- """Choose on expanding development folds, excluding the archived final-test dates."""
- ds=np.array([r['date'] for r in rows]);days=sorted(set(ds));cut=report.get('final_test_start',days[int(len(days)*.8)])
- allowed=(ds<cut)|(ds>report['last_date']);candidates=[];cache={}
- for kind,window in [('logistic',10),('logistic',20),('logistic_strong',20),('logistic_weak',20),('boost',20),('logistic',40),('boost',40)]:
-  built,names=features(rows,window);X=np.array([v[1] for v in built]);y=np.array([v[0]['outcome']=='home' for v in built],dtype=int);warm=np.array([v[2]>=(3 if rows[0]['league']=='UFC' else 5) for v in built]);folds=[]
-  for left,right in ((.4,.6),(.6,.8),(.8,1.0)):
-   start=days[int(len(days)*left)];end=days[min(len(days)-1,int(len(days)*right))];tr=(ds<start)&warm;va=(ds>=start)&(ds<end)&warm&allowed
-   if va.sum()<20 or len(set(y[tr]))<2:continue
-   m=estimator(kind);m.fit(X[tr],y[tr]);p=m.predict_proba(X[va])[:,1];folds.append(dict(scores(y[va],p),train_end=str(max(ds[tr])),validation_start=str(min(ds[va])),validation_end=str(max(ds[va]))))
-  if not folds:continue
-  name=f'{kind}_w{window}';candidates.append({'name':name,'folds':folds,'mean_log_loss':float(np.mean([f['log_loss'] for f in folds]))});cache[name]=(kind,window,X,y,warm,names)
- if not candidates:return None,{'status':'Not enough untouched development data for a challenger'}
- selected=min(candidates,key=lambda c:c['mean_log_loss'])['name'];kind,window,X,y,warm,names=cache[selected];model=estimator(kind);model.fit(X[warm],y[warm])
- art={'model':model,'window':window,'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':report['league'],'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':selected,'refitted':now()}
- return art,{'selected':selected,'candidates':candidates,'note':'Development comparison only; promotion requires a separate prospective confirmation window.'}
+ from .research import review
+ return review(rows,report)
+
 
 def probabilities(art,rows,after):
- built,_=features(rows,art['window'],art['extra']);ix=[i for i,v in enumerate(built) if v[0]['date']>after and v[2]>=(3 if rows[0]['league']=='UFC' else 5)];X=np.array([built[i][1] for i in ix])
+ from .model import model_features
+ built,_=model_features(rows,art['window'],art['extra'],art.get('variant','baseline'));ix=[i for i,v in enumerate(built) if v[0]['date']>after and v[2]>=(3 if rows[0]['league']=='UFC' else 5)];X=np.array([built[i][1] for i in ix])
  if not len(ix):return {},{}
  p=elo(X) if art['model'] is None else art['model'].predict_proba(X)[:,1]
  return {rows[i]['event_id']:float(v) for i,v in zip(ix,p)},{rows[i]['event_id']:rows[i] for i in ix}
@@ -85,6 +74,10 @@ def prepare(root,rows,report,original_path):
  if 'benchmark_event_ids' not in state:
   benchmark_rows=[r for r in rows if r['date']<=report['last_date']]
   if version(benchmark_rows)==report['dataset_sha256']:state['benchmark_event_ids']=[r['event_id'] for r in benchmark_rows]
+ backtest_review=None
+ if len(rows)>=700 and 'final_test_start' in report:
+  from .research import saved_review
+  backtest_review=saved_review(root,rows,report)
  by_match={(r['date'],r['home'],r['away']):r for r in rows}
  for entry in state['ledger'].values():
   if entry.get('settled'):continue
@@ -107,7 +100,7 @@ def prepare(root,rows,report,original_path):
   challenger,research=candidate(rows,report);state['research']=research;state['consumed_losses']=losses
   if challenger:
    joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected']};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
- summary={'status':status,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research')}
+ summary={'status':status,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
  write_json(state_path,state)
  return champion,summary
 

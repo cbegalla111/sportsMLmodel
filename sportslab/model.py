@@ -113,11 +113,18 @@ def train(db,root,league):
  with db: db.execute('INSERT INTO experiments VALUES(?,?,?,?)',(eid,league,now(),json.dumps(result)))
  return result
 
-def fixture_inputs(rows,fixtures,window,extra=False):
+def model_features(rows,window=20,extra=False,variant='baseline'):
+ if variant=='baseline':return features(rows,window,extra)
+ if extra:raise ValueError('Combined uploaded and form features are not validated')
+ if variant!='form':raise ValueError('Unknown model feature variant')
+ from .research import form_features
+ return form_features(rows,window)
+
+def fixture_inputs(rows,fixtures,window,extra=False,variant='baseline'):
  queries=[]
  for i,f in enumerate(fixtures):
   queries.append({'event_id':'__fixture_'+str(i),'league':rows[0]['league'],'date':f['date'],'home':f['home'],'away':f['away'],'home_score':'0','away_score':'0','outcome':'no_contest','neutral':f.get('neutral','0'),'source':'verified schedule'})
- built,names=features(rows+queries,window,extra)
+ built,names=model_features(rows+queries,window,extra,variant)
  return {(r['date'],r['home'],r['away'],r['neutral']):(x,n,names) for r,x,n in built if r['event_id'].startswith('__fixture_')}
 
 def prediction_context(db,root,league,allow_updated_history=False):
@@ -159,7 +166,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if prepared_inputs is not None and not overrides:
   x,n,names=prepared_inputs[(event_date,home,away,future['neutral'])]
  else:
-  built,names=features(rows+[future],art['window'],art['extra']); _,x,n=built[-1]
+  built,names=model_features(rows+[future],art['window'],art['extra'],art.get('variant','baseline')); _,x,n=built[-1]
  if n<(3 if league=='UFC' else 5): raise ValueError('Insufficient prior appearances for an opponent')
  X=np.array([x]); m=art['model']; p=float(elo(X)[0] if m is None else m.predict_proba(X)[0,1])
  factors=[{'factor':name,'difference':float(v)} for name,v in zip(names,x)]

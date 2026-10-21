@@ -102,7 +102,7 @@ def export_snapshot(source_root,artifacts,asof=None):
       elif (today-date.fromisoformat(rows[-1]['date'])).days>30:item['limitation']='Results are over 30 days old; current forecasts withheld.'
       else:
        context=prediction_context(isolated,temporary,league,allow_updated_history=True)
-       inputs=fixture_inputs(context['rows'],feed.get('upcoming',[]),champion['window'],champion['extra'])
+       inputs=fixture_inputs(context['rows'],feed.get('upcoming',[]),champion['window'],champion['extra'],champion.get('variant','baseline'))
        seen=set()
        for fixture in feed.get('upcoming',[]):
         safe={}
