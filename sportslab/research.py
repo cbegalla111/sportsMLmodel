@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 from .data import now,version
 from .model import features,elo,scores
 
-VERSION='sport-review-v2'
+VERSION='sport-review-v3'
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -64,11 +64,12 @@ def fit(spec,X,y,days,league):
 
 def predict(m,X):return elo(X) if m is None else m.predict_proba(X)[:,1]
 
-def incumbent_spec(report):
+def incumbent_spec(report,champion=None):
+ if champion and champion.get('research_spec'):return dict(champion['research_spec'])
  selected=report['selected'];parts=selected.split('_w');window=int(parts[-1].split('_')[0]);kind='elo' if selected.startswith('elo') else 'boost' if selected.startswith('boost') else 'logistic'
  return {'kind':kind,'window':window,'variant':'baseline','c':.01 if 'strong' in selected else 1. if 'weak' in selected else .1,'leaves':7,'decay':False,'legacy':True}
 
-def review(rows,report):
+def review(rows,report,champion=None):
  """Compare on identical expanding development dates; return a deployable challenger."""
  rows=[r for r in rows if r['outcome'] in ('home','away')];league=report['league'];cut=report['final_test_start'];dev=[r for r in rows if r['date']<cut]
  days=sorted({r['date'] for r in dev})
@@ -77,7 +78,7 @@ def review(rows,report):
  folds=[]
  for left,right in ((.4,.6),(.6,.8),(.8,1.0)):
   start=days[int(len(days)*left)];end=days[int(len(days)*right)] if right<1 else cut;folds.append((start,end))
- specs=[incumbent_spec(report),*definitions()];cache={};results=[];predictions=[];ds=np.array([r['date'] for r in dev]);y=np.array([int(r['outcome']=='home') for r in dev]);min_history=3 if league=='UFC' else 5
+ specs=[incumbent_spec(report,champion),*definitions()];cache={};results=[];predictions=[];ds=np.array([r['date'] for r in dev]);y=np.array([int(r['outcome']=='home') for r in dev]);min_history=3 if league=='UFC' else 5
  for spec in specs:
   key=(spec['window'],spec['variant'])
   if key not in cache:cache[key]=build(dev,*key)
@@ -92,25 +93,25 @@ def review(rows,report):
     kind='boost' if spec['kind']=='boost' else 'logistic_strong' if spec['c']==.01 else 'logistic_weak' if spec['c']==1 else 'logistic';m=estimator(kind);m.fit(X[tr],y[tr])
    else:m=fit(spec,X[tr],y[tr],list(ds[tr]),league)
    p=predict(m,X[va]);blocks.append(dict(scores(y[va],p),train_end=str(max(ds[tr])),validation_start=str(min(ds[va])),validation_end=str(max(ds[va]))));p_all.extend(p);y_all.extend(y[va]);d_all.extend(ds[va])
-  aggregate=scores(np.array(y_all),np.array(p_all));results.append({'name':report['selected'] if i==0 else label(spec),'specification':spec,'folds':blocks,'validation':aggregate});predictions.append((np.array(y_all),np.array(p_all),d_all))
+  aggregate=scores(np.array(y_all),np.array(p_all));results.append({'name':champion.get('selected',report['selected']) if i==0 and champion else report['selected'] if i==0 else label(spec),'specification':spec,'folds':blocks,'validation':aggregate});predictions.append((np.array(y_all),np.array(p_all),d_all))
  incumbent=results[0];eligible=[i for i,r in enumerate(results[1:],1) if r['validation']['accuracy']>=incumbent['validation']['accuracy'] and r['validation']['brier']<=incumbent['validation']['brier']]
  selected=min(eligible,key=lambda i:results[i]['validation']['log_loss']) if eligible else 0
  if results[selected]['validation']['log_loss']>=incumbent['validation']['log_loss']:selected=0
  chosen=results[selected];spec=chosen['specification'];built,names=build(rows,spec['window'],spec['variant']);warm=np.array([v[2]>=min_history for v in built]);X=np.array([v[1] for v in built]);yy=np.array([int(v[0]['outcome']=='home') for v in built]);all_days=np.array([v[0]['date'] for v in built])
- if selected==0 and spec['kind']!='elo':
+ if spec.get('legacy') and spec['kind']!='elo':
   from .model import estimator
   kind='boost' if spec['kind']=='boost' else 'logistic_strong' if spec['c']==.01 else 'logistic_weak' if spec['c']==1 else 'logistic';m=estimator(kind);m.fit(X[warm],yy[warm])
  else:m=fit(spec,X[warm],yy[warm],list(all_days[warm]),league)
- artifact={'model':m,'window':spec['window'],'variant':spec['variant'],'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':chosen['name'],'refitted':now()}
+ artifact={'model':m,'research_spec':dict(spec),'window':spec['window'],'variant':spec['variant'],'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':chosen['name'],'refitted':now()}
  result={'version':VERSION,'checked':now(),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'candidates':results,'candidate_count':len(results)-1,'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
  return artifact,result
 
-def saved_review(root,rows,report):
- root=Path(root);root.mkdir(parents=True,exist_ok=True);path=root/'research-review.json';fingerprint=hashlib.sha256((VERSION+version([r for r in rows if r['date']<report['final_test_start']])+json.dumps(incumbent_spec(report),sort_keys=True)).encode()).hexdigest()
+def saved_review(root,rows,report,champion=None):
+ root=Path(root);root.mkdir(parents=True,exist_ok=True);path=root/'research-review.json';fingerprint=hashlib.sha256((VERSION+version([r for r in rows if r['date']<report['final_test_start']])+json.dumps(incumbent_spec(report,champion),sort_keys=True)).encode()).hexdigest()
  if path.exists():
   prior=json.loads(path.read_text())
   if prior.get('fingerprint')==fingerprint:return prior
- artifact,result=review(rows,report);result['fingerprint']=fingerprint
+ artifact,result=review(rows,report,champion);result['fingerprint']=fingerprint
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(result,allow_nan=False));temporary.replace(path)
  joblib.dump(artifact,root/'research-challenger.joblib')
  return result

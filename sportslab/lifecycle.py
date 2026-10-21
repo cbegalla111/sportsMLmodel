@@ -25,9 +25,9 @@ def gate(y,incumbent,challenger,days):
  promote=(old['log_loss']-new['log_loss']>=POLICY['minimum_log_loss_gain'] and new['brier']<=old['brier'] and new['accuracy']>=old['accuracy'] and interval[1]<0)
  return {'status':'promoted' if promote else 'retained champion','n':len(y),'weeks':len(unique),'promote':bool(promote),'champion':old,'challenger':new,'paired_log_loss_delta_95':interval,'from':days[0],'through':days[-1]}
 
-def candidate(rows,report):
+def candidate(rows,report,champion=None):
  from .research import review
- return review(rows,report)
+ return review(rows,report,champion)
 
 
 def probabilities(art,rows,after):
@@ -77,7 +77,7 @@ def prepare(root,rows,report,original_path):
  backtest_review=None
  if len(rows)>=700 and 'final_test_start' in report:
   from .research import saved_review
-  backtest_review=saved_review(root,rows,report)
+  backtest_review=saved_review(root,rows,report,champion)
  by_match={(r['date'],r['home'],r['away']):r for r in rows}
  for entry in state['ledger'].values():
   if entry.get('settled'):continue
@@ -97,7 +97,7 @@ def prepare(root,rows,report,original_path):
     joblib.dump(champion,root/'previous-champion.joblib');temporary=root/'champion.tmp';joblib.dump(challenger,temporary);temporary.replace(champion_path);champion=challenger
    status='Challenger promoted after passing all checks.' if decision['promote'] else 'Champion retained: challenger did not pass every improvement check.'
  elif losses>state['consumed_losses']:
-  challenger,research=candidate(rows,report);state['research']=research;state['consumed_losses']=losses
+  challenger,research=candidate(rows,report,champion);state['research']=research;state['consumed_losses']=losses
   if challenger:
    joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected']};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
  summary={'status':status,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
