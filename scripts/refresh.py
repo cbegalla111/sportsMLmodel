@@ -8,8 +8,8 @@ import sys
 from sportslab.data import connect, ingest, parse_csv, now
 from sportslab.refresh import run
 from sportslab.model import refit_frozen
-p=argparse.ArgumentParser(); p.add_argument('--watch',action='store_true'); p.add_argument('--interval',type=int,default=21600); args=p.parse_args()
-if args.interval<3600: p.error('Minimum automatic interval is one hour; default six hours')
+p=argparse.ArgumentParser(); p.add_argument('--watch',action='store_true'); p.add_argument('--interval',type=int,default=86400); args=p.parse_args()
+if args.interval<3600: p.error('Minimum automatic interval is one hour; default one day')
 root=Path(os.environ.get('SPORTSLAB_HOME','/workspace/.sportsml-private'))
 root.mkdir(parents=True,exist_ok=True); root.chmod(0o700)
 for folder in ('inbox','processed','rejected'): (root/folder).mkdir(exist_ok=True)

@@ -1,6 +1,7 @@
 """Idempotent public-feed ingestion. Raw source archives never become feature tables."""
 import csv
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 import hashlib
 import io
 import json
@@ -23,6 +24,11 @@ def fetch(root,url,league):
  (dest/(sha+'.raw')).write_bytes(raw)
  return raw,{'url':url,'fetched':now(),'sha256':sha,'league':league}
 
+def nfl_start(row):
+ try:
+  return datetime.fromisoformat(row['gameday']+'T'+row['gametime']).replace(tzinfo=ZoneInfo('America/New_York')).astimezone(timezone.utc).isoformat()
+ except (KeyError,TypeError,ValueError):return None
+
 def game(eid,league,day,home,away,hs,aws,source,neutral='0'):
  return dict(event_id=eid,league=league,date=day,home=home,away=away,home_score=str(hs),away_score=str(aws),outcome='draw' if float(hs)==float(aws) else ('home' if float(hs)>float(aws) else 'away'),source=source,neutral=neutral)
 
@@ -33,7 +39,7 @@ def refresh_one(root,league):
   for r in csv.DictReader(io.StringIO(raw.decode())):
    if int(r['season'])<2005: continue
    if not r['home_score'] or not r['away_score'] or r['gameday']>today.isoformat():
-    if today.isoformat()<=r['gameday']<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':r['game_id'],'date':r['gameday'],'home':r['home_team'],'away':r['away_team'],'confirmed_source':True,'source':m['url']})
+    if today.isoformat()<=r['gameday']<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':r['game_id'],'start_time':nfl_start(r),'date':r['gameday'],'home':r['home_team'],'away':r['away_team'],'confirmed_source':True,'source':m['url']})
     continue
    records.append(game('nflverse-'+r['game_id'],league,r['gameday'],r['home_team'],r['away_team'],r['home_score'],r['away_score'],src,'1' if r['location']=='Neutral' else '0'))
  elif league=='MLB':
@@ -48,7 +54,7 @@ def refresh_one(root,league):
      h,a=r['teams']['home'],r['teams']['away']; d=r.get('officialDate',day['date'])
      if r['status']['abstractGameState']=='Final' and 'score' in h and 'score' in a:
       records.append(game('mlb-'+str(r['gamePk']),league,d,h['team']['name'],a['team']['name'],h['score'],a['score'],src))
-     elif r['status']['abstractGameState']=='Preview' and today.isoformat()<=d<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':str(r['gamePk']),'date':d,'home':h['team']['name'],'away':a['team']['name'],'confirmed_source':True,'source':m['url']})
+     elif r['status']['abstractGameState']=='Preview' and today.isoformat()<=d<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':str(r['gamePk']),'start_time':r.get('gameDate'),'date':d,'home':h['team']['name'],'away':a['team']['name'],'confirmed_source':True,'source':m['url']})
  elif league=='NBA':
   raw,m=fetch(root,FEEDS[league]['url'],league); manifests.append(m)
   for day in json.loads(raw)['leagueSchedule']['gameDates']:
@@ -58,7 +64,7 @@ def refresh_one(root,league):
     h,a=r['homeTeam'],r['awayTeam']; d=r['gameDateTimeUTC'][:10]
     if r['gameStatus']==3:
      records.append(game('nba-cdn-'+r['gameId'],league,d,h['teamTricode'],a['teamTricode'],h['score'],a['score'],src))
-    elif r['gameStatus']==1 and today.isoformat()<=d<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':r['gameId'],'date':d,'home':h['teamTricode'],'away':a['teamTricode'],'confirmed_source':True,'source':m['url']})
+    elif r['gameStatus']==1 and today.isoformat()<=d<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':r['gameId'],'start_time':r.get('gameDateTimeUTC'),'date':d,'home':h['teamTricode'],'away':a['teamTricode'],'confirmed_source':True,'source':m['url']})
  elif league=='NHL':
   for offset in (-14,-7,0,7):
    raw,m=fetch(root,FEEDS[league]['url']+(today+timedelta(days=offset)).isoformat(),league); manifests.append(m)
@@ -67,7 +73,7 @@ def refresh_one(root,league):
      if r.get('gameType') not in (2,3): continue
      h,a=r['homeTeam'],r['awayTeam']; d=day['date']
      if r['gameState'] in ('OFF','FINAL'): records.append(game('nhl-'+str(r['id']),league,d,h['abbrev'],a['abbrev'],h['score'],a['score'],src))
-     elif r['gameState']=='FUT' and today.isoformat()<=d: upcoming.append({'id':str(r['id']),'date':d,'home':h['abbrev'],'away':a['abbrev'],'confirmed_source':True,'source':m['url']})
+     elif r['gameState']=='FUT' and today.isoformat()<=d: upcoming.append({'id':str(r['id']),'start_time':r.get('startTimeUTC'),'date':d,'home':h['abbrev'],'away':a['abbrev'],'confirmed_source':True,'source':m['url']})
  records=list({r['event_id']:r for r in records}.values())
  accepted=ingest(db,records) if records else 0
  status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':max((r['date'] for r in records),default=None),'notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}

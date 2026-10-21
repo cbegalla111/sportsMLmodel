@@ -19,8 +19,9 @@ def features(rows, window=20, extra=False):
  history=defaultdict(lambda:deque(maxlen=window)); ratings=defaultdict(lambda:1500.); last={}; output=[]
  names=['elo_difference','home_advantage','win_rate_difference','scoring_margin_difference','rest_difference']
  if extra: names += [f+'_difference' for f in FEATURES[rows[0]['league']]]
- for day in sorted({r['date'] for r in rows}):
-  group=[r for r in rows if r['date']==day]
+ grouped=defaultdict(list)
+ for r in rows: grouped[r['date']].append(r)
+ for day,group in sorted(grouped.items()):
   for r in group:
    h,a=r['home'],r['away']; d=date.fromisoformat(day)
    def avg(t,k,default): return float(np.mean([v[k] for v in history[t]])) if history[t] else default
@@ -112,7 +113,7 @@ def train(db,root,league):
  with db: db.execute('INSERT INTO experiments VALUES(?,?,?,?)',(eid,league,now(),json.dumps(result)))
  return result
 
-def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):
+def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None):
  rows=[r for r in load(db,league) if r['outcome'] in ('home','away')]
  experiments=db.execute('SELECT payload FROM experiments WHERE league=? ORDER BY created DESC',(league,)).fetchall()
  if not experiments: raise ValueError('Train and validate this league first')
@@ -147,18 +148,22 @@ def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
  result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':report['selected'],'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':art['last_date'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
+ return result
+
+def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):
+ result=estimate(db,root,league,home,away,event_date,scenario,overrides)
  with db: db.execute('INSERT INTO predictions(created,payload) VALUES(?,?)',(now(),json.dumps(result)))
  return result
 
 
-def refit_frozen(db,root,league):
+def refit_frozen(db,root,league,force=False):
  """Refresh weights of the selected specification; never reselect or reopen its test."""
  rows=[r for r in load(db,league) if r['outcome'] in ('home','away')]
  stored=db.execute('SELECT payload FROM experiments WHERE league=? ORDER BY created LIMIT 1',(league,)).fetchone()
  if not stored: return 'No frozen specification; run the initial comparison explicitly'
  report=json.loads(stored[0]); path=Path(root)/'models'/(report['id']+'.joblib'); art=joblib.load(path)
  digest=version(rows)
- if digest==art['digest']: return 'unchanged'
+ if digest==art['digest'] and not force: return 'unchanged'
  built,names=features(rows,art['window'],art['extra']); warm=np.array([r[2]>=5 for r in built]); X=np.array([r[1] for r in built]); y=np.array([int(r[0]['outcome']=='home') for r in built])
  if art['model'] is not None:
   kind='boost' if report['selected'].startswith('boost') else 'logistic'

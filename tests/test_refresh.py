@@ -28,3 +28,8 @@ def test_mlb_excludes_tied_preseason_without_losing_regular_games(tmp_path,monke
  monkeypatch.setattr(refresh,'fetch',lambda *a:(json.dumps(payload).encode(),{'url':'synthetic mocked MLB feed','fetched':'2025-06-02','sha256':'test'}))
  result=refresh_one(tmp_path,'MLB');rows=load(connect(tmp_path),'MLB')
  assert len(rows)==1 and rows[0]['event_id']=='mlb-2';assert result['status']=='ok'
+
+def test_nfl_eastern_kickoff_converts_to_utc_with_daylight_saving():
+ assert refresh.nfl_start({'gameday':'2026-10-22','gametime':'20:15'})=='2026-10-23T00:15:00+00:00'
+ assert refresh.nfl_start({'gameday':'2026-12-20','gametime':'20:15'})=='2026-12-21T01:15:00+00:00'
+ assert refresh.nfl_start({'gameday':'2026-10-22','gametime':''}) is None

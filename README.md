@@ -1,46 +1,42 @@
-# Courtside · private Sports ML Lab
+# Courtside · Sports Prediction Lab
 
-A working password-protected research dashboard for statistics-only conditional moneyline probabilities. All seven requested sports are selectable: **NBA, NFL, NHL, CFB, WNBA, MLB and UFC**. Readiness is explicit; missing leagues do not receive invented predictions.
+**[Open the public dashboard](https://cbegalla111.github.io/sportsMLmodel/)**
 
-## What works
+A detailed statistics-only sports dashboard, with a separate password-protected Python research workbench. The public GitHub Pages site shows actual model outputs; it does not run a Python server or expose private account data.
 
-- SQLite-persisted real result imports, settings and prediction history; CSV/manual entry with immutable event IDs and validation.
-- NBA, NFL, MLB and NHL chronological baseline comparisons: Elo, regularized logistic regression and small boosted trees. No sportsbook inputs; transparent leakage-resistant date grouping and shifted history.
-- Final held-out log loss, Brier, accuracy, AUC, calibration plots/bands, season reports, baseline comparisons and approximate block-bootstrap performance intervals.
-- Matchup selection and scenario labeling, limited live forecasts on fresh NFL/MLB/NHL result history with fresh result history, provenance, stale-data withholding, and source-backed upcoming NFL/MLB/NHL fixtures.
-- Six-hour feed updater, source archives/hashes, CSV inbox, frozen-specification weight refresh, daily local backups and verified restoration.
-- Random-password login, hashed credentials, authenticated APIs, CSRF protection, cookie controls and loopback-only defaults.
+## Public dashboard
 
-## Actual initial data and held-out results
+Seven sport views: **NBA, NFL, NHL, CFB, WNBA, MLB, UFC**. Each has Forecasts, Model Lab, and Data & Sources sections. Browse ranked source-backed matchups, conditional win probabilities, model factors, calibration plots, chronological comparisons, season scores, team statistics, recent results, freshness and missing inputs.
 
-| League | Real decisive results | Final test n | Selected specification | Log loss | Brier |
+**Daily at 11:17 UTC**, GitHub Actions refreshes public history/schedules, refits frozen model specifications, exports current forecasts, and publishes the static dashboard. Relevant pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Daily update and privacy details](docs/PAGES.md).
+
+| League | Historical decisive results | Held-out n | Selected specification | Log loss | Brier |
 |---|---:|---:|---|---:|---:|
 | NBA | 14,208 | 2,676 | logistic, 20-game window | 0.60827 | 0.21058 |
 | NFL | 5,776 (plus 15 stored ties) | 1,048 | logistic, 10-game window | 0.63577 | 0.22275 |
 | MLB | 7,413 | 1,462 | logistic, 20-game window | 0.68569 | 0.24628 |
 | NHL | 2,932 | 441 | logistic, 20-game window | 0.67067 | 0.23889 |
 
-NBA archive: November 2004–June 2015; **current NBA forecasts are withheld**. NFL/MLB/NHL data run through October 19, 2026. These are limited result-only historical benchmarks, not injury-aware, pitcher-aware or goalie-aware models. MLB's weak predictive signal especially calls for better pregame data. NFL output is conditional on no tie; it does not price ties or bookmaker settlement. Advanced-feature ablation is recorded as skipped because inputs are absent.
+These are archived benchmark sample sizes and results, not automatically updated validation claims. Current ingestion counts and daily training hashes are shown on the website. NFL/MLB/NHL have verified public feeds. NBA's archive ends in June 2015 and the current CDN is unavailable here. CFB/WNBA/UFC have no verified loaded data/fitted models; their pages show that honestly. Sport-specific advanced feature groups were skipped because complete inputs are absent. These limited result-history baselines are not injury-, pitcher- or goalie-aware models. MLB's predictive signal is modest. Probabilities condition on a decisive winner; NFL ties and UFC draws/no contests are excluded. No guarantee, sportsbook value, prop or parlay probability is invented.
 
-CFB/WNBA/UFC have schemas and entry workflows but **no validated models or loaded historical dataset**. Their data require a permitted CSV export or a future verified feed. The current NBA CDN returns HTTP 403; its connector is not operational. NFL, MLB and NHL public feed ingestion and upcoming schedules were verified. Auto updates do not supply missing player inputs or keep a sleeping/unpublished environment running. No live odds, player props or parlays are populated.
+## Private Python workbench
 
-## Easiest working preview
-
-[Open private workspace in GitHub Codespaces](https://codespaces.new/cbegalla111/sportsMLmodel?quickstart=1). Setup and app startup are automatic; use the private forwarded browser tab alongside the editor. [Preview instructions](docs/PREVIEW.md) cover sign-in and live refresh. This chat’s right-hand pane cannot be activated from repository code.
-
-## Start
+CSV/manual imports, immutable result history, SQLite settings/prediction ledger, model comparisons, scenarios, authentication/CSRF protection, daily source refresh and verified backups remain available in the separate Python app. No private upload, password, personal ledger or private model weights are exported to Pages.
 
 ```bash
 cd /workspace/sportsMLmodel
 bash scripts/install.sh
-bash scripts/start.sh
+bash scripts/preview.sh start
 ```
 
-Retrieve your generated password privately from `/workspace/.sportsml-private/initial-password.txt`. Never commit it. The website runs locally on port 8765; **no privately hosted URL exists yet**. GitHub is durable source storage, not a Python hosting service.
+The shell scripts resolve the checkout location and honor SPORTSLAB_HOME/SPORTSLAB_VENV overrides. Current cloud defaults preserve data in /workspace/.sportsml-private. Retrieve the generated password privately from its initial-password.txt file; never commit or share it.
 
-- [Setup, automatic refresh, backup, recovery and private hosting](docs/OPERATIONS.md)
+For an editable private development environment, [open GitHub Codespaces](https://codespaces.new/cbegalla111/sportsMLmodel?quickstart=1). [Preview instructions](docs/PREVIEW.md) cover private forwarding, sign-in and browser refresh. The public website above requires no Codespaces session.
+
+- [Public Pages dashboard and daily updates](docs/PAGES.md)
+- [Setup, refresh, backup, recovery and private hosting](docs/OPERATIONS.md)
 - [Data schema and outcome rules](docs/DATA_SCHEMA.md)
-- [Primary sources, model selection and limitations](docs/METHODS.md)
-- [Validation evidence](docs/VALIDATION.md)
+- [Methods, primary sources and limitations](docs/METHODS.md)
+- [Actual validation evidence](docs/VALIDATION.md)
 
-Actual reports, held-out forecasts and selected model weights are under artifacts/. Runtime databases, raw archives and authentication are outside the repository. Push source commits and keep an off-machine private backup; a local commit or local backup alone does not protect against workspace loss.
+Public benchmark reports, exact held-out predictions and selected model artifacts live in artifacts/. Raw archives, private data and authentication stay outside Git. Keep an off-machine private backup; Pages and Actions caches do not preserve your personal ledger.

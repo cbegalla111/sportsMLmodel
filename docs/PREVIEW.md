@@ -23,7 +23,7 @@ bash scripts/preview.sh stop
 
 Codespaces configuration sets runtime data and the virtual environment to ignored `runtime/` and `.venv/` inside the checkout. Existing cloud tasks keep their previous sibling-directory defaults, preserving all saved records. Port 8765 is forwarded privately; the Codespaces startup script explicitly requests private visibility using GitHub CLI and reports a failure if it cannot confirm it. It never switches a port to public. Secure cookies are enabled for Codespaces HTTPS forwarding, and only its exact configured origin passes the app's browser Origin check. Spoofed forwarded-host headers do not override that configuration.
 
-The startup command is idempotent and logs to `runtime/server.log` and `runtime/refresh.log` in Codespaces. It supervises the app and six-hour data worker. Stop/restart only affects a supervisor launched by this checkout's preview command, preventing accidental termination of unrelated applications. The password is never written into a preview URL, browser source, task output, or Git.
+The startup command is idempotent and logs to `runtime/server.log` and `runtime/refresh.log` in Codespaces. It supervises the app and daily data worker. Stop/restart only affects a supervisor launched by this checkout's preview command, preventing accidental termination of unrelated applications. The password is never written into a preview URL, browser source, task output, or Git.
 
 GitHub Codespaces itself has not been provisioned from this cloud task. The portable startup, browser behavior and HTTPS-proxy authentication are validated locally; the first actual Codespaces launch still needs the user to create/open the workspace and confirm the forwarded port is private.
 

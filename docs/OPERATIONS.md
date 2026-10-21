@@ -2,6 +2,10 @@
 
 Use the existing isolated checkout. Do not create a Git worktree for a cloud task.
 
+## Public website
+
+The user-approved public dashboard is served by GitHub Pages, built daily from allowlisted public results and frozen model specifications. It does not expose this private app or its uploads/history. See [Pages operations](PAGES.md) for schedule, expiry, deployment and privacy boundaries.
+
 ## Working preview
 
 Use the [one-click Codespaces setup](PREVIEW.md) for automatic startup and private forwarding. Existing cloud paths remain compatible; install/start scripts now resolve the checkout location and honor SPORTSLAB_VENV and SPORTSLAB_HOME overrides.
@@ -22,11 +26,11 @@ The app binds to loopback port 8765 by default. This is a local service, not a d
 
 ## Automatic updates
 
-The start script supervises the web process and a six-hour refresh worker. If either exits, both stop; a container restart policy restarts them on a real host. Future cloud tasks must restart both; live processes do not survive publication snapshots. Logs: `$SPORTSLAB_HOME/refresh.log`.
+The start script supervises the web process and a daily refresh worker. If either exits, both stop; a container restart policy restarts them on a real host. Future cloud tasks must restart both; live processes do not survive publication snapshots. Logs: `$SPORTSLAB_HOME/refresh.log`.
 
 ```bash
 /workspace/.sportsml-venv/bin/python -m scripts.refresh
-/workspace/.sportsml-venv/bin/python -m scripts.refresh --watch --interval 21600
+/workspace/.sportsml-venv/bin/python -m scripts.refresh --watch --interval 86400
 ```
 
 The worker:

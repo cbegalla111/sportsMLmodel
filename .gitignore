@@ -5,3 +5,5 @@ __pycache__/
 .env
 runtime/
 wheelhouse/*.whl
+_site/
+.pages-runtime/
