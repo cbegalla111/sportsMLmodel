@@ -16,6 +16,9 @@ Seven sport views: **NBA, NFL, NHL, CFB, WNBA, MLB, UFC**. Each has Forecasts, M
 | NFL | 5,776 (plus 15 stored ties) | 1,048 | logistic, 10-game window | 0.63577 | 0.22275 |
 | MLB | 7,413 | 1,462 | logistic, 20-game window | 0.68569 | 0.24628 |
 | NHL | 2,932 | 441 | logistic, 20-game window | 0.67067 | 0.23889 |
+| CFB | 2,021 | 95 | logistic weak w20 | 0.82571 | 0.28724 |
+| WNBA | 1,429 | 317 | logistic w10 | 0.58835 | 0.20064 |
+| UFC | 2,737 | 284 | elo w20 | 0.67585 | 0.24140 |
 
 These are archived benchmark sample sizes and results, not automatically updated validation claims. Current ingestion counts and daily training hashes are shown on the website. All seven leagues now have daily result/schedule connectors. NBA uses the SportsDataverse mirror of ESPN schedules; WNBA/UFC use the ESPN scoreboard; CFB uses SportsDataverse results and fixtures. Connection status, actual coverage and initial validation are displayed per sport. Sport-specific advanced feature groups were skipped because complete inputs are absent. These limited result-history baselines are not injury-, pitcher- or goalie-aware models. MLB's predictive signal is modest. Probabilities condition on a decisive winner; NFL ties and UFC draws/no contests are excluded. No guarantee, sportsbook value, prop or parlay probability is invented.
 

@@ -7,7 +7,7 @@ import sqlite3
 import tempfile
 from urllib.parse import quote, urlparse
 from .data import BASE, FEATURES, LEAGUES, connect, ingest, load, now, version
-from .model import estimate, train, fixture_inputs
+from .model import estimate, train, fixture_inputs, prediction_context
 from .lifecycle import prepare, record
 from .refresh import FEEDS, ESPN_PATHS, ESPN_SOURCES, espn_url
 
@@ -49,7 +49,7 @@ def export_snapshot(source_root,artifacts,asof=None):
    feed_fresh=False
    try:feed_fresh=feed.get('status')=='ok' and timedelta(0)<=asof-parse_time(feed['checked'])<=timedelta(hours=24)
    except (KeyError,TypeError,ValueError):pass
-   item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'No verified public dataset and fitted model available.','candidate_features':FEATURES[league],'teams':[]}
+   item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'Initial model validation pending.','candidate_features':FEATURES[league],'teams':[]}
    reports=[p for p in sorted(artifacts.glob(league+'-*.json')) if not p.name.endswith('-heldout.json')]
    from collections import defaultdict
    teams=defaultdict(list)
@@ -97,11 +97,12 @@ def export_snapshot(source_root,artifacts,asof=None):
       item['model_training_rows']=len(champion['training_event_ids'])
       item['model_training_sha256']=champion['digest']
       item['status']='historically backtested baseline'
-      item['limitation']='Limited result-only model; important player and sport-specific inputs remain unconfirmed.'
-      if not feed_fresh:item['limitation']='Current source feed unavailable or stale; no current forecasts. Archived backtest remains visible.'
+      item['limitation']='Results-based model; player availability is unconfirmed.'
+      if not feed_fresh:item['limitation']='Feed check pending.'
       elif (today-date.fromisoformat(rows[-1]['date'])).days>30:item['limitation']='Results are over 30 days old; current forecasts withheld.'
       else:
-       inputs=fixture_inputs([r for r in rows if r['outcome'] in ('home','away')],feed.get('upcoming',[]),champion['window'],champion['extra'])
+       context=prediction_context(isolated,temporary,league,allow_updated_history=True)
+       inputs=fixture_inputs(context['rows'],feed.get('upcoming',[]),champion['window'],champion['extra'])
        seen=set()
        for fixture in feed.get('upcoming',[]):
         safe={}
@@ -120,7 +121,7 @@ def export_snapshot(source_root,artifacts,asof=None):
          url=fixture.get('source','')
          if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else []),*(['raw.githubusercontent.com'] if league in ('NBA','CFB') else [])}:
           item['withheld'].append(dict(safe,reason='Fixture source could not be verified.'));continue
-         result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1',prepared_inputs=inputs)
+         result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1',prepared_inputs=inputs,context=context)
          result.update(id=str(fixture.get('id','-'.join(identity))),mode='limited pre-event model forecast',generated_at=asof.isoformat(),valid_until=min(parse_time(feed['checked'])+timedelta(hours=24),event_start or datetime.combine(scheduled,datetime.min.time(),timezone.utc),asof+timedelta(hours=24)).isoformat(),event_start_utc=event_start.isoformat() if event_start else None,schedule_source=url,schedule_checked=feed['checked'],availability='Schedule date from public source; injuries, starters, pitchers, goalies and lineups unconfirmed.')
          item['predictions'].append(result)
         except (ValueError,KeyError,TypeError) as e:

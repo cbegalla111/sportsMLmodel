@@ -120,7 +120,7 @@ def fixture_inputs(rows,fixtures,window,extra=False):
  built,names=features(rows+queries,window,extra)
  return {(r['date'],r['home'],r['away'],r['neutral']):(x,n,names) for r,x,n in built if r['event_id'].startswith('__fixture_')}
 
-def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,allow_updated_history=False,neutral=False,prepared_inputs=None):
+def prediction_context(db,root,league,allow_updated_history=False):
  rows=[r for r in load(db,league) if r['outcome'] in ('home','away')]
  experiments=db.execute('SELECT payload FROM experiments WHERE league=? ORDER BY created DESC',(league,)).fetchall()
  if not experiments: raise ValueError('Train and validate this league first')
@@ -129,6 +129,12 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
   training_ids=set(art.get('training_event_ids',[]))
   history=[r for r in rows if r['event_id'] in training_ids] if training_ids else [r for r in rows if r['date']<=art['last_date']]
   if not allow_updated_history or version(history)!=art['digest']: raise ValueError('Dataset changed; rerun validation')
+ return {'league':league,'rows':rows,'report':report,'artifact':art,'input_digest':version(rows)}
+
+def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,allow_updated_history=False,neutral=False,prepared_inputs=None,context=None):
+ context=context or prediction_context(db,root,league,allow_updated_history)
+ if context['league']!=league:raise ValueError('Prediction context belongs to another league')
+ rows=context['rows'];report=context['report'];art=context['artifact']
  d=date.fromisoformat(event_date); latest=date.fromisoformat(rows[-1]['date'])
  if d<=latest: raise ValueError('Prediction date must follow all training results; historical backtests are in the experiment panel')
  if home==away or not all(any(r['home']==t or r['away']==t for r in rows) for t in (home,away)): raise ValueError('Choose two known opponents')
@@ -160,7 +166,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if m is not None and hasattr(m,'named_steps'):
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
- result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':version(rows),'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
+ result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
  return result
 
 def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):
