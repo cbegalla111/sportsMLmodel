@@ -81,16 +81,18 @@ Feedback settlement also excludes ties/no contests from wins and losses, settles
 
 ## Expanded accuracy review (October 22, 2026)
 
-Real public-source research results are recorded in `artifacts/research/accuracy-review-v5.json`. These are paired development comparisons on the same three chronological folds, with archived final-test dates excluded. The new selection prioritizes winner accuracy while requiring lower log loss and non-worse Brier.
+Verified published GitHub Pages research results for all seven sports are recorded in `artifacts/research/accuracy-review-v5.json`. These are paired development comparisons on the same three chronological folds within each sport, with archived final-test dates excluded. Initial validation cohorts can differ between environments; the following are the public deployment's matched comparisons, replacing preliminary local results. The selection prioritizes winner accuracy while requiring lower log loss and non-worse Brier.
 
 | Sport | Incumbent accuracy | Eligible selection accuracy | Highest candidate accuracy |
 |---|---:|---:|---:|
-| CFB | 69.64% | 70.27% | 70.27% |
-| MLB | 55.52% | 55.86% | 56.32% |
 | NBA | 68.50% | 69.24% | 69.24% |
 | NFL | 63.79% | 65.11% | 65.11% |
 | NHL | 54.31% | 55.36% | 55.85% |
+| CFB | 73.19% | 73.53% | 73.53% |
+| WNBA | 68.34% | 69.44% | 69.44% |
+| MLB | 55.52% | 55.86% | 56.32% |
+| UFC | 60.56% | 60.56% | 60.56% |
 
-The highest candidate can fail the probability-quality checks; it is reported separately rather than automatically promoted. Comparing 67 team-sport/54 UFC challengers introduces selection optimism. These percentages are not new independent test scores or evidence of a live-model promotion. The GitHub deployment also runs WNBA and UFC research using their reachable public feeds.
+All 67 team-sport challengers and 54 UFC challengers completed. The highest candidate can fail the probability-quality checks; it is reported separately rather than automatically promoted. Comparing many candidates introduces selection optimism. These percentages are not new independent test scores or evidence of a live-model promotion. UFC's selected temperature-calibrated Elo improves probability loss over the incumbent without an accuracy gain.
 
-Validation: 65 automated tests passed, including same-date leakage checks for both team and combat rating features, archived-test outcome mutation, common temporal folds, nested calibration, frozen estimator serialization, direct/batch inference for linear/kernel/ensemble models, and loss-triggered promotion checks. Desktop/mobile Model Lab rendering was checked with actual exported reports.
+Validation: 65 automated tests passed, including same-date leakage checks for both team and combat rating features, archived-test outcome mutation, common temporal folds, nested calibration, frozen estimator serialization, direct/batch inference for linear/kernel/ensemble models, and loss-triggered promotion checks. Desktop/mobile Model Lab rendering was checked with actual exported reports. The GitHub build and deployment succeeded, all seven published review versions and completed candidate counts were verified, and live HTML/JavaScript matched the committed assets.
