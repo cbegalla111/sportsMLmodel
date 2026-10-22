@@ -87,3 +87,23 @@ def test_rest_policy_change_restarts_evidence_without_changing_locked_weights(tm
  assert summary['confirmation']['n']==0 and not summary['confirmation']['promote']
  assert (root/'champion.joblib').read_bytes()==champion
  assert (root/'challenger.joblib').read_bytes()==challenger
+
+
+def test_loss_feedback_uses_corrected_policy_without_rewriting_original(tmp_path,monkeypatch):
+ from sportslab.rest import VERSION
+ called=[]
+ monkeypatch.setattr('sportslab.lifecycle.candidate',lambda *a:(called.append(True) or (None,{'status':'test only'})))
+ rows=synthetic_rows(120);original=tmp_path/'original.joblib';root=tmp_path/'feedback';report={'league':'NBA','selected':'elo_w20','dataset_sha256':version(rows),'last_date':rows[-1]['date']}
+ joblib.dump({'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA'},original)
+ prepare(root,rows,report,original)
+ r=rows[-1];p={'id':r['event_id'],'date':r['date'],'home':r['home'],'away':r['away'],'home_probability':.9 if r['outcome']=='home' else .1,'generated_at':'2009-01-01T00:00:00+00:00','model':'elo_w20','dataset_sha256':version(rows)}
+ record(root,[p]);record(root,[dict(p,home_probability=1-p['home_probability'],prediction_policy=VERSION)])
+ # A second refresh cannot rewrite this policy's first pick either.
+ record(root,[dict(p,prediction_policy=VERSION)])
+ _,summary=prepare(root,rows,report,original)
+ assert summary['live_record']=={'wins':0,'losses':1,'pending':0} and called
+ state=json.loads((root/'state.json').read_text())
+ assert state['ledger'][p['id']]['home_probability']==p['home_probability']
+ assert state['ledger'][p['id']]['correct'] is True
+ assert state['policy_ledgers'][VERSION][p['id']]['correct'] is False
+ assert state['policy_ledgers'][VERSION][p['id']]['home_probability']==1-p['home_probability']

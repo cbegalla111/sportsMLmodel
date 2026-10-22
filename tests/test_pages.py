@@ -148,3 +148,15 @@ def test_imported_same_day_result_does_not_block_or_leak_into_forecast(public_so
  art=joblib.load(path);art['last_date']=fixture['date'];joblib.dump(art,path)
  blocked=next(l for l in export_snapshot(root,artifacts,now)['leagues'] if l['name']=='NFL')
  assert not blocked['predictions'] and 'weight-training' in blocked['withheld'][0]['reason']
+
+
+def test_history_preserves_original_and_corrected_pre_event_picks(tmp_path):
+ from sportslab.pages import prediction_history
+ from sportslab.rest import VERSION
+ p={'id':'game','date':'2026-10-21','home':'A','away':'B','home_probability':.7,'generated_at':'2026-10-21T14:00:00+00:00','model':'elo_w20','dataset_sha256':'digest'}
+ corrected=dict(p,home_probability=.3,prediction_policy=VERSION,generated_at='2026-10-21T15:00:00+00:00')
+ (tmp_path/'state.json').write_text(json.dumps({'ledger':{'game':p},'policy_ledgers':{VERSION:{'game':corrected}}}))
+ results=[{'event_id':'game','date':p['date'],'home':'A','away':'B','outcome':'home','home_score':'4','away_score':'1'}]
+ history=prediction_history(tmp_path,results,datetime(2026,10,22,tzinfo=timezone.utc))
+ assert len(history)==2
+ assert {p['prediction_policy']:p['correct'] for p in history}=={'legacy rest policy':True,VERSION:False}

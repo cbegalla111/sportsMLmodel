@@ -85,7 +85,8 @@ def prepare(root,rows,report,original_path,outcomes=None):
  final_rows=outcomes if outcomes is not None else rows
  by_id={r['event_id']:r for r in final_rows};by_match={}
  for r in final_rows:by_match.setdefault((r['date'],r['home'],r['away']),[]).append(r)
- for entry in state['ledger'].values():
+ all_entries=list(state['ledger'].values())+[e for ledger in state.get('policy_ledgers',{}).values() for e in ledger.values()]
+ for entry in all_entries:
   if entry.get('settled'):continue
   identity=(entry['date'],entry['home'],entry['away']);result=None
   for eid in (entry['id'],*[(prefix+entry['id']) for prefix in ('mlb-','nhl-','nflverse-','nba-cdn-')]):
@@ -96,8 +97,12 @@ def prepare(root,rows,report,original_path,outcomes=None):
   if result:
    entry.update(settled=True,outcome=result['outcome'])
    if result['outcome'] in ('home','away'):entry['correct']=(entry['home_probability']>=.5)==(result['outcome']=='home')
- losses=sum(e.get('correct') is False for e in state['ledger'].values());wins=sum(e.get('correct') is True for e in state['ledger'].values())
  from .rest import VERSION as rest_version
+ feedback_policy=rest_version if rest_version in state.get('policy_ledgers',{}) else 'legacy'
+ feedback=state.get('policy_ledgers',{}).get(rest_version,state['ledger'])
+ if state.get('feedback_policy','legacy')!=feedback_policy:state['consumed_losses']=0
+ state['feedback_policy']=feedback_policy
+ losses=sum(e.get('correct') is False for e in feedback.values());wins=sum(e.get('correct') is True for e in feedback.values())
  trial=state.get('trial')
  if trial and trial.get('prediction_policy')!=rest_version:
   state.setdefault('policy_changes',[]).append({'at':now(),'previous_trial_after':trial['after'],'prediction_policy':rest_version})
@@ -118,7 +123,7 @@ def prepare(root,rows,report,original_path,outcomes=None):
    state['consumed_losses']=losses
    joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected'],'prediction_policy':rest_version};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
   else:status='Challenger fitting pending; daily checks will retry when enough calibration data are available.'
- summary={'status':status,'prediction_policy':rest_version,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
+ summary={'status':status,'prediction_policy':rest_version,'feedback_policy':feedback_policy,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in feedback.values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
  write_json(state_path,state)
  return champion,summary
 
@@ -128,5 +133,14 @@ def record(root,predictions):
  state=json.loads(path.read_text())
  for p in predictions:
   # First published pre-event forecast is immutable; later refreshes cannot replace misses.
-  state['ledger'].setdefault(p['id'],{k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc','prediction_policy') if k in p})
+  entry={k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc','prediction_policy') if k in p}
+  state['ledger'].setdefault(p['id'],dict(entry))
+  if p.get('prediction_policy'):
+   state.setdefault('policy_ledgers',{}).setdefault(p['prediction_policy'],{}).setdefault(p['id'],dict(entry))
+ from .rest import VERSION
+ feedback=state.get('policy_ledgers',{}).get(VERSION,state['ledger'])
+ feedback_policy=VERSION if VERSION in state.get('policy_ledgers',{}) else 'legacy'
+ if state.get('feedback_policy','legacy')!=feedback_policy:state['consumed_losses']=0
+ state['feedback_policy']=feedback_policy
  write_json(path,state)
+ return {'wins':sum(e.get('correct') is True for e in feedback.values()),'losses':sum(e.get('correct') is False for e in feedback.values()),'pending':sum(not e.get('settled') for e in feedback.values())}

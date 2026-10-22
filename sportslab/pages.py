@@ -9,6 +9,7 @@ from urllib.parse import quote, urlparse
 from .data import BASE, FEATURES, LEAGUES, connect, ingest, load, now, version
 from .model import estimate, train, fixture_inputs, prediction_context
 from .lifecycle import prepare, record
+from .rest import VERSION as REST_POLICY_VERSION
 from .refresh import FEEDS, ESPN_PATHS, ESPN_SOURCES, espn_url
 
 PUBLIC_SOURCES={
@@ -39,8 +40,11 @@ def prediction_history(root,rows,asof):
  if not path.exists():return []
  state=json.loads(path.read_text());results={}
  for r in rows:results.setdefault((r['date'],r['home'],r['away']),[]).append(r)
+ entries={(e['id'],e.get('prediction_policy','legacy rest policy')):e for e in state.get('ledger',{}).values()}
+ for ledger in state.get('policy_ledgers',{}).values():
+  for e in ledger.values():entries.setdefault((e['id'],e.get('prediction_policy','legacy rest policy')),e)
  archive=[]
- for entry in state.get('ledger',{}).values():
+ for entry in entries.values():
   try:
    day=date.fromisoformat(entry['date']);generated=parse_time(entry['generated_at'])
    start=parse_time(entry['event_start_utc']) if entry.get('event_start_utc') else None
@@ -157,7 +161,9 @@ def export_snapshot(source_root,artifacts,asof=None):
         except (ValueError,KeyError,TypeError) as e:
          item['withheld'].append(dict(safe,reason=str(e)))
        item['predictions'].sort(key=lambda p:max(p['home_probability'],p['away_probability']),reverse=True)
-   if item['lifecycle']:record(lifecycle_root,item['predictions'])
+   if item['lifecycle']:
+    item['lifecycle']['live_record']=record(lifecycle_root,item['predictions'])
+    item['lifecycle']['feedback_policy']=REST_POLICY_VERSION if (lifecycle_root/'state.json').exists() and REST_POLICY_VERSION in json.loads((lifecycle_root/'state.json').read_text()).get('policy_ledgers',{}) else 'legacy'
    item['prediction_history']=prediction_history(lifecycle_root,rows,asof)
    snapshot['leagues'].append(item)
   # Estimating public forecasts must never write to either prediction ledger.
