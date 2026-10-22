@@ -70,3 +70,11 @@ All seven sports completed 20 challenger comparisons, each using three expanding
 The suite now has **45 passing tests**, including same-day leakage checks for the richer feature family, shared fold/cohort checks, original final-test mutation invariance, direct/batched challenger forecast equivalence, and reuse of a promoted model’s actual specification in later reviews. No synthetic results enter production. The two introductory header lines were removed while the Courtside brand, date and refresh control were retained.
 
 Feedback settlement also excludes ties/no contests from wins and losses, settles them rather than leaving them pending, and resolves doubleheaders by event ID. Distinct same-day fixtures retain separate forecasts. Regression tests cover all three cases so incorrect settlement cannot drive a loss-triggered model change.
+
+
+## October 22: probability quality review
+
+- **50 tests passed** locally. Coverage includes temporal calibration boundaries, shared readiness-based folds, exclusion of sealed final-test outcomes, one-class/small calibration rejection, calibration/blend serialization, normalized scoring-profile leakage checks, exclusion of physical score profiles for UFC, direct/batched profile inference, and accurate Elo input attribution.
+- The complete [quality deployment](https://github.com/cbegalla111/sportsMLmodel/actions/runs/39803920543) evaluated 40 candidates for each of six team sports and 32 for UFC. All completed on common per-sport folds; all seven feeds were fresh in the verified public snapshot. Team-sport selections did not change. UFC identified temperature-calibrated Elo with reduced development log loss/Brier/calibration error and unchanged accuracy. See MODEL_REVIEW.md for actual values and cohort limitations.
+- Calibrators use only an inner, later training block; outer validation and the archived final test are not used in calibration fitting. Insufficient final calibration data produce an unavailable candidate and a retryable loss review. They do not silently substitute an uncalibrated model or change production weights.
+- Development bootstrap intervals explicitly exclude selection uncertainty and are not promotion evidence. Existing locked trials remain unchanged. Production weights were not promoted by this development review.

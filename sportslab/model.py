@@ -169,7 +169,9 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
   built,names=model_features(rows+[future],art['window'],art['extra'],art.get('variant','baseline')); _,x,n=built[-1]
  if n<(3 if league=='UFC' else 5): raise ValueError('Insufficient prior appearances for an opponent')
  X=np.array([x]); m=art['model']; p=float(elo(X)[0] if m is None else m.predict_proba(X)[0,1])
- factors=[{'factor':name,'difference':float(v)} for name,v in zip(names,x)]
+ factor_inputs=list(zip(names,x))
+ if m is None or art.get('research_spec',{}).get('kind')=='elo':factor_inputs=factor_inputs[:2]
+ factors=[{'factor':name,'difference':float(v)} for name,v in factor_inputs]
  if m is not None and hasattr(m,'named_steps'):
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)

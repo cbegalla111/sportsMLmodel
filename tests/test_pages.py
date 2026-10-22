@@ -35,6 +35,7 @@ def test_public_export_excludes_private_data_and_does_not_touch_history(public_s
  nfl=next(x for x in snapshot['leagues'] if x['name']=='NFL')
  assert nfl['result_count']==120 and len(nfl['predictions'])==1
  p=nfl['predictions'][0];assert p['home_probability']+p['away_probability']==pytest.approx(1)
+ assert [f['factor'] for f in p['factors']]==['elo_difference','home_advantage']
  assert p['mode']=='limited pre-event model forecast' and p['generated_at']==now.isoformat()
  assert datetime.fromisoformat(p['valid_until'])<=now+timedelta(hours=24)
  assert db.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]==1
