@@ -1,20 +1,21 @@
 """Bounded chronological model research. Archived final-test dates are never tuned."""
 from collections import defaultdict,deque
-from datetime import date
+from datetime import date,timedelta
 import hashlib
 import json
 from pathlib import Path
 import joblib
 import numpy as np
-from sklearn.ensemble import HistGradientBoostingClassifier, ExtraTreesClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, ExtraTreesClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.kernel_approximation import Nystroem
+from sklearn.neural_network import MLPClassifier
 from .data import now,version
 from .model import features,elo,scores
 
-VERSION='sport-review-v6-contextual-rest-r1'
+VERSION='sport-review-v7-bayesian-stacking-recent'
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -85,6 +86,30 @@ def rating_features(rows,window=20):
    for t in (h,a):last_season[t]=year;last_day[t]=d
  return [(r,x+extra[r['event_id']],n) for r,x,n in base],names
 
+def bayesian_features(rows,window=20):
+ """Glicko-style dynamic uncertainty, calculated before each date's outcomes."""
+ base,names=rating_features(rows,window);names=names+['uncertain_rating_difference','rating_deviation_difference','uncertainty_adjusted_log_odds','conservative_strength_difference']
+ strength=defaultdict(lambda:1500.);deviation=defaultdict(lambda:350.);last={};groups=defaultdict(list);extra={};q=np.log(10)/400
+ for r in rows:groups[r['date']].append(r)
+ for day,group in sorted(groups.items()):
+  d=date.fromisoformat(day);league=rows[0]['league'];drift={'NBA':20,'WNBA':20,'NFL':15,'CFB':20,'NHL':20,'MLB':12,'UFC':12}[league]
+  teams={r[side] for r in group for side in ('home','away')}
+  rd={t:min(350.,np.sqrt(deviation[t]**2+drift**2*max(0,(d-last[t]).days)/30)) if t in last else 350. for t in teams}
+  g=lambda uncertainty:1/np.sqrt(1+3*q*q*uncertainty*uncertainty/(np.pi*np.pi))
+  precision=defaultdict(float);gradient=defaultdict(float)
+  for r in group:
+   h,a=r['home'],r['away'];adv=0 if league=='UFC' or r['neutral']=='1' else {'NBA':65,'WNBA':55,'NFL':45,'CFB':55,'NHL':35,'MLB':25}[league]
+   diff=strength[h]-strength[a]+adv;z=q*diff/np.sqrt(1+3*q*q*(rd[h]**2+rd[a]**2)/(np.pi*np.pi))
+   extra[r['event_id']]=[strength[h]-strength[a],rd[h]-rd[a],float(z),(strength[h]-1.64*rd[h])-(strength[a]-1.64*rd[a])]
+   if r['outcome'] not in ('home','away'):continue
+   for t,opponent,y,advantage in ((h,a,int(r['outcome']=='home'),adv),(a,h,int(r['outcome']=='away'),-adv)):
+    attenuation=g(rd[opponent]);p=1/(1+np.exp(-np.clip(q*attenuation*(strength[t]-strength[opponent]+advantage),-30,30)))
+    precision[t]+=q*q*attenuation*attenuation*p*(1-p);gradient[t]+=q*attenuation*(y-p)
+  # Shared-date outcomes only update latent strengths after all features exist.
+  for t in precision:
+   posterior=1/(rd[t]*rd[t])+precision[t];strength[t]+=gradient[t]/posterior;deviation[t]=np.sqrt(1/posterior);last[t]=d
+ return [(r,x+extra[r['event_id']],n) for r,x,n in base],names
+
 def build(rows,window=20,variant='baseline'):
  if variant.startswith('context_'):
   from .rest import adjusted_features
@@ -94,6 +119,7 @@ def build(rows,window=20,variant='baseline'):
   from .rest import adjusted_features
   built,names=features(rows,window)
   return adjusted_features(built,names,'guard' if variant=='rest_guard' else 'no_rest')
+ if variant=='bayesian':return bayesian_features(rows,window)
  if variant=='ratings':return rating_features(rows,window)
  if variant=='profile':return profile_features(rows,window)
  if variant=='form':return form_features(rows,window)
@@ -135,6 +161,17 @@ def definitions(league=None):
   for c in (.03,.3):result.append({'kind':'logistic','window':20,'variant':variant,'c':c,'decay':False})
   result.append({'kind':'boost','window':20,'variant':variant,'leaves':3,'decay':False})
  for c in (.03,.3):result.append({'kind':'logistic','window':20,'variant':'no_rest','c':c,'decay':False})
+ for window in (10,20,40):
+  for c in (.03,.3):result.append({'kind':'logistic','window':window,'variant':'context_bayesian','c':c,'decay':False})
+ for leaves in (3,7):result.append({'kind':'boost','window':20,'variant':'context_bayesian','leaves':leaves,'decay':False})
+ for gamma in (.03,.1):result.append({'kind':'kernel','window':20,'variant':'context_bayesian','gamma':gamma,'c':.1,'decay':False})
+ result.append({'kind':'ensemble','window':20,'variant':'context_bayesian','decay':False})
+ for variant in ('context_form','context_ratings','context_bayesian'):
+  for alpha in (1.,10.):result.append({'kind':'neural','window':20,'variant':variant,'alpha':alpha,'decay':False})
+  for depth in (4,8):result.append({'kind':'forest','window':20,'variant':variant,'depth':depth,'decay':False})
+  result.append({'kind':'stack','window':20,'variant':variant,'decay':False})
+  years=(3,6) if league=='UFC' else (4,8) if league in ('NFL','CFB') else (1,3) if league=='MLB' else (2,4)
+  for horizon in years:result.append({'kind':'logistic','window':20,'variant':variant,'c':.1,'decay':False,'training_years':horizon})
  return result
 
 class InsufficientCalibration(ValueError):pass
@@ -157,6 +194,13 @@ class ModelAverage:
  def predict_proba(self,X):
   p=np.mean([predict(m,X) for m in self.models],axis=0)
   return np.column_stack((1-p,p))
+
+class TemporalStack:
+ def __init__(self,models,meta,audit):self.models=models;self.meta=meta;self.calibration_audit=audit
+ def predict_proba(self,X):
+  from scipy.special import logit
+  Z=np.column_stack([logit(np.clip(predict(m,X),1e-6,1-1e-6)) for m in self.models])
+  return self.meta.predict_proba(Z)
 
 class TemporalCalibration:
  def __init__(self,model,method,parameter,audit):self.model=model;self.method=method;self.parameter=parameter;self.calibration_audit=audit
@@ -183,9 +227,23 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
 
 def fit(spec,X,y,days,league):
+ if spec.get('training_years'):
+  boundary=(date.fromisoformat(max(days))-timedelta(days=365*spec['training_years'])).isoformat();keep=np.array(days)>=boundary
+  if keep.sum()<100 or len(set(y[keep]))<2:raise InsufficientCalibration('Recent training horizon has insufficient observations or classes')
+  return fit({k:v for k,v in spec.items() if k!='training_years'},X[keep],y[keep],list(np.array(days)[keep]),league)
+ if spec['kind']=='stack':
+  from scipy.special import logit
+  unique=sorted(set(days));boundary=unique[int(len(unique)*.8)];ds=np.array(days);inner=ds<boundary;cal=~inner
+  if inner.sum()<80 or cal.sum()<30 or len(set(y[inner]))<2 or len(set(y[cal]))<2:raise InsufficientCalibration('Inner chronological stacking block has insufficient observations or classes')
+  common={k:v for k,v in spec.items() if k!='kind'}
+  models=[fit(dict(common,kind='logistic',c=.1),X[inner],y[inner],list(ds[inner]),league),fit(dict(common,kind='boost',leaves=3),X[inner],y[inner],list(ds[inner]),league),fit(dict(common,kind='extra_trees',depth=8),X[inner],y[inner],list(ds[inner]),league)]
+  Z=np.column_stack([logit(np.clip(predict(m,X[cal]),1e-6,1-1e-6)) for m in models])
+  meta=make_pipeline(StandardScaler(),LogisticRegression(C=.1,max_iter=500,random_state=42));meta.fit(Z,y[cal])
+  audit={'base_train_end':str(max(ds[inner])),'calibration_start':str(min(ds[cal])),'calibration_end':str(max(ds[cal])),'calibration_n':int(cal.sum()),'method':'temporal stacking'}
+  return TemporalStack(models,meta,audit)
  if spec.get('variant')=='rest_guard':
   original=X[:,:-1].copy();original[:,4]=X[:,-1]
   if not spec.get('guard_legacy'):
@@ -231,6 +289,10 @@ def fit(spec,X,y,days,league):
   m=HistGradientBoostingClassifier(max_iter=100,max_leaf_nodes=spec.get('leaves',7),l2_regularization=20,learning_rate=.04,random_state=42);m.fit(X,y,sample_weight=weights)
  elif spec['kind']=='extra_trees':
   m=ExtraTreesClassifier(n_estimators=120,max_depth=spec.get('depth',8),min_samples_leaf=20,max_features=1.,n_jobs=1,random_state=42);m.fit(X,y,sample_weight=weights)
+ elif spec['kind']=='forest':
+  m=RandomForestClassifier(n_estimators=160,max_depth=spec.get('depth',8),min_samples_leaf=15,max_features=.8,n_jobs=1,random_state=42);m.fit(X,y,sample_weight=weights)
+ elif spec['kind']=='neural':
+  m=make_pipeline(StandardScaler(),MLPClassifier(hidden_layer_sizes=(16,),alpha=spec.get('alpha',1.),max_iter=250,learning_rate_init=.003,tol=.001,n_iter_no_change=15,early_stopping=False,random_state=42));kwargs={'mlpclassifier__sample_weight':weights} if weights is not None else {};m.fit(X,y,**kwargs)
  elif spec['kind']=='kernel':
   m=make_pipeline(StandardScaler(),Nystroem(kernel='rbf',gamma=spec.get('gamma',.1),n_components=min(64,len(y)),random_state=42),LogisticRegression(C=spec.get('c',.1),max_iter=800,random_state=42));kwargs={'logisticregression__sample_weight':weights} if weights is not None else {};m.fit(X,y,**kwargs)
  else:
@@ -320,6 +382,11 @@ def saved_review(root,rows,report,champion=None):
   prior=json.loads(path.read_text())
   if prior.get('fingerprint')==fingerprint and (prior.get('fit_status')=='ready' or prior.get('fit_dataset_sha256')==version(rows)):return prior
  artifact,result=review(rows,report,champion);result['fingerprint']=fingerprint
+ if path.exists():
+  previous=json.loads(path.read_text());folds=lambda r:[(f['validation_start'],f['validation_end'],f['n']) for f in r['incumbent']['folds']]
+  if previous.get('development_sha256')==result['development_sha256'] and folds(previous)==folds(result):
+   result['previous_search']={'version':previous['version'],'name':previous['best']['name'],'validation':previous['best']['validation'],'accuracy_gain':result['best']['validation']['accuracy']-previous['best']['validation']['accuracy'],'note':'Same development data and chronological validation games; search-selection optimism remains.'}
+
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(result,allow_nan=False));temporary.replace(path)
  if artifact is not None:joblib.dump(artifact,root/'research-challenger.joblib')
  else:(root/'research-challenger.joblib').unlink(missing_ok=True)

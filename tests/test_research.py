@@ -38,7 +38,7 @@ def test_review_uses_identical_folds_and_excludes_original_test():
  assert second['selected']==result['selected']
  assert second['candidates']==result['candidates']
 
-@pytest.mark.parametrize('variant',['form','profile','ratings','context_baseline','context_form','context_ratings'])
+@pytest.mark.parametrize('variant',['form','profile','ratings','context_baseline','context_form','context_ratings','context_bayesian'])
 @pytest.mark.parametrize('kind',['logistic','kernel','ensemble'])
 def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(tmp_path,variant,kind):
  import json
@@ -57,7 +57,7 @@ def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(t
  direct=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True)
  inputs=fixture_inputs(rows,[fixture],20,variant=variant);batch=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True,prepared_inputs=inputs)
  assert direct['home_probability']==pytest.approx(batch['home_probability'])
- assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11,'context_baseline':7,'context_form':14,'context_ratings':13}[variant])
+ assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11,'context_baseline':7,'context_form':14,'context_ratings':13,'context_bayesian':17}[variant])
  assert direct['factors']==batch['factors']
 
 
@@ -128,7 +128,7 @@ def test_multiscale_ratings_exclude_same_day_results_and_combat_scores(league):
   assert not any('margin' in name for name in names[5:])
 
 
-@pytest.mark.parametrize('kind',['extra_trees','kernel','ensemble'])
+@pytest.mark.parametrize('kind',['extra_trees','kernel','ensemble','neural','forest','stack'])
 def test_new_estimators_produce_frozen_finite_probabilities(tmp_path,kind):
  from sportslab.research import fit
  import joblib
@@ -145,3 +145,51 @@ def test_accuracy_selection_respects_probability_quality():
  eligible=[c for c in r['candidates'][1:] if not c['specification'].get('diagnostic_only') and c['validation'] is not None and c['validation']['accuracy']>=inc['accuracy'] and c['validation']['brier']<=inc['brier'] and c['validation']['log_loss']<inc['log_loss']]
  assert best['accuracy']==max([inc['accuracy']]+[c['validation']['accuracy'] for c in eligible])
  assert r['accuracy_leader']['validation']['accuracy']==max(c['validation']['accuracy'] for c in r['candidates'] if c['validation'] is not None and not c['specification'].get('diagnostic_only'))
+
+
+def test_bayesian_strength_features_are_causal_and_uncertainty_is_finite():
+ from sportslab.research import bayesian_features
+ rows=synthetic_rows(160);original,names=bayesian_features(rows);changed=copy.deepcopy(rows);cut=rows[80]['date']
+ for r in changed:
+  if r['date']>=cut:r.update(outcome='home',home_score='500',away_score='0')
+ altered,_=bayesian_features(changed)
+ assert len(names)==15
+ assert all(a[1]==b[1] for a,b in zip(original,altered) if a[0]['date']<=cut)
+ assert any(a[1]!=b[1] for a,b in zip(original,altered) if a[0]['date']>cut)
+ assert np.isfinite(np.array([x for _,x,_ in original])).all()
+ query=dict(rows[-1],event_id='query',date='2010-02-10',outcome='no_contest');double=dict(query,event_id='second-query')
+ built,_=bayesian_features(rows+[query,double]);assert built[-1][1]==built[-2][1]
+
+
+def test_temporal_stack_uses_only_pre_validation_training_and_calibration():
+ from datetime import date,timedelta
+ from sportslab.research import fit,InsufficientCalibration
+ rng=np.random.default_rng(4);X=rng.normal(size=(500,10));X[:,0]*=100;y=np.array([0,1]*250);days=[(date(2020,1,1)+timedelta(days=i//4)).isoformat() for i in range(500)]
+ model=fit({'kind':'stack','variant':'context_form'},X,y,days,'NBA');a=model.calibration_audit
+ assert a['base_train_end']<a['calibration_start']<=a['calibration_end']
+ assert a['calibration_n']==100
+ with pytest.raises(InsufficientCalibration):fit({'kind':'stack','variant':'context_form'},X[:40],y[:40],days[:40],'NBA')
+
+
+def test_training_horizon_excludes_old_outcomes():
+ from datetime import date,timedelta
+ from sportslab.research import fit
+ rng=np.random.default_rng(6);X=rng.normal(size=(600,8));y=np.array([0,1]*300);days=[(date(2010,1,1)+timedelta(days=i*4)).isoformat() for i in range(600)]
+ spec={'kind':'logistic','variant':'context_form','c':.1,'training_years':2}
+ one=fit(spec,X,y,days,'NBA');changed=y.copy();changed[:300]=1-changed[:300];two=fit(spec,X,changed,days,'NBA')
+ assert np.allclose(one.predict_proba(X[-10:]),two.predict_proba(X[-10:]))
+
+
+def test_previous_search_comparison_requires_the_same_development_games(tmp_path,monkeypatch):
+ import json
+ from sportslab.research import saved_review
+ from sportslab.data import version
+ rows=synthetic_rows(200);report={'league':'NBA','selected':'elo_w20','final_test_start':rows[160]['date']}
+ digest=version([r for r in rows if r['date']<report['final_test_start']]);fold={'validation_start':'2010-01-20','validation_end':'2010-02-01','n':50}
+ prior={'version':'old','development_sha256':digest,'incumbent':{'folds':[fold]},'best':{'name':'old model','validation':{'accuracy':.6}}}
+ fresh={'version':'new','development_sha256':digest,'incumbent':{'folds':[fold]},'best':{'name':'new model','validation':{'accuracy':.62}}}
+ monkeypatch.setattr('sportslab.research.review',lambda *args:(None,copy.deepcopy(fresh)))
+ path=tmp_path/'research-review.json';path.write_text(json.dumps(prior));result=saved_review(tmp_path,rows,report)
+ assert result['previous_search']['accuracy_gain']==pytest.approx(.02)
+ prior['incumbent']['folds']=[dict(fold,n=49)];path.write_text(json.dumps(prior));result=saved_review(tmp_path,rows,report)
+ assert 'previous_search' not in result

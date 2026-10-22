@@ -116,7 +116,7 @@ def train(db,root,league):
 def model_features(rows,window=20,extra=False,variant='baseline'):
  if variant=='baseline':return features(rows,window,extra)
  if extra:raise ValueError('Combined uploaded and form features are not validated')
- if variant not in ('form','profile','ratings','rest_guard','no_rest','context_baseline','context_form','context_ratings'):raise ValueError('Unknown model feature variant')
+ if variant not in ('form','profile','ratings','rest_guard','no_rest','context_baseline','context_form','context_ratings','context_bayesian'):raise ValueError('Unknown model feature variant')
  from .research import build
  return build(rows,window,variant)
 
