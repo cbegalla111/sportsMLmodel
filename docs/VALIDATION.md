@@ -116,3 +116,21 @@ The v7 catalog contains 110 team-sport and 97 UFC challengers. It adds causal un
 The final catalog includes 130 team-sport / 101 UFC challengers, adding separately supplied score targets for ridge margin and Poisson count models, alongside direct uncertainty-adjusted strength priors. 114 automated tests passed. Additional tests prove that inner calibration-block score targets cannot affect a scoring model, verify scoring-model serialization and direct/batch inference, and reject interpreting UFC winner flags as physical scores.
 
 The highest raw accuracy candidate and the eligible selection are distinct. A higher winner percentage is not reported as an overall improvement when its probability loss/Brier worsen. Previous-search comparisons require identical development game hashes, fold dates and sample sizes. All original test dates remain excluded from candidate selection.
+
+## Verified final results for the expanded accuracy request
+
+`artifacts/research/accuracy-search-v8.json` records all seven published results. Each start-of-request comparison has an identical development hash and the same validation dates/sample sizes. The table compares the eligible research winner at the beginning of this request with the final selection, and separately lists the highest raw accuracy found.
+
+| Sport | Prior eligible winner | Final eligible winner | Highest raw accuracy |
+|---|---:|---:|---:|
+| NBA | 69.01% | 69.01% | 69.30% |
+| NFL | 64.88% | 64.88% | 64.92% |
+| NHL | 55.57% | 55.57% | 56.13% |
+| CFB | 73.64% | 74.21% | 74.21% |
+| WNBA | 69.28% | 69.28% | 69.28% |
+| MLB | 55.81% | 55.81% | 56.27% |
+| UFC | 60.56% | 60.56% | 60.80% |
+
+College football improved its eligible winner accuracy; the other six eligible winners did not improve accuracy over their prior research winner. NBA reached a higher raw accuracy candidate but worsened probability loss/Brier; it was not treated as an overall improvement. These results do not substantiate higher winner accuracy in every sport. Original sealed test metrics and independent prospective promotion checks remain unchanged.
+
+The public workflow, all 130 team-sport/101 UFC challengers, and 114 tests completed successfully. Desktop/mobile Model Lab checks verified the complete candidate catalog, matched prior-search comparison, raw accuracy leader and no viewport overflow. Live HTML/JavaScript matched committed assets. The checked-in public snapshot was refreshed from the verified deployment.
