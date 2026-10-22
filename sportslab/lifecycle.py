@@ -104,9 +104,11 @@ def prepare(root,rows,report,original_path,outcomes=None):
     joblib.dump(champion,root/'previous-champion.joblib');temporary=root/'champion.tmp';joblib.dump(challenger,temporary);temporary.replace(champion_path);champion=challenger
    status='Challenger promoted after passing all checks.' if decision['promote'] else 'Champion retained: challenger did not pass every improvement check.'
  elif losses>state['consumed_losses']:
-  challenger,research=candidate(rows,report,champion);state['research']=research;state['consumed_losses']=losses
-  if challenger:
+  challenger,research=candidate(rows,report,champion);state['research']=research
+  if challenger is not None:
+   state['consumed_losses']=losses
    joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected']};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
+  else:status='Challenger fitting pending; daily checks will retry when enough calibration data are available.'
  summary={'status':status,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
  write_json(state_path,state)
  return champion,summary

@@ -116,9 +116,9 @@ def train(db,root,league):
 def model_features(rows,window=20,extra=False,variant='baseline'):
  if variant=='baseline':return features(rows,window,extra)
  if extra:raise ValueError('Combined uploaded and form features are not validated')
- if variant!='form':raise ValueError('Unknown model feature variant')
- from .research import form_features
- return form_features(rows,window)
+ if variant not in ('form','profile'):raise ValueError('Unknown model feature variant')
+ from .research import build
+ return build(rows,window,variant)
 
 def fixture_inputs(rows,fixtures,window,extra=False,variant='baseline'):
  queries=[]

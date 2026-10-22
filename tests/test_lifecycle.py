@@ -67,3 +67,5 @@ def test_doubleheader_predictions_settle_against_distinct_event_ids(tmp_path,mon
  picks=[{'id':i,'date':r['date'],'home':r['home'],'away':r['away'],'home_probability':.7,'generated_at':'2010-01-31T00:00:00+00:00','model':'elo_w20','dataset_sha256':version(rows)} for i in ('one','two')]
  record(root,picks);_,summary=prepare(root,rows,report,original,outcomes=[*rows,one,two])
  assert summary['live_record']=={'wins':1,'losses':1,'pending':0}
+ assert json.loads((root/'state.json').read_text())['consumed_losses']==0
+ assert 'fitting pending' in summary['status']
