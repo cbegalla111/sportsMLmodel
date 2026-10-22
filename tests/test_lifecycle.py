@@ -71,3 +71,19 @@ def test_doubleheader_predictions_settle_against_distinct_event_ids(tmp_path,mon
  assert summary['live_record']=={'wins':1,'losses':1,'pending':0}
  assert json.loads((root/'state.json').read_text())['consumed_losses']==0
  assert 'fitting pending' in summary['status']
+
+
+def test_rest_policy_change_restarts_evidence_without_changing_locked_weights(tmp_path):
+ from sportslab.rest import VERSION
+ rows=synthetic_rows(120);original=tmp_path/'original.joblib';root=tmp_path/'policy';report={'league':'NBA','selected':'elo_w20','dataset_sha256':version(rows),'last_date':rows[-1]['date']}
+ joblib.dump({'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA'},original)
+ prepare(root,rows,report,original)
+ joblib.dump(joblib.load(root/'champion.joblib'),root/'challenger.joblib')
+ state=json.loads((root/'state.json').read_text());state['trial']={'after':rows[-20]['date'],'created':'2010-01-01','selected':'elo_w20'};(root/'state.json').write_text(json.dumps(state))
+ champion=(root/'champion.joblib').read_bytes();challenger=(root/'challenger.joblib').read_bytes()
+ _,summary=prepare(root,synthetic_rows(124),report,original)
+ assert summary['trial']['prediction_policy']==VERSION
+ assert summary['trial']['after']==synthetic_rows(124)[-1]['date']
+ assert summary['confirmation']['n']==0 and not summary['confirmation']['promote']
+ assert (root/'champion.joblib').read_bytes()==champion
+ assert (root/'challenger.joblib').read_bytes()==challenger

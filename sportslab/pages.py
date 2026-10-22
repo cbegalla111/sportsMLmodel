@@ -50,7 +50,7 @@ def prediction_history(root,rows,asof):
    # the exporter verified they were pre-game. Preserve those same-day picks.
    if not start and generated.date()>day:continue
    p={k:entry[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256')}
-   p['event_start_utc']=start.isoformat() if start else None
+   p['prediction_policy']=entry.get('prediction_policy','legacy rest policy');p['event_start_utc']=start.isoformat() if start else None
    p['away_probability']=1-p['home_probability']
    matches=results.get((p['date'],p['home'],p['away']),[])
    exact=[r for r in matches if r['event_id']==p['id'] or any(r['event_id']==prefix+p['id'] for prefix in ('mlb-','nhl-','nflverse-','nba-cdn-'))]

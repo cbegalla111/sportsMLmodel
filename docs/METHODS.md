@@ -77,3 +77,23 @@ Additional estimators are regularized extra trees (120 trees, bounded depths, mi
 Decision-boundary calibration tests 33 log-odds offsets only in the inner chronological calibration block. Its accuracy-maximizing offset must also preserve or improve that block's log loss and Brier. The outer validation folds never tune a calibrator or ensemble weight. Winner labels consistently use the opponent with probability at least 50%.
 
 Model Lab sorts all candidates by development accuracy and shows the highest-accuracy candidate separately when the eligible selection differs. Final historical tests remain sealed. First published live picks stay immutable, and an expanded search does not reset a locked challenger or bypass prospective promotion.
+
+## Sport-specific recovery and outcome feedback
+
+`prediction_policy=sport-rest-v1` corrects recovery inputs in current forecasts while retaining champion weights. Days since an event are not medical recovery. The policy uses the following fixed schedule heuristics, chosen before the comparison rather than tuned to the Philadelphia–Cleveland outcome:
+
+| Sport | Typical spacing (days) | Recovery credit cap (days) | Long-inactivity threshold (days) |
+|---|---:|---:|---:|
+| NBA | 2 | 3 | 21 |
+| WNBA | 2 | 4 | 28 |
+| NHL | 2 | 4 | 28 |
+| NFL | 7 | 10 | 35 |
+| CFB | 7 | 10 | 42 |
+| MLB | 1 | 3 | 14 |
+| UFC | 90 | 180 | 730 |
+
+Recovery differences saturate at the cap. If either opponent lacks prior observations or exceeds the inactivity threshold, the recovery comparison is neutralized; the code does not infer extra fitness, an injury or an actual recovery period. UFC differences use 90-day units rather than hundreds of raw days. Legacy form-model layoff inputs use the same bounded, sport-normalized comparison. New contextual feature models learn a separate long-inactivity indicator and missing-history flag, rather than equating inactivity with a benefit.
+
+Model Lab isolates the input correction by fitting the old specification with original inputs and comparing the same coefficients on old versus corrected validation inputs. That historical reference is diagnostic only and cannot win selection. All eligible candidates and prospective confirmation scoring use the same inference policy as the public forecast. Additional contextual models are trained directly on the corrected recovery inputs, alongside a no-rest ablation. The catalog adds 11 challengers (78 team-sport / 65 UFC), plus an original-rest diagnostic reference where applicable. The archive's original held-out tests remain unchanged.
+
+Public first-published picks are immutable and new records retain the policy version. Actual imported outcomes settle those original picks; misses trigger supervised challenger review. Promotion still requires independent improvements in log loss, Brier and accuracy. A policy correction never rewrites old wins/losses. If a confirmation trial was opened under an older input policy, its weights remain locked and its confirmation start moves forward so evidence from different policies is not mixed.

@@ -116,7 +116,7 @@ def train(db,root,league):
 def model_features(rows,window=20,extra=False,variant='baseline'):
  if variant=='baseline':return features(rows,window,extra)
  if extra:raise ValueError('Combined uploaded and form features are not validated')
- if variant not in ('form','profile','ratings'):raise ValueError('Unknown model feature variant')
+ if variant not in ('form','profile','ratings','rest_guard','no_rest','context_baseline','context_form','context_ratings'):raise ValueError('Unknown model feature variant')
  from .research import build
  return build(rows,window,variant)
 
@@ -173,14 +173,19 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  else:
   built,names=model_features(rows+[future],art['window'],art['extra'],art.get('variant','baseline')); _,x,n=built[-1]
  if n<(3 if league=='UFC' else 5): raise ValueError('Insufficient prior appearances for an opponent')
+ from .rest import matchup_context,bounded_recovery
+ rest_context=matchup_context(rows,league,event_date,home,away)
+ x=list(x)
+ if art.get('variant','baseline') not in ('no_rest','rest_guard') and not art.get('variant','baseline').startswith('context_'):
+  rest_context['legacy_difference']=float(x[4]);x,names=bounded_recovery(x,names,rest_context)
  X=np.array([x]); m=art['model']; p=float(elo(X)[0] if m is None else m.predict_proba(X)[0,1])
- factor_inputs=list(zip(names,x))
+ factor_inputs=[(name,v) for name,v in zip(names,x) if name!='legacy_rest_training_only']
  if m is None or art.get('research_spec',{}).get('kind')=='elo':factor_inputs=factor_inputs[:2]
  factors=[{'factor':name,'difference':float(v)} for name,v in factor_inputs]
  if m is not None and hasattr(m,'named_steps') and set(m.named_steps)=={'standardscaler','logisticregression'}:
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
- result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':prior_rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
+ result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':prior_rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'rest_context':rest_context,'prediction_policy':rest_context['version'],'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
  return result
 
 def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):

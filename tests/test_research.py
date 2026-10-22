@@ -38,7 +38,7 @@ def test_review_uses_identical_folds_and_excludes_original_test():
  assert second['selected']==result['selected']
  assert second['candidates']==result['candidates']
 
-@pytest.mark.parametrize('variant',['form','profile','ratings'])
+@pytest.mark.parametrize('variant',['form','profile','ratings','context_baseline','context_form','context_ratings'])
 @pytest.mark.parametrize('kind',['logistic','kernel','ensemble'])
 def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(tmp_path,variant,kind):
  import json
@@ -57,7 +57,7 @@ def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(t
  direct=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True)
  inputs=fixture_inputs(rows,[fixture],20,variant=variant);batch=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True,prepared_inputs=inputs)
  assert direct['home_probability']==pytest.approx(batch['home_probability'])
- assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11}[variant])
+ assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11,'context_baseline':7,'context_form':14,'context_ratings':13}[variant])
  assert direct['factors']==batch['factors']
 
 
@@ -142,6 +142,6 @@ def test_new_estimators_produce_frozen_finite_probabilities(tmp_path,kind):
 def test_accuracy_selection_respects_probability_quality():
  rows=synthetic_rows(800);report={'league':'NBA','selected':'logistic_w20','final_test_start':rows[640]['date'],'last_date':rows[-1]['date']}
  _,r=review(rows,report);inc=r['incumbent']['validation'];best=r['best']['validation']
- eligible=[c for c in r['candidates'][1:] if c['validation'] is not None and c['validation']['accuracy']>=inc['accuracy'] and c['validation']['brier']<=inc['brier'] and c['validation']['log_loss']<inc['log_loss']]
+ eligible=[c for c in r['candidates'][1:] if not c['specification'].get('diagnostic_only') and c['validation'] is not None and c['validation']['accuracy']>=inc['accuracy'] and c['validation']['brier']<=inc['brier'] and c['validation']['log_loss']<inc['log_loss']]
  assert best['accuracy']==max([inc['accuracy']]+[c['validation']['accuracy'] for c in eligible])
- assert r['accuracy_leader']['validation']['accuracy']==max(c['validation']['accuracy'] for c in r['candidates'] if c['validation'] is not None)
+ assert r['accuracy_leader']['validation']['accuracy']==max(c['validation']['accuracy'] for c in r['candidates'] if c['validation'] is not None and not c['specification'].get('diagnostic_only'))

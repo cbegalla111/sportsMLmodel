@@ -14,7 +14,7 @@ from sklearn.kernel_approximation import Nystroem
 from .data import now,version
 from .model import features,elo,scores
 
-VERSION='sport-review-v5-accuracy-ratings-ensembles'
+VERSION='sport-review-v6-contextual-rest-r1'
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -86,6 +86,14 @@ def rating_features(rows,window=20):
  return [(r,x+extra[r['event_id']],n) for r,x,n in base],names
 
 def build(rows,window=20,variant='baseline'):
+ if variant.startswith('context_'):
+  from .rest import adjusted_features
+  built,names=build(rows,window,variant.removeprefix('context_'))
+  return adjusted_features(built,names)
+ if variant in ('rest_guard','no_rest'):
+  from .rest import adjusted_features
+  built,names=features(rows,window)
+  return adjusted_features(built,names,'guard' if variant=='rest_guard' else 'no_rest')
  if variant=='ratings':return rating_features(rows,window)
  if variant=='profile':return profile_features(rows,window)
  if variant=='form':return form_features(rows,window)
@@ -123,6 +131,10 @@ def definitions(league=None):
  for variant in ('form','ratings'):
   result.append({'kind':'logistic','window':20,'variant':variant,'c':.1,'decay':True,'half_life_scale':.5})
   result.append({'kind':'logistic','window':20,'variant':variant,'c':.1,'decay':False,'calibrate':'decision'})
+ for variant in ('context_baseline','context_form','context_ratings'):
+  for c in (.03,.3):result.append({'kind':'logistic','window':20,'variant':variant,'c':c,'decay':False})
+  result.append({'kind':'boost','window':20,'variant':variant,'leaves':3,'decay':False})
+ for c in (.03,.3):result.append({'kind':'logistic','window':20,'variant':'no_rest','c':c,'decay':False})
  return result
 
 class InsufficientCalibration(ValueError):pass
@@ -132,6 +144,13 @@ class ProbabilityBlend:
  def predict_proba(self,X):
   p=(1-self.weight)*predict(self.model,X)+self.weight*elo(X)
   return np.column_stack((1-p,p))
+
+class RestGuard:
+ # Fit with the original rest input; validate the inference correction with
+ # exactly the same weights. The final metadata column never enters prediction.
+ def __init__(self,model):self.model=model
+ def predict_proba(self,X):
+  p=predict(self.model,X[:,:-1]);return np.column_stack((1-p,p))
 
 class ModelAverage:
  def __init__(self,models):self.models=models
@@ -164,9 +183,19 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
 
 def fit(spec,X,y,days,league):
+ if spec.get('variant')=='rest_guard':
+  original=X[:,:-1].copy();original[:,4]=X[:,-1]
+  if not spec.get('guard_legacy'):
+   base={k:v for k,v in spec.items() if k!='guard_legacy'};base['variant']='baseline';m=fit(base,original,y,days,league)
+  elif spec['kind']=='elo':m=None
+  else:
+   from .model import estimator
+   kind='boost' if spec['kind']=='boost' else 'logistic_strong' if spec.get('c')==.01 else 'logistic_weak' if spec.get('c')==1 else 'logistic'
+   m=estimator(kind);m.fit(original,y)
+  return RestGuard(m)
  if spec.get('calibrate'):
   from scipy.optimize import minimize_scalar
   from scipy.special import expit,logit
@@ -224,7 +253,11 @@ def review(rows,report,champion=None):
  folds=[]
  for left,right in ((.4,.6),(.6,.8),(.8,1.0)):
   start=days[int(len(days)*left)];end=days[int(len(days)*right)] if right<1 else cut;folds.append((start,end))
- specs=[incumbent_spec(report,champion),*definitions(league)];cache={};results=[];predictions=[];ds=np.array([r['date'] for r in dev]);y=np.array([int(r['outcome']=='home') for r in dev]);min_history=3 if league=='UFC' else 5
+ reference_spec=incumbent_spec(report,champion);inc_spec=reference_spec
+ if reference_spec['variant']=='baseline':inc_spec=dict(reference_spec,variant='rest_guard',legacy=False,guard_legacy=reference_spec.get('legacy',False))
+ specs=[inc_spec,*definitions(league)]
+ if reference_spec['variant']=='baseline':specs.append(dict(reference_spec,diagnostic_only=True))
+ cache={};results=[];predictions=[];ds=np.array([r['date'] for r in dev]);y=np.array([int(r['outcome']=='home') for r in dev]);min_history=3 if league=='UFC' else 5
  for spec in specs:
   key=(spec['window'],spec['variant'])
   if key not in cache:cache[key]=build(dev,*key)
@@ -245,7 +278,11 @@ def review(rows,report,champion=None):
   if all(((ds>=start)&(ds<end)&cohort).sum()>=20 for start,end in proposed):
    folds=proposed;fold_policy='Shared folds start after sufficient training-only history for 80 base and 30 calibration observations with both classes; no validation scores determine dates'
  for i,spec in enumerate(specs):
-  built,names=cache[(spec['window'],spec['variant'])];X=np.array([v[1] for v in built]);blocks=[];p_all=[];y_all=[];d_all=[];failure=None
+  built,names=cache[(spec['window'],spec['variant'])];X=np.array([v[1] for v in built]);evalX=X
+  if spec['variant'] not in ('rest_guard','no_rest') and not spec['variant'].startswith('context_') and not spec.get('diagnostic_only'):
+   from .rest import adjusted_features
+   corrected,_=adjusted_features(built,names,'recovery_only');evalX=np.array([v[1] for v in corrected])
+  blocks=[];p_all=[];y_all=[];d_all=[];failure=None
   for start,end in folds:
    tr=(ds<start)&cohort;va=(ds>=start)&(ds<end)&cohort
    if va.sum()<20 or len(set(y[tr]))<2:raise ValueError('An expanding fold lacks sufficient comparable observations')
@@ -255,15 +292,15 @@ def review(rows,report,champion=None):
    else:
     try:m=fit(spec,X[tr],y[tr],list(ds[tr]),league)
     except InsufficientCalibration as e:failure=str(e);break
-   p=predict(m,X[va]);blocks.append(dict(quality_scores(y[va],p),train_end=str(max(ds[tr])),validation_start=str(min(ds[va])),validation_end=str(max(ds[va]))));p_all.extend(p);y_all.extend(y[va]);d_all.extend(ds[va])
+   p=predict(m,evalX[va]);blocks.append(dict(quality_scores(y[va],p),train_end=str(max(ds[tr])),validation_start=str(min(ds[va])),validation_end=str(max(ds[va]))));p_all.extend(p);y_all.extend(y[va]);d_all.extend(ds[va])
    if hasattr(m,'calibration_audit'):blocks[-1]['calibration']=m.calibration_audit
   if failure:
    results.append({'name':label(spec),'specification':spec,'folds':blocks,'validation':None,'status':'skipped','reason':failure});predictions.append(None);continue
   aggregate=quality_scores(np.array(y_all),np.array(p_all));results.append({'name':champion.get('selected',report['selected']) if i==0 and champion else report['selected'] if i==0 else label(spec),'specification':spec,'folds':blocks,'status':'completed','validation':aggregate});predictions.append((np.array(y_all),np.array(p_all),d_all))
- incumbent=results[0];eligible=[i for i,r in enumerate(results[1:],1) if r['validation'] is not None and r['validation']['accuracy']>=incumbent['validation']['accuracy'] and r['validation']['brier']<=incumbent['validation']['brier']]
+ incumbent=results[0];eligible=[i for i,r in enumerate(results[1:],1) if not r['specification'].get('diagnostic_only') and r['validation'] is not None and r['validation']['accuracy']>=incumbent['validation']['accuracy'] and r['validation']['brier']<=incumbent['validation']['brier']]
  eligible=[i for i in eligible if results[i]['validation']['log_loss']<incumbent['validation']['log_loss']]
  selected=max(eligible,key=lambda i:(results[i]['validation']['accuracy'],-results[i]['validation']['log_loss'])) if eligible else 0
- accuracy_leader=max((r for r in results if r['validation'] is not None),key=lambda r:(r['validation']['accuracy'],-r['validation']['log_loss']))
+ accuracy_leader=max((r for r in results if r['validation'] is not None and not r['specification'].get('diagnostic_only')),key=lambda r:(r['validation']['accuracy'],-r['validation']['log_loss']))
  if results[selected]['validation']['log_loss']>=incumbent['validation']['log_loss']:selected=0
  chosen=results[selected];spec=chosen['specification'];built,names=build(rows,spec['window'],spec['variant']);warm=np.array([v[2]>=min_history for v in built]);X=np.array([v[1] for v in built]);yy=np.array([int(v[0]['outcome']=='home') for v in built]);all_days=np.array([v[0]['date'] for v in built])
  fit_failure=None
@@ -274,7 +311,7 @@ def review(rows,report,champion=None):
   else:m=fit(spec,X[warm],yy[warm],list(all_days[warm]),league)
  except InsufficientCalibration as e:fit_failure=str(e)
  artifact=None if fit_failure else {'model':m,'research_spec':dict(spec),'window':spec['window'],'variant':spec['variant'],'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':chosen['name'],'refitted':now()}
- result={'version':VERSION,'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'accuracy_leader':accuracy_leader,'selection_objective':'Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.','candidates':results,'fold_policy':fold_policy,'candidate_count':len(results)-1,'completed_candidates':sum(r['status']=='completed' for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
+ result={'version':VERSION,'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'accuracy_leader':accuracy_leader,'rest_policy_review':{'before':next(r for r in results if r['specification'].get('diagnostic_only')),'after':incumbent} if any(r['specification'].get('diagnostic_only') for r in results) else None,'selection_objective':'Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.','candidates':results,'fold_policy':fold_policy,'candidate_count':sum(not r['specification'].get('diagnostic_only') for r in results[1:]),'completed_candidates':sum(r['status']=='completed' and not r['specification'].get('diagnostic_only') for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
  return artifact,result
 
 def saved_review(root,rows,report,champion=None):

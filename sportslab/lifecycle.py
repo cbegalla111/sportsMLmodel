@@ -32,7 +32,11 @@ def candidate(rows,report,champion=None):
 
 def probabilities(art,rows,after):
  from .model import model_features
- built,_=model_features(rows,art['window'],art['extra'],art.get('variant','baseline'));ix=[i for i,v in enumerate(built) if v[0]['date']>after and v[2]>=(3 if rows[0]['league']=='UFC' else 5)];X=np.array([built[i][1] for i in ix])
+ variant=art.get('variant','baseline');built,names=model_features(rows,art['window'],art['extra'],variant)
+ if variant not in ('no_rest','rest_guard') and not variant.startswith('context_'):
+  from .rest import adjusted_features
+  built,_=adjusted_features(built,names,'recovery_only')
+ ix=[i for i,v in enumerate(built) if v[0]['date']>after and v[2]>=(3 if rows[0]['league']=='UFC' else 5)];X=np.array([built[i][1] for i in ix])
  if not len(ix):return {},{}
  p=elo(X) if art['model'] is None else art['model'].predict_proba(X)[:,1]
  return {rows[i]['event_id']:float(v) for i,v in zip(ix,p)},{rows[i]['event_id']:rows[i] for i in ix}
@@ -93,7 +97,12 @@ def prepare(root,rows,report,original_path,outcomes=None):
    entry.update(settled=True,outcome=result['outcome'])
    if result['outcome'] in ('home','away'):entry['correct']=(entry['home_probability']>=.5)==(result['outcome']=='home')
  losses=sum(e.get('correct') is False for e in state['ledger'].values());wins=sum(e.get('correct') is True for e in state['ledger'].values())
- trial=state.get('trial');status='Champion retained; waiting for settled forecast losses before opening a review.'
+ from .rest import VERSION as rest_version
+ trial=state.get('trial')
+ if trial and trial.get('prediction_policy')!=rest_version:
+  state.setdefault('policy_changes',[]).append({'at':now(),'previous_trial_after':trial['after'],'prediction_policy':rest_version})
+  trial.update(after=rows[-1]['date'],prediction_policy=rest_version);state['confirmation']=None
+ status='Champion retained; waiting for settled forecast losses before opening a review.'
  if trial:
   challenger=joblib.load(root/'challenger.joblib');old,rr=probabilities(champion,rows,trial['after']);new,_=probabilities(challenger,rows,trial['after']);ids=sorted(set(old)&set(new),key=lambda k:(rr[k]['date'],k))
   decision=gate(np.array([int(rr[k]['outcome']=='home') for k in ids]),np.array([old[k] for k in ids]),np.array([new[k] for k in ids]),[rr[k]['date'] for k in ids]);state['confirmation']=decision
@@ -107,9 +116,9 @@ def prepare(root,rows,report,original_path,outcomes=None):
   challenger,research=candidate(rows,report,champion);state['research']=research
   if challenger is not None:
    state['consumed_losses']=losses
-   joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected']};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
+   joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected'],'prediction_policy':rest_version};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
   else:status='Challenger fitting pending; daily checks will retry when enough calibration data are available.'
- summary={'status':status,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
+ summary={'status':status,'prediction_policy':rest_version,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in state['ledger'].values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review}
  write_json(state_path,state)
  return champion,summary
 
@@ -119,5 +128,5 @@ def record(root,predictions):
  state=json.loads(path.read_text())
  for p in predictions:
   # First published pre-event forecast is immutable; later refreshes cannot replace misses.
-  state['ledger'].setdefault(p['id'],{k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc') if k in p})
+  state['ledger'].setdefault(p['id'],{k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc','prediction_policy') if k in p})
  write_json(path,state)
