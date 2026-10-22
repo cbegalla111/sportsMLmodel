@@ -33,6 +33,35 @@ def public_rows(db,league):
   accepted.append({key:r[key] for key in BASE})
  return accepted
 
+def prediction_history(root,rows,asof):
+ """Only first-published public picks; never reconstruct a pick after the result."""
+ path=Path(root)/'state.json'
+ if not path.exists():return []
+ state=json.loads(path.read_text());results={}
+ for r in rows:results.setdefault((r['date'],r['home'],r['away']),[]).append(r)
+ archive=[]
+ for entry in state.get('ledger',{}).values():
+  try:
+   day=date.fromisoformat(entry['date']);generated=parse_time(entry['generated_at'])
+   start=parse_time(entry['event_start_utc']) if entry.get('event_start_utc') else None
+   if not asof.date()-timedelta(days=8)<=day<=asof.date():continue
+   if generated>asof or (start and (generated>=start or start>asof)):continue
+   # Legacy ledger entries omit start times, but were recorded only after
+   # the exporter verified they were pre-game. Preserve those same-day picks.
+   if not start and generated.date()>day:continue
+   p={k:entry[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256')}
+   p['event_start_utc']=start.isoformat() if start else None
+   p['away_probability']=1-p['home_probability']
+   matches=results.get((p['date'],p['home'],p['away']),[])
+   exact=[r for r in matches if r['event_id']==p['id'] or any(r['event_id']==prefix+p['id'] for prefix in ('mlb-','nhl-','nflverse-','nba-cdn-'))]
+   result=exact[0] if len(exact)==1 else matches[0] if len(matches)==1 else None
+   p['outcome']=result['outcome'] if result else None
+   p['correct']=((p['home_probability']>=.5)==(p['outcome']=='home')) if p['outcome'] in ('home','away') else None
+   p['home_score']=result['home_score'] if result else None;p['away_score']=result['away_score'] if result else None
+   archive.append(p)
+  except (KeyError,TypeError,ValueError):continue
+ return sorted(archive,key=lambda p:(p['date'],p['id']),reverse=True)
+
 def export_snapshot(source_root,artifacts,asof=None):
  asof=asof or datetime.now(timezone.utc)
  if asof.tzinfo is None:raise ValueError('Export time must be timezone-aware')
@@ -129,6 +158,7 @@ def export_snapshot(source_root,artifacts,asof=None):
          item['withheld'].append(dict(safe,reason=str(e)))
        item['predictions'].sort(key=lambda p:max(p['home_probability'],p['away_probability']),reverse=True)
    if item['lifecycle']:record(lifecycle_root,item['predictions'])
+   item['prediction_history']=prediction_history(lifecycle_root,rows,asof)
    snapshot['leagues'].append(item)
   # Estimating public forecasts must never write to either prediction ledger.
   assert isolated.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]==0

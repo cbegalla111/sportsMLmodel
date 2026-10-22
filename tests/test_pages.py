@@ -105,3 +105,23 @@ def test_distinct_same_day_matchups_are_not_collapsed(public_source):
  with db:db.execute('UPDATE settings SET value=? WHERE key=?',(json.dumps(feed),'feed_NFL'))
  item=next(l for l in export_snapshot(root,artifacts,now)['leagues'] if l['name']=='NFL')
  assert {p['id'] for p in item['predictions']}=={first['id'],'second-game'}
+
+
+def test_prediction_archive_preserves_original_picks_and_grades_results(tmp_path):
+ from sportslab.pages import prediction_history
+ asof=datetime(2026,10,22,16,tzinfo=timezone.utc)
+ base={'id':'one','date':'2026-10-21','home':'A','away':'B','home_probability':.7,'generated_at':'2026-10-21T14:00:00+00:00','model':'elo_w20','dataset_sha256':'digest','PRIVATE_SENTINEL':'must not export'}
+ ledger={'one':base,'two':dict(base,id='two',home_probability=.4,event_start_utc='2026-10-21T23:00:00+00:00'),'pending':dict(base,id='pending',date='2026-10-20',home='C',generated_at='2026-10-20T14:00:00+00:00'),'draw':dict(base,id='draw',home='D'),'old':dict(base,id='old',date='2026-10-01',generated_at='2026-09-30T12:00:00+00:00'),'after':dict(base,id='after',generated_at='2026-10-21T23:01:00+00:00',event_start_utc='2026-10-21T23:00:00+00:00'),'future':dict(base,id='future',event_start_utc='2026-10-23T23:00:00+00:00')}
+ (tmp_path/'state.json').write_text(json.dumps({'ledger':ledger}))
+ results=[{'event_id':'mlb-one','date':base['date'],'home':'A','away':'B','outcome':'home','home_score':'4','away_score':'1'},{'event_id':'mlb-two','date':base['date'],'home':'A','away':'B','outcome':'away','home_score':'0','away_score':'2'},{'event_id':'draw','date':base['date'],'home':'D','away':'B','outcome':'tie','home_score':'1','away_score':'1'}]
+ picks={p['id']:p for p in prediction_history(tmp_path,results,asof)}
+ assert set(picks)=={'one','two','pending','draw'}
+ assert picks['one']['correct'] is True and picks['two']['correct'] is True
+ assert picks['one']['home_probability']==.7
+ assert picks['pending']['correct'] is None and picks['pending']['outcome'] is None
+ assert picks['draw']['correct'] is None and picks['draw']['outcome']=='tie'
+ assert 'PRIVATE_SENTINEL' not in json.dumps(picks)
+ # Ambiguous doubleheaders cannot be graded without the exact event ID.
+ ledger={'ambiguous':dict(base,id='ambiguous')}
+ (tmp_path/'state.json').write_text(json.dumps({'ledger':ledger}))
+ assert prediction_history(tmp_path,results,asof)[0]['correct'] is None

@@ -119,5 +119,5 @@ def record(root,predictions):
  state=json.loads(path.read_text())
  for p in predictions:
   # First published pre-event forecast is immutable; later refreshes cannot replace misses.
-  state['ledger'].setdefault(p['id'],{k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256')})
+  state['ledger'].setdefault(p['id'],{k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc') if k in p})
  write_json(path,state)

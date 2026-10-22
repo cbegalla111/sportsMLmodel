@@ -15,6 +15,12 @@ Public website: https://cbegalla111.github.io/sportsMLmodel/
 
 All seven sports have daily result/schedule connectors. NBA uses the SportsDataverse/hoopR mirror of ESPN schedules; WNBA/UFC use the ESPN scoreboard; CFB uses SportsDataverse results and fixtures; NFL/MLB/NHL retain their established providers. Current coverage and validated model status are reported per sport. Starting pitchers, goalies, injuries, lineups and advanced efficiency features are not supplied or claimed validated.
 
+## Previous predictions
+
+The **Past 7 days** tab recalls the first public pre-game prediction saved for each event, its original probability and publication time, imported final result and Correct/Missed/Pending status. Its accuracy excludes pending games, ties and no contests. Yesterday, the calendar and previous-day arrow also show saved picks directly in Forecasts. Today follows local midnight automatically while the page stays open; explicitly selected past/future dates stay selected.
+
+The public-only lifecycle ledger is retained in the daily workflow cache. Predictions are never recreated using known results. Older ledger entries lack exact start timestamps and show source dates; new picks retain source-verified start times for local date display. Days before recording began can be empty. The data update timestamp, daily schedule and refresh button sit in a compact top row, followed by a horizontally scrollable row of league feed statuses.
+
 ## Daily operations
 
 `.github/workflows/pages.yml` runs:

@@ -21,12 +21,14 @@ def test_first_published_pick_is_immutable_and_settled_once(tmp_path):
  joblib.dump({'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA'},original)
  champion,summary=prepare(root,rows,report,original)
  p={'id':'one','date':rows[0]['date'],'home':rows[0]['home'],'away':rows[0]['away'],'home_probability':.7 if rows[0]['outcome']=='home' else .3,'generated_at':'2009-01-01T00:00:00+00:00','model':'elo_w20','dataset_sha256':version(rows)}
- record(root,[p]);record(root,[dict(p,home_probability=1-p['home_probability'])])
+ p['event_start_utc']='2009-01-02T12:00:00+00:00'
+ record(root,[p]);record(root,[dict(p,home_probability=1-p['home_probability'],event_start_utc='2009-01-03T12:00:00+00:00')])
  _,summary=prepare(root,rows,report,original)
  assert summary['live_record']=={'wins':1,'losses':0,'pending':0}
  assert summary['weights_trained_through']==rows[-1]['date']
  assert not summary['trial']
  assert json.loads((root/'state.json').read_text())['ledger']['one']['home_probability']==p['home_probability']
+ assert json.loads((root/'state.json').read_text())['ledger']['one']['event_start_utc']==p['event_start_utc']
 
 def test_loss_locks_challenger_without_immediately_changing_weights(tmp_path):
  rows=synthetic_rows(800);original=tmp_path/'original.joblib';root=tmp_path/'review';report={'league':'NBA','selected':'elo_w20','dataset_sha256':version(rows),'last_date':rows[-1]['date'],'final_test_start':rows[640]['date']}
