@@ -39,7 +39,7 @@ def test_review_uses_identical_folds_and_excludes_original_test():
  assert second['candidates']==result['candidates']
 
 @pytest.mark.parametrize('variant',['form','profile','ratings','context_baseline','context_form','context_ratings','context_bayesian'])
-@pytest.mark.parametrize('kind',['logistic','kernel','ensemble'])
+@pytest.mark.parametrize('kind',['logistic','kernel','ensemble','margin','poisson'])
 def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(tmp_path,variant,kind):
  import json
  import joblib
@@ -48,7 +48,7 @@ def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(t
  from sportslab.model import estimate,fixture_inputs
  from sportslab.research import fit
  rows=synthetic_rows(800);db=connect(tmp_path);ingest(db,rows);rows=load(db,'NBA');built,names=__import__('sportslab.research',fromlist=['build']).build(rows,20,variant);warm=np.array([v[2]>=5 for v in built]);X=np.array([v[1] for v in built]);y=np.array([v[0]['outcome']=='home' for v in built],dtype=int)
- spec={'kind':kind,'c':.03,'variant':variant,'window':20};m=fit(spec,X[warm],y[warm],[v[0]['date'] for v in built if v[2]>=5],'NBA')
+ spec={'kind':kind,'c':.03,'variant':variant,'window':20};m=fit(spec,X[warm],y[warm],[v[0]['date'] for v in built if v[2]>=5],'NBA',np.array([[float(r['home_score']),float(r['away_score'])] for r in rows])[warm])
  artifact={'model':m,'window':20,'variant':variant,'extra':False,'names':names,'digest':version(rows),'last_date':rows[-1]['date'],'training_event_ids':[r['event_id'] for r in rows]}
  (tmp_path/'models').mkdir();joblib.dump(artifact,tmp_path/'models'/'NBA-test.joblib')
  report={'id':'NBA-test','selected':'logistic_form_w20_C0.03','outcome_rules':'Synthetic test only'}
@@ -193,3 +193,35 @@ def test_previous_search_comparison_requires_the_same_development_games(tmp_path
  assert result['previous_search']['accuracy_gain']==pytest.approx(.02)
  prior['incumbent']['folds']=[dict(fold,n=49)];path.write_text(json.dumps(prior));result=saved_review(tmp_path,rows,report)
  assert 'previous_search' not in result
+
+
+@pytest.mark.parametrize('kind',['margin','poisson'])
+def test_score_models_never_train_on_calibration_block_score_targets(tmp_path,kind):
+ from datetime import date,timedelta
+ import joblib
+ from sportslab.research import fit
+ rng=np.random.default_rng(8);X=rng.normal(size=(400,9));scores=np.column_stack((rng.poisson(np.exp(2+.2*X[:,0])),rng.poisson(np.exp(2-.2*X[:,0])))).astype(float);y=(scores[:,0]>scores[:,1]).astype(int)
+ days=[(date(2020,1,1)+timedelta(days=i//4)).isoformat() for i in range(400)];spec={'kind':kind,'variant':'context_form','calibrate':'sigmoid'}
+ one=fit(spec,X,y,days,'NBA',scores);changed=scores.copy();changed[-80:]=10000
+ two=fit(spec,X,y,days,'NBA',changed)
+ assert np.allclose(one.predict_proba(X[-20:]),two.predict_proba(X[-20:]))
+ a=one.calibration_audit;assert a['base_train_end']<a['calibration_start']<=a['calibration_end'] and a['calibration_n']==80
+ path=tmp_path/'scoring.joblib';joblib.dump(one,path);loaded=joblib.load(path);p=loaded.predict_proba(X[-20:])
+ assert np.allclose(p,one.predict_proba(X[-20:])) and np.allclose(p.sum(axis=1),1) and np.isfinite(p).all()
+
+
+def test_physical_score_models_are_never_applied_to_fight_winner_encodings():
+ from sportslab.research import fit
+ assert not any(s['kind'] in ('margin','poisson') for s in definitions('UFC'))
+ X=np.zeros((200,5));y=np.array([0,1]*100);days=['2020-01-01']*200;scores=np.column_stack((y,1-y))
+ for kind in ('margin','poisson'):
+  with pytest.raises(ValueError,match='physical score'):fit({'kind':kind,'variant':'context_form'},X,y,days,'UFC',scores)
+
+
+def test_direct_bayesian_prior_uses_only_causal_strength_log_odds():
+ from scipy.special import expit
+ from sportslab.research import fit
+ X=np.zeros((4,17));X[:,-4]=[-2,-1,1,2];y=np.array([0,1,0,1]);m=fit({'kind':'bayesian_prior','variant':'context_bayesian'},X,y,['2020-01-01']*4,'NBA')
+ assert np.allclose(m.predict_proba(X)[:,1],expit(X[:,-4]))
+ other=X.copy();other[:,4]=10000
+ assert np.allclose(m.predict_proba(other),m.predict_proba(X))

@@ -109,3 +109,13 @@ Additional classifiers include bounded 160-tree random forests and standardized 
 Training-history ablations use only the latest fixed number of years within each training fold: 4/8 for NFL and CFB, 1/3 for MLB, 3/6 for UFC, and 2/4 for NBA/WNBA/NHL. Feature histories remain causal and can use earlier known results. A horizon with fewer than 100 training observations or a missing class is skipped rather than compared on easier validation games.
 
 The previous research winner is compared with the new selection only when development hashes, validation dates and validation sample sizes match exactly. All old challengers remain in the search, no final-test outcome is used for selection, and lower log loss/non-worse Brier are still required. Searching more candidates can overfit development folds; the existing prospective confirmation gate remains mandatory for replacing champion weights.
+
+## Score-target models and direct Bayesian priors
+
+The final expanded catalog contains 130 team-sport and 101 UFC challengers. It includes a direct probability from the pre-event uncertainty-adjusted strength log odds, with optional inner-block temperature, sigmoid or decision calibration.
+
+For team sports only, Gaussian margin models learn final home-minus-away scoring margins with regularized ridge regression. Poisson models separately learn home and away final scoring counts, then use a Skellam difference distribution to estimate the winner, splitting unresolved ties equally. These auxiliary models do not claim regulation-only, draw-market or bookmaker-settlement probabilities. Fixed regularization settings are compared with and without inner chronological sigmoid calibration.
+
+Physical scores are passed separately as **training targets**, never appended to predictor columns. An outer validation game's score cannot enter either base fitting or calibration. UFC winner encodings are explicitly rejected as physical scoring targets. Query-time inference uses only causal result-history features, including the existing sport-specific recovery policy.
+
+The one-time public build timeout is 45 minutes to accommodate the expanded CPU-only comparison. Subsequent daily runs reuse unchanged development research; new public results still update inputs and policy-specific outcome feedback. A larger candidate search does not bypass sealed tests or prospective model promotion.

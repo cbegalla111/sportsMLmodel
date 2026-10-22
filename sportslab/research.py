@@ -7,7 +7,7 @@ from pathlib import Path
 import joblib
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier, ExtraTreesClassifier, RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, Ridge, PoissonRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.kernel_approximation import Nystroem
@@ -15,7 +15,7 @@ from sklearn.neural_network import MLPClassifier
 from .data import now,version
 from .model import features,elo,scores
 
-VERSION='sport-review-v7-bayesian-stacking-recent'
+VERSION='sport-review-v8-scoring-and-bayesian-priors'
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -172,6 +172,14 @@ def definitions(league=None):
   result.append({'kind':'stack','window':20,'variant':variant,'decay':False})
   years=(3,6) if league=='UFC' else (4,8) if league in ('NFL','CFB') else (1,3) if league=='MLB' else (2,4)
   for horizon in years:result.append({'kind':'logistic','window':20,'variant':variant,'c':.1,'decay':False,'training_years':horizon})
+ result.append({'kind':'bayesian_prior','window':20,'variant':'context_bayesian','decay':False})
+ for method in ('temperature','sigmoid','decision'):result.append({'kind':'bayesian_prior','window':20,'variant':'context_bayesian','decay':False,'calibrate':method})
+ if league!='UFC':
+  for variant in ('context_form','context_bayesian'):
+   for alpha in (1.,100.):
+    for method in (None,'sigmoid'):result.append({'kind':'margin','window':20,'variant':variant,'ridge_alpha':alpha,'decay':False,**({'calibrate':method} if method else {})})
+   for alpha in (.1,1.):
+    for method in (None,'sigmoid'):result.append({'kind':'poisson','window':20,'variant':variant,'score_alpha':alpha,'decay':False,**({'calibrate':method} if method else {})})
  return result
 
 class InsufficientCalibration(ValueError):pass
@@ -193,6 +201,28 @@ class ModelAverage:
  def __init__(self,models):self.models=models
  def predict_proba(self,X):
   p=np.mean([predict(m,X) for m in self.models],axis=0)
+  return np.column_stack((1-p,p))
+
+class BayesianPrior:
+ def predict_proba(self,X):
+  from scipy.special import expit
+  p=expit(X[:,-4]);return np.column_stack((1-p,p))
+
+class MarginDistribution:
+ def __init__(self,model,sigma):self.model=model;self.sigma=sigma
+ def predict_proba(self,X):
+  from scipy.special import ndtr
+  p=np.clip(ndtr(self.model.predict(X)/self.sigma),1e-6,1-1e-6);return np.column_stack((1-p,p))
+
+class ScoreDistribution:
+ def __init__(self,home,away,maximum):self.home=home;self.away=away;self.maximum=maximum
+ def predict_proba(self,X):
+  from scipy.stats import skellam
+  h=np.clip(self.home.predict(X),.05,self.maximum);a=np.clip(self.away.predict(X),.05,self.maximum)
+  # Unresolved score ties receive equal eventual-winner probability; no draw
+  # or bookmaker-settlement market is inferred from this auxiliary score model.
+  p=np.clip(1-skellam.cdf(0,h,a)+.5*skellam.pmf(0,h,a),1e-6,1-1e-6)
+  if not np.isfinite(p).all():raise ValueError('Scoring distribution produced nonfinite probabilities')
   return np.column_stack((1-p,p))
 
 class TemporalStack:
@@ -227,13 +257,13 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
 
-def fit(spec,X,y,days,league):
+def fit(spec,X,y,days,league,score_targets=None):
  if spec.get('training_years'):
   boundary=(date.fromisoformat(max(days))-timedelta(days=365*spec['training_years'])).isoformat();keep=np.array(days)>=boundary
   if keep.sum()<100 or len(set(y[keep]))<2:raise InsufficientCalibration('Recent training horizon has insufficient observations or classes')
-  return fit({k:v for k,v in spec.items() if k!='training_years'},X[keep],y[keep],list(np.array(days)[keep]),league)
+  return fit({k:v for k,v in spec.items() if k!='training_years'},X[keep],y[keep],list(np.array(days)[keep]),league,None if score_targets is None else score_targets[keep])
  if spec['kind']=='stack':
   from scipy.special import logit
   unique=sorted(set(days));boundary=unique[int(len(unique)*.8)];ds=np.array(days);inner=ds<boundary;cal=~inner
@@ -259,7 +289,7 @@ def fit(spec,X,y,days,league):
   from scipy.special import expit,logit
   unique=sorted(set(days));boundary=unique[int(len(unique)*.8)];ds=np.array(days);inner=ds<boundary;cal=~inner
   if inner.sum()<80 or cal.sum()<30 or len(set(y[inner]))<2 or len(set(y[cal]))<2:raise InsufficientCalibration('Inner chronological calibration block has insufficient observations or classes')
-  base={k:v for k,v in spec.items() if k!='calibrate'};model=fit(base,X[inner],y[inner],list(ds[inner]),league);z=logit(np.clip(predict(model,X[cal]),1e-6,1-1e-6))
+  base={k:v for k,v in spec.items() if k!='calibrate'};model=fit(base,X[inner],y[inner],list(ds[inner]),league,None if score_targets is None else score_targets[inner]);z=logit(np.clip(predict(model,X[cal]),1e-6,1-1e-6))
   if spec['calibrate']=='temperature':
    objective=lambda t:float(np.mean(np.logaddexp(0,z/t)-y[cal]*z/t))
    optimum=minimize_scalar(objective,bounds=(.75,3.),method='bounded');parameter=float(optimum.x)
@@ -278,6 +308,7 @@ def fit(spec,X,y,days,league):
  if spec.get('elo_weight'):
   base={k:v for k,v in spec.items() if k!='elo_weight'}
   return ProbabilityBlend(fit(base,X,y,days,league),spec['elo_weight'])
+ if spec['kind']=='bayesian_prior':return BayesianPrior()
  if spec['kind']=='elo':return None
  if spec['kind']=='ensemble':
   common={k:v for k,v in spec.items() if k!='kind'}
@@ -285,6 +316,16 @@ def fit(spec,X,y,days,league):
  weights=None
  if spec.get('decay'):
   latest=date.fromisoformat(max(days));age=np.array([(latest-date.fromisoformat(d)).days for d in days]);weights=np.exp2(-age/(HALF_LIFE[league]*spec.get('half_life_scale',1)))
+ if spec['kind'] in ('margin','poisson'):
+  if league=='UFC':raise ValueError('Fight outcome encodings are not physical score targets')
+  if score_targets is None or score_targets.shape!=(len(y),2) or not np.isfinite(score_targets).all() or (score_targets<0).any():raise ValueError('Scoring models require complete nonnegative training-only score targets')
+  if spec['kind']=='margin':
+   target=score_targets[:,0]-score_targets[:,1];m=make_pipeline(StandardScaler(),Ridge(alpha=spec.get('ridge_alpha',1.)));kwargs={'ridge__sample_weight':weights} if weights is not None else {};m.fit(X,target,**kwargs)
+   sigma=max(.5,float(np.sqrt(np.mean((target-m.predict(X))**2))));return MarginDistribution(m,sigma)
+  models=[]
+  for side in (0,1):
+   m=make_pipeline(StandardScaler(),PoissonRegressor(alpha=spec.get('score_alpha',.1),max_iter=300,tol=1e-4));kwargs={'poissonregressor__sample_weight':weights} if weights is not None else {};m.fit(X,score_targets[:,side],**kwargs);models.append(m)
+  return ScoreDistribution(*models,maximum={'NBA':250,'WNBA':200,'NFL':100,'CFB':150,'NHL':30,'MLB':60}[league])
  if spec['kind']=='boost':
   m=HistGradientBoostingClassifier(max_iter=100,max_leaf_nodes=spec.get('leaves',7),l2_regularization=20,learning_rate=.04,random_state=42);m.fit(X,y,sample_weight=weights)
  elif spec['kind']=='extra_trees':
@@ -320,6 +361,7 @@ def review(rows,report,champion=None):
  specs=[inc_spec,*definitions(league)]
  if reference_spec['variant']=='baseline':specs.append(dict(reference_spec,diagnostic_only=True))
  cache={};results=[];predictions=[];ds=np.array([r['date'] for r in dev]);y=np.array([int(r['outcome']=='home') for r in dev]);min_history=3 if league=='UFC' else 5
+ score_targets=np.array([[float(r['home_score']),float(r['away_score'])] for r in dev])
  for spec in specs:
   key=(spec['window'],spec['variant'])
   if key not in cache:cache[key]=build(dev,*key)
@@ -352,7 +394,7 @@ def review(rows,report,champion=None):
     from .model import estimator
     kind='boost' if spec['kind']=='boost' else 'logistic_strong' if spec['c']==.01 else 'logistic_weak' if spec['c']==1 else 'logistic';m=estimator(kind);m.fit(X[tr],y[tr])
    else:
-    try:m=fit(spec,X[tr],y[tr],list(ds[tr]),league)
+    try:m=fit(spec,X[tr],y[tr],list(ds[tr]),league,score_targets[tr])
     except InsufficientCalibration as e:failure=str(e);break
    p=predict(m,evalX[va]);blocks.append(dict(quality_scores(y[va],p),train_end=str(max(ds[tr])),validation_start=str(min(ds[va])),validation_end=str(max(ds[va]))));p_all.extend(p);y_all.extend(y[va]);d_all.extend(ds[va])
    if hasattr(m,'calibration_audit'):blocks[-1]['calibration']=m.calibration_audit
@@ -370,7 +412,7 @@ def review(rows,report,champion=None):
   if spec.get('legacy') and spec['kind']!='elo':
    from .model import estimator
    kind='boost' if spec['kind']=='boost' else 'logistic_strong' if spec['c']==.01 else 'logistic_weak' if spec['c']==1 else 'logistic';m=estimator(kind);m.fit(X[warm],yy[warm])
-  else:m=fit(spec,X[warm],yy[warm],list(all_days[warm]),league)
+  else:m=fit(spec,X[warm],yy[warm],list(all_days[warm]),league,np.array([[float(r['home_score']),float(r['away_score'])] for r in rows])[warm])
  except InsufficientCalibration as e:fit_failure=str(e)
  artifact=None if fit_failure else {'model':m,'research_spec':dict(spec),'window':spec['window'],'variant':spec['variant'],'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':chosen['name'],'refitted':now()}
  result={'version':VERSION,'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'accuracy_leader':accuracy_leader,'rest_policy_review':{'before':next(r for r in results if r['specification'].get('diagnostic_only')),'after':incumbent} if any(r['specification'].get('diagnostic_only') for r in results) else None,'selection_objective':'Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.','candidates':results,'fold_policy':fold_policy,'candidate_count':sum(not r['specification'].get('diagnostic_only') for r in results[1:]),'completed_candidates':sum(r['status']=='completed' and not r['specification'].get('diagnostic_only') for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}

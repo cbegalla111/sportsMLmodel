@@ -110,3 +110,9 @@ The seven-sport deployment completed successfully. All 78 team-sport / 65 UFC ch
 The v7 catalog contains 110 team-sport and 97 UFC challengers. It adds causal uncertainty-aware strength features, nested temporal stacking, regularized neural networks, random forests and fixed recent-history training windows. No archived final-test date is used for candidate selection. New versus previous search metrics are shown only for exactly matched development games.
 
 96 automated tests passed, including Bayesian same-date outcome isolation and query independence, nested stacking audit boundaries, recent-horizon exclusion of old labels, frozen model serialization, direct/batch contextual inference, policy-specific actual-result feedback, and rejection of unmatched previous-search comparisons. Real public-source backtests are run by the public dashboard deployment; gains are reported only where measured, and existing promotion checks remain in force.
+
+## Final expanded score-model search
+
+The final catalog includes 130 team-sport / 101 UFC challengers, adding separately supplied score targets for ridge margin and Poisson count models, alongside direct uncertainty-adjusted strength priors. 114 automated tests passed. Additional tests prove that inner calibration-block score targets cannot affect a scoring model, verify scoring-model serialization and direct/batch inference, and reject interpreting UFC winner flags as physical scores.
+
+The highest raw accuracy candidate and the eligible selection are distinct. A higher winner percentage is not reported as an overall improvement when its probability loss/Brier worsen. Previous-search comparisons require identical development game hashes, fold dates and sample sizes. All original test dates remain excluded from candidate selection.

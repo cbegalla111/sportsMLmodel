@@ -181,6 +181,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  X=np.array([x]); m=art['model']; p=float(elo(X)[0] if m is None else m.predict_proba(X)[0,1])
  factor_inputs=[(name,v) for name,v in zip(names,x) if name!='legacy_rest_training_only']
  if m is None or art.get('research_spec',{}).get('kind')=='elo':factor_inputs=factor_inputs[:2]
+ if art.get('research_spec',{}).get('kind')=='bayesian_prior':factor_inputs=[f for f in factor_inputs if f[0]=='uncertainty_adjusted_log_odds']
  factors=[{'factor':name,'difference':float(v)} for name,v in factor_inputs]
  if m is not None and hasattr(m,'named_steps') and set(m.named_steps)=={'standardscaler','logisticregression'}:
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
