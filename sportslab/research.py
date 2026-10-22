@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 from .data import now,version
 from .model import features,elo,scores
 
-VERSION='sport-review-v4-quality'
+VERSION='sport-review-v4-quality-warmup'
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -165,6 +165,21 @@ def review(rows,report,champion=None):
   key=(spec['window'],spec['variant'])
   if key not in cache:cache[key]=build(dev,*key)
  cohort=np.logical_and.reduce([np.array([v[2]>=min_history for v in built]) for built,_ in cache.values()])
+ # A sparse-history sport may need a later common start for inner calibration.
+ # This uses training sample/class availability only, never validation scores.
+ fold_policy='Original shared 40/60/80 percent expanding date folds'
+ first_index=int(len(days)*.4)
+ for index in range(first_index,len(days)):
+  tr=(ds<days[index])&cohort;td=sorted(set(ds[tr]))
+  if len(td)<2:continue
+  boundary=td[int(len(td)*.8)];inner=tr&(ds<boundary);cal=tr&(ds>=boundary)
+  if inner.sum()>=80 and cal.sum()>=30 and len(set(y[inner]))==2 and len(set(y[cal]))==2:break
+ else:index=first_index
+ if index>first_index:
+  indices=[index+(len(days)-index)*i//3 for i in range(3)]
+  proposed=[(days[ix],days[indices[i+1]] if i<2 else cut) for i,ix in enumerate(indices)]
+  if all(((ds>=start)&(ds<end)&cohort).sum()>=20 for start,end in proposed):
+   folds=proposed;fold_policy='Shared folds start after sufficient training-only history for 80 base and 30 calibration observations with both classes; no validation scores determine dates'
  for i,spec in enumerate(specs):
   built,names=cache[(spec['window'],spec['variant'])];X=np.array([v[1] for v in built]);blocks=[];p_all=[];y_all=[];d_all=[];failure=None
   for start,end in folds:
@@ -193,7 +208,7 @@ def review(rows,report,champion=None):
   else:m=fit(spec,X[warm],yy[warm],list(all_days[warm]),league)
  except InsufficientCalibration as e:fit_failure=str(e)
  artifact=None if fit_failure else {'model':m,'research_spec':dict(spec),'window':spec['window'],'variant':spec['variant'],'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':chosen['name'],'refitted':now()}
- result={'version':VERSION,'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'candidates':results,'candidate_count':len(results)-1,'completed_candidates':sum(r['status']=='completed' for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
+ result={'version':VERSION,'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'candidates':results,'fold_policy':fold_policy,'candidate_count':len(results)-1,'completed_candidates':sum(r['status']=='completed' for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
  return artifact,result
 
 def saved_review(root,rows,report,champion=None):

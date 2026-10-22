@@ -96,3 +96,12 @@ def test_score_profiles_are_pregame_and_not_used_for_fight_encodings():
  assert all(a[1]==b[1] for a,b in zip(original,mutated) if a[0]['date']<=cut)
  with pytest.raises(ValueError,match='physical scoring'):profile_features([dict(r,league='UFC') for r in rows])
  assert all(s['variant']!='profile' for s in definitions('UFC'))
+
+def test_calibration_readiness_changes_shared_dates_without_using_validation_scores():
+ rows=synthetic_rows(800);report={'league':'NBA','selected':'logistic_w20','final_test_start':rows[400]['date'],'last_date':rows[-1]['date']}
+ _,result=review(rows,report)
+ assert 'training-only' in result['fold_policy']
+ common=[(f['validation_start'],f['validation_end'],f['n']) for f in result['incumbent']['folds']]
+ for c in result['candidates']:
+  if c['status']=='completed':assert [(f['validation_start'],f['validation_end'],f['n']) for f in c['folds']]==common
+ assert all(f['validation_end']<report['final_test_start'] for f in result['incumbent']['folds'])
