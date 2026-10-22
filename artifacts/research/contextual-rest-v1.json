@@ -1,692 +1,11 @@
 {
-  "scope": "Local real public-source development backtests; published all-seven-sport results are verified after deployment. The rest input correction is distinct from model-weight promotion. Some metrics can worsen.",
+  "scope": "Verified published seven-sport development backtests. The rest input correction is distinct from model-weight promotion; individual metrics can worsen. Current-policy loss feedback is separated from immutable original picks.",
+  "published_at": "2026-10-22T17:28:59.352125+00:00",
   "reviews": [
-    {
-      "league": "CFB",
-      "version": "sport-review-v6-contextual-rest-r1",
-      "checked": "2026-10-22T17:20:56.587392+00:00",
-      "development_sha256": "1cb62b047f648f256c10dcb96de8304acb74d4d525cf73a7b737d7da937ee062",
-      "development_through": "2025-11-02",
-      "excluded_final_test_from": "2025-11-05",
-      "candidate_count": 78,
-      "completed_candidates": 78,
-      "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
-      "selected": "logistic_form_w10_C0.3",
-      "accuracy_gain": 0.007432818753573378,
-      "log_loss_gain": 0.007981715279313684,
-      "comparison_uncertainty": {
-        "log_loss_delta_95": [
-          -0.017062840945329956,
-          0.0012717672199850877
-        ],
-        "accuracy_gain_95": [
-          -0.010468626467189684,
-          0.02543045969148933
-        ],
-        "calendar_weeks": 46,
-        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
-      },
-      "note": "Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.",
-      "rest_policy_review": {
-        "before": {
-          "name": "logistic_baseline_w10_C0.1_legacy_rest_reference",
-          "specification": {
-            "kind": "logistic",
-            "window": 10,
-            "variant": "baseline",
-            "c": 0.1,
-            "leaves": 7,
-            "decay": false,
-            "legacy": true,
-            "diagnostic_only": true
-          },
-          "folds": [
-            {
-              "n": 511,
-              "log_loss": 0.605209319877476,
-              "brier": 0.20608845820346708,
-              "accuracy": 0.700587084148728,
-              "roc_auc": 0.7405055390856607,
-              "precision": 0.7245901639344262,
-              "recall": 0.7620689655172413,
-              "balanced_accuracy": 0.6909892338898425,
-              "calibration_error": 0.09182265378915984,
-              "train_end": "2023-10-21",
-              "validation_start": "2023-10-22",
-              "validation_end": "2024-09-20"
-            },
-            {
-              "n": 630,
-              "log_loss": 0.5894670955024259,
-              "brier": 0.2024571616292057,
-              "accuracy": 0.6888888888888889,
-              "roc_auc": 0.7411731445803317,
-              "precision": 0.7307692307692307,
-              "recall": 0.7579787234042553,
-              "balanced_accuracy": 0.6722964483163009,
-              "calibration_error": 0.04358287880312019,
-              "train_end": "2024-09-20",
-              "validation_start": "2024-09-21",
-              "validation_end": "2024-12-22"
-            },
-            {
-              "n": 608,
-              "log_loss": 0.5569814510982367,
-              "brier": 0.1902171173180007,
-              "accuracy": 0.7006578947368421,
-              "roc_auc": 0.762916954221302,
-              "precision": 0.7474747474747475,
-              "recall": 0.783068783068783,
-              "balanced_accuracy": 0.6741430871865655,
-              "calibration_error": 0.04492802290475242,
-              "train_end": "2024-12-22",
-              "validation_start": "2024-12-23",
-              "validation_end": "2025-11-02"
-            }
-          ],
-          "status": "completed",
-          "validation": {
-            "n": 1749,
-            "log_loss": 0.5827735591147207,
-            "brier": 0.1992631339609581,
-            "accuracy": 0.6963979416809606,
-            "roc_auc": 0.748228309013342,
-            "precision": 0.7351054078826764,
-            "recall": 0.7681992337164751,
-            "balanced_accuracy": 0.6791350778511454,
-            "calibration_error": 0.042155943748184134
-          }
-        },
-        "after": {
-          "name": "logistic_w10",
-          "specification": {
-            "kind": "logistic",
-            "window": 10,
-            "variant": "rest_guard",
-            "c": 0.1,
-            "leaves": 7,
-            "decay": false,
-            "legacy": false,
-            "guard_legacy": true
-          },
-          "folds": [
-            {
-              "n": 511,
-              "log_loss": 0.6039454705621903,
-              "brier": 0.20597947332108169,
-              "accuracy": 0.6986301369863014,
-              "roc_auc": 0.7409112185988453,
-              "precision": 0.7222222222222222,
-              "recall": 0.7620689655172413,
-              "balanced_accuracy": 0.6887267904509284,
-              "calibration_error": 0.08708021262713,
-              "train_end": "2023-10-21",
-              "validation_start": "2023-10-22",
-              "validation_end": "2024-09-20"
-            },
-            {
-              "n": 630,
-              "log_loss": 0.5901158349519817,
-              "brier": 0.20270632479557246,
-              "accuracy": 0.6904761904761905,
-              "roc_auc": 0.7413511475959123,
-              "precision": 0.7326478149100257,
-              "recall": 0.7579787234042553,
-              "balanced_accuracy": 0.6742649522533087,
-              "calibration_error": 0.03947022258210057,
-              "train_end": "2024-09-20",
-              "validation_start": "2024-09-21",
-              "validation_end": "2024-12-22"
-            },
-            {
-              "n": 608,
-              "log_loss": 0.55561747997403,
-              "brier": 0.18970801803795,
-              "accuracy": 0.7006578947368421,
-              "roc_auc": 0.7646077754773406,
-              "precision": 0.7474747474747475,
-              "recall": 0.783068783068783,
-              "balanced_accuracy": 0.6741430871865655,
-              "calibration_error": 0.04245363818737287,
-              "train_end": "2024-12-22",
-              "validation_start": "2024-12-23",
-              "validation_end": "2025-11-02"
-            }
-          ],
-          "status": "completed",
-          "validation": {
-            "n": 1749,
-            "log_loss": 0.5821638303609138,
-            "brier": 0.1991440654404557,
-            "accuracy": 0.6963979416809606,
-            "roc_auc": 0.7488206842205376,
-            "precision": 0.7351054078826764,
-            "recall": 0.7681992337164751,
-            "balanced_accuracy": 0.6791350778511454,
-            "calibration_error": 0.038156509138429294
-          }
-        }
-      },
-      "incumbent": {
-        "name": "logistic_w10",
-        "validation": {
-          "n": 1749,
-          "log_loss": 0.5821638303609138,
-          "brier": 0.1991440654404557,
-          "accuracy": 0.6963979416809606,
-          "roc_auc": 0.7488206842205376,
-          "precision": 0.7351054078826764,
-          "recall": 0.7681992337164751,
-          "balanced_accuracy": 0.6791350778511454,
-          "calibration_error": 0.038156509138429294
-        },
-        "folds": [
-          {
-            "n": 511,
-            "log_loss": 0.6039454705621903,
-            "brier": 0.20597947332108169,
-            "accuracy": 0.6986301369863014,
-            "roc_auc": 0.7409112185988453,
-            "precision": 0.7222222222222222,
-            "recall": 0.7620689655172413,
-            "balanced_accuracy": 0.6887267904509284,
-            "calibration_error": 0.08708021262713,
-            "train_end": "2023-10-21",
-            "validation_start": "2023-10-22",
-            "validation_end": "2024-09-20"
-          },
-          {
-            "n": 630,
-            "log_loss": 0.5901158349519817,
-            "brier": 0.20270632479557246,
-            "accuracy": 0.6904761904761905,
-            "roc_auc": 0.7413511475959123,
-            "precision": 0.7326478149100257,
-            "recall": 0.7579787234042553,
-            "balanced_accuracy": 0.6742649522533087,
-            "calibration_error": 0.03947022258210057,
-            "train_end": "2024-09-20",
-            "validation_start": "2024-09-21",
-            "validation_end": "2024-12-22"
-          },
-          {
-            "n": 608,
-            "log_loss": 0.55561747997403,
-            "brier": 0.18970801803795,
-            "accuracy": 0.7006578947368421,
-            "roc_auc": 0.7646077754773406,
-            "precision": 0.7474747474747475,
-            "recall": 0.783068783068783,
-            "balanced_accuracy": 0.6741430871865655,
-            "calibration_error": 0.04245363818737287,
-            "train_end": "2024-12-22",
-            "validation_start": "2024-12-23",
-            "validation_end": "2025-11-02"
-          }
-        ]
-      },
-      "best": {
-        "name": "logistic_form_w10_C0.3",
-        "validation": {
-          "n": 1749,
-          "log_loss": 0.5741821150816001,
-          "brier": 0.19623037431790538,
-          "accuracy": 0.703830760434534,
-          "roc_auc": 0.7585024863454798,
-          "precision": 0.7412844036697248,
-          "recall": 0.7739463601532567,
-          "balanced_accuracy": 0.6869731800766283,
-          "calibration_error": 0.042618349785864526
-        },
-        "folds": [
-          {
-            "n": 511,
-            "log_loss": 0.5957954052752198,
-            "brier": 0.20316075006597908,
-            "accuracy": 0.6790606653620352,
-            "roc_auc": 0.7525042908410049,
-            "precision": 0.7058823529411765,
-            "recall": 0.7448275862068966,
-            "balanced_accuracy": 0.6687938836011859,
-            "calibration_error": 0.07422919134420773,
-            "train_end": "2023-10-21",
-            "validation_start": "2023-10-22",
-            "validation_end": "2024-09-20"
-          },
-          {
-            "n": 630,
-            "log_loss": 0.5852289521284896,
-            "brier": 0.20109469705960642,
-            "accuracy": 0.6984126984126984,
-            "roc_auc": 0.7496963477969509,
-            "precision": 0.7372448979591837,
-            "recall": 0.7686170212765957,
-            "balanced_accuracy": 0.6815526051264869,
-            "calibration_error": 0.06342742032732368,
-            "train_end": "2024-09-20",
-            "validation_start": "2024-09-21",
-            "validation_end": "2024-12-22"
-          },
-          {
-            "n": 608,
-            "log_loss": 0.5445704397058106,
-            "brier": 0.18536533264925836,
-            "accuracy": 0.7302631578947368,
-            "roc_auc": 0.7759949390384172,
-            "precision": 0.7729591836734694,
-            "recall": 0.8015873015873016,
-            "balanced_accuracy": 0.7073153899240856,
-            "calibration_error": 0.04080690919541964,
-            "train_end": "2024-12-22",
-            "validation_start": "2024-12-23",
-            "validation_end": "2025-11-02"
-          }
-        ]
-      },
-      "accuracy_leader": {
-        "name": "logistic_form_w10_C0.3",
-        "validation": {
-          "n": 1749,
-          "log_loss": 0.5741821150816001,
-          "brier": 0.19623037431790538,
-          "accuracy": 0.703830760434534,
-          "roc_auc": 0.7585024863454798,
-          "precision": 0.7412844036697248,
-          "recall": 0.7739463601532567,
-          "balanced_accuracy": 0.6869731800766283,
-          "calibration_error": 0.042618349785864526
-        },
-        "folds": [
-          {
-            "n": 511,
-            "log_loss": 0.5957954052752198,
-            "brier": 0.20316075006597908,
-            "accuracy": 0.6790606653620352,
-            "roc_auc": 0.7525042908410049,
-            "precision": 0.7058823529411765,
-            "recall": 0.7448275862068966,
-            "balanced_accuracy": 0.6687938836011859,
-            "calibration_error": 0.07422919134420773,
-            "train_end": "2023-10-21",
-            "validation_start": "2023-10-22",
-            "validation_end": "2024-09-20"
-          },
-          {
-            "n": 630,
-            "log_loss": 0.5852289521284896,
-            "brier": 0.20109469705960642,
-            "accuracy": 0.6984126984126984,
-            "roc_auc": 0.7496963477969509,
-            "precision": 0.7372448979591837,
-            "recall": 0.7686170212765957,
-            "balanced_accuracy": 0.6815526051264869,
-            "calibration_error": 0.06342742032732368,
-            "train_end": "2024-09-20",
-            "validation_start": "2024-09-21",
-            "validation_end": "2024-12-22"
-          },
-          {
-            "n": 608,
-            "log_loss": 0.5445704397058106,
-            "brier": 0.18536533264925836,
-            "accuracy": 0.7302631578947368,
-            "roc_auc": 0.7759949390384172,
-            "precision": 0.7729591836734694,
-            "recall": 0.8015873015873016,
-            "balanced_accuracy": 0.7073153899240856,
-            "calibration_error": 0.04080690919541964,
-            "train_end": "2024-12-22",
-            "validation_start": "2024-12-23",
-            "validation_end": "2025-11-02"
-          }
-        ]
-      }
-    },
-    {
-      "league": "MLB",
-      "version": "sport-review-v6-contextual-rest-r1",
-      "checked": "2026-10-22T17:21:18.876216+00:00",
-      "development_sha256": "1622559aad9beccfdd6b3e6b4cad7551311432ce455617936db8f61be1910770",
-      "development_through": "2026-06-09",
-      "excluded_final_test_from": "2026-06-10",
-      "candidate_count": 78,
-      "completed_candidates": 78,
-      "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
-      "selected": "logistic_baseline_w40_C0.03",
-      "accuracy_gain": 0.003441353599082264,
-      "log_loss_gain": 7.413672236089575e-05,
-      "comparison_uncertainty": {
-        "log_loss_delta_95": [
-          -0.0013418314605204292,
-          0.0011825966234871286
-        ],
-        "accuracy_gain_95": [
-          -0.006778470588080791,
-          0.013542383245433002
-        ],
-        "calendar_weeks": 48,
-        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
-      },
-      "note": "Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.",
-      "rest_policy_review": {
-        "before": {
-          "name": "logistic_baseline_w20_C0.1_legacy_rest_reference",
-          "specification": {
-            "kind": "logistic",
-            "window": 20,
-            "variant": "baseline",
-            "c": 0.1,
-            "leaves": 7,
-            "decay": false,
-            "legacy": true,
-            "diagnostic_only": true
-          },
-          "folds": [
-            {
-              "n": 1143,
-              "log_loss": 0.676000091654632,
-              "brier": 0.24155249649704702,
-              "accuracy": 0.5730533683289589,
-              "roc_auc": 0.5886753921841641,
-              "precision": 0.595945945945946,
-              "recall": 0.7,
-              "balanced_accuracy": 0.5585769980506823,
-              "calibration_error": 0.028841525550058155,
-              "train_end": "2024-10-14",
-              "validation_start": "2024-10-15",
-              "validation_end": "2025-06-20"
-            },
-            {
-              "n": 1306,
-              "log_loss": 0.6820104470674304,
-              "brier": 0.24452744941045865,
-              "accuracy": 0.557427258805513,
-              "roc_auc": 0.5725504297284871,
-              "precision": 0.5714285714285714,
-              "recall": 0.7018544935805991,
-              "balanced_accuracy": 0.5459685691043492,
-              "calibration_error": 0.0075365030355084755,
-              "train_end": "2025-06-20",
-              "validation_start": "2025-06-21",
-              "validation_end": "2025-10-02"
-            },
-            {
-              "n": 1038,
-              "log_loss": 0.6908695053335726,
-              "brier": 0.2488305647134269,
-              "accuracy": 0.5327552986512524,
-              "roc_auc": 0.5426363947705412,
-              "precision": 0.5396618985695709,
-              "recall": 0.76007326007326,
-              "balanced_accuracy": 0.5202805324756544,
-              "calibration_error": 0.0284376700017333,
-              "train_end": "2025-10-02",
-              "validation_start": "2025-10-04",
-              "validation_end": "2026-06-09"
-            }
-          ],
-          "status": "completed",
-          "validation": {
-            "n": 3487,
-            "log_loss": 0.6826774577480806,
-            "brier": 0.24483323160273038,
-            "accuracy": 0.555205047318612,
-            "roc_auc": 0.5687812916739743,
-            "precision": 0.5687763713080168,
-            "recall": 0.7181672882258924,
-            "balanced_accuracy": 0.5416923397651201,
-            "calibration_error": 0.009621098195686168
-          }
-        },
-        "after": {
-          "name": "logistic_w20",
-          "specification": {
-            "kind": "logistic",
-            "window": 20,
-            "variant": "rest_guard",
-            "c": 0.1,
-            "leaves": 7,
-            "decay": false,
-            "legacy": false,
-            "guard_legacy": true
-          },
-          "folds": [
-            {
-              "n": 1143,
-              "log_loss": 0.6765973743671716,
-              "brier": 0.24182699373573305,
-              "accuracy": 0.5721784776902887,
-              "roc_auc": 0.5872489866641913,
-              "precision": 0.5951417004048583,
-              "recall": 0.7,
-              "balanced_accuracy": 0.5576023391812865,
-              "calibration_error": 0.028487927773898514,
-              "train_end": "2024-10-14",
-              "validation_start": "2024-10-15",
-              "validation_end": "2025-06-20"
-            },
-            {
-              "n": 1306,
-              "log_loss": 0.6820104470674304,
-              "brier": 0.24452744941045865,
-              "accuracy": 0.557427258805513,
-              "roc_auc": 0.5725504297284871,
-              "precision": 0.5714285714285714,
-              "recall": 0.7018544935805991,
-              "balanced_accuracy": 0.5459685691043492,
-              "calibration_error": 0.0075365030355084755,
-              "train_end": "2025-06-20",
-              "validation_start": "2025-06-21",
-              "validation_end": "2025-10-02"
-            },
-            {
-              "n": 1038,
-              "log_loss": 0.6909646465064705,
-              "brier": 0.2488775916419561,
-              "accuracy": 0.5317919075144508,
-              "roc_auc": 0.5418174305369428,
-              "precision": 0.538860103626943,
-              "recall": 0.7619047619047619,
-              "balanced_accuracy": 0.519163763066202,
-              "calibration_error": 0.029257292568743463,
-              "train_end": "2025-10-02",
-              "validation_start": "2025-10-04",
-              "validation_end": "2026-06-09"
-            }
-          ],
-          "status": "completed",
-          "validation": {
-            "n": 3487,
-            "log_loss": 0.6829015617566554,
-            "brier": 0.24493720759803622,
-            "accuracy": 0.5546314883854316,
-            "roc_auc": 0.5680910134779631,
-            "precision": 0.5682392586352149,
-            "recall": 0.7187000532765051,
-            "balanced_accuracy": 0.5410270452717929,
-            "calibration_error": 0.009725895815209686
-          }
-        }
-      },
-      "incumbent": {
-        "name": "logistic_w20",
-        "validation": {
-          "n": 3487,
-          "log_loss": 0.6829015617566554,
-          "brier": 0.24493720759803622,
-          "accuracy": 0.5546314883854316,
-          "roc_auc": 0.5680910134779631,
-          "precision": 0.5682392586352149,
-          "recall": 0.7187000532765051,
-          "balanced_accuracy": 0.5410270452717929,
-          "calibration_error": 0.009725895815209686
-        },
-        "folds": [
-          {
-            "n": 1143,
-            "log_loss": 0.6765973743671716,
-            "brier": 0.24182699373573305,
-            "accuracy": 0.5721784776902887,
-            "roc_auc": 0.5872489866641913,
-            "precision": 0.5951417004048583,
-            "recall": 0.7,
-            "balanced_accuracy": 0.5576023391812865,
-            "calibration_error": 0.028487927773898514,
-            "train_end": "2024-10-14",
-            "validation_start": "2024-10-15",
-            "validation_end": "2025-06-20"
-          },
-          {
-            "n": 1306,
-            "log_loss": 0.6820104470674304,
-            "brier": 0.24452744941045865,
-            "accuracy": 0.557427258805513,
-            "roc_auc": 0.5725504297284871,
-            "precision": 0.5714285714285714,
-            "recall": 0.7018544935805991,
-            "balanced_accuracy": 0.5459685691043492,
-            "calibration_error": 0.0075365030355084755,
-            "train_end": "2025-06-20",
-            "validation_start": "2025-06-21",
-            "validation_end": "2025-10-02"
-          },
-          {
-            "n": 1038,
-            "log_loss": 0.6909646465064705,
-            "brier": 0.2488775916419561,
-            "accuracy": 0.5317919075144508,
-            "roc_auc": 0.5418174305369428,
-            "precision": 0.538860103626943,
-            "recall": 0.7619047619047619,
-            "balanced_accuracy": 0.519163763066202,
-            "calibration_error": 0.029257292568743463,
-            "train_end": "2025-10-02",
-            "validation_start": "2025-10-04",
-            "validation_end": "2026-06-09"
-          }
-        ]
-      },
-      "best": {
-        "name": "logistic_baseline_w40_C0.03",
-        "validation": {
-          "n": 3487,
-          "log_loss": 0.6828274250342945,
-          "brier": 0.24492250608338165,
-          "accuracy": 0.5580728419845139,
-          "roc_auc": 0.5638583440603315,
-          "precision": 0.5686835650040883,
-          "recall": 0.7410761854022376,
-          "balanced_accuracy": 0.5428983411483238,
-          "calibration_error": 0.008886920340461
-        },
-        "folds": [
-          {
-            "n": 1143,
-            "log_loss": 0.6778978400095961,
-            "brier": 0.2425014003871022,
-            "accuracy": 0.5835520559930009,
-            "roc_auc": 0.577771589467496,
-            "precision": 0.6002604166666666,
-            "recall": 0.7317460317460317,
-            "balanced_accuracy": 0.5666527429685324,
-            "calibration_error": 0.02864249044377369,
-            "train_end": "2024-10-14",
-            "validation_start": "2024-10-15",
-            "validation_end": "2025-06-20"
-          },
-          {
-            "n": 1306,
-            "log_loss": 0.6822993996383736,
-            "brier": 0.244671142499434,
-            "accuracy": 0.5505359877488515,
-            "roc_auc": 0.5688485162872401,
-            "precision": 0.5630530973451328,
-            "recall": 0.7261055634807418,
-            "balanced_accuracy": 0.5366065007486354,
-            "calibration_error": 0.0098680733684379,
-            "train_end": "2025-06-20",
-            "validation_start": "2025-06-21",
-            "validation_end": "2025-10-02"
-          },
-          {
-            "n": 1038,
-            "log_loss": 0.6889200231559738,
-            "brier": 0.247904784167662,
-            "accuracy": 0.5394990366088632,
-            "roc_auc": 0.5435595908156884,
-            "precision": 0.5439276485788114,
-            "recall": 0.7710622710622711,
-            "balanced_accuracy": 0.5267912981327616,
-            "calibration_error": 0.03115928541791513,
-            "train_end": "2025-10-02",
-            "validation_start": "2025-10-04",
-            "validation_end": "2026-06-09"
-          }
-        ]
-      },
-      "accuracy_leader": {
-        "name": "logistic_ratings_w40_C0.03",
-        "validation": {
-          "n": 3487,
-          "log_loss": 0.6834064843532315,
-          "brier": 0.24520097672581065,
-          "accuracy": 0.562661313449957,
-          "roc_auc": 0.564474498423214,
-          "precision": 0.5756663800515908,
-          "recall": 0.7133724027703783,
-          "balanced_accuracy": 0.5501644622547543,
-          "calibration_error": 0.0201619999407569
-        },
-        "folds": [
-          {
-            "n": 1143,
-            "log_loss": 0.6781945146730249,
-            "brier": 0.2426307426201111,
-            "accuracy": 0.5809273840769904,
-            "roc_auc": 0.5807791082644884,
-            "precision": 0.6044260027662517,
-            "recall": 0.6936507936507936,
-            "balanced_accuracy": 0.5680729601782233,
-            "calibration_error": 0.04455308544582869,
-            "train_end": "2024-10-14",
-            "validation_start": "2024-10-15",
-            "validation_end": "2025-06-20"
-          },
-          {
-            "n": 1306,
-            "log_loss": 0.6829053728853789,
-            "brier": 0.24499690421046938,
-            "accuracy": 0.5612557427258805,
-            "roc_auc": 0.5655710260430789,
-            "precision": 0.5745920745920746,
-            "recall": 0.703281027104137,
-            "balanced_accuracy": 0.549987620990085,
-            "calibration_error": 0.01668790426974874,
-            "train_end": "2025-06-20",
-            "validation_start": "2025-06-21",
-            "validation_end": "2025-10-02"
-          },
-          {
-            "n": 1038,
-            "log_loss": 0.6897761692486952,
-            "brier": 0.2482879673692116,
-            "accuracy": 0.5443159922928709,
-            "roc_auc": 0.5481941838649156,
-            "precision": 0.548993288590604,
-            "recall": 0.7490842490842491,
-            "balanced_accuracy": 0.5330787099079782,
-            "calibration_error": 0.019439842912615475,
-            "train_end": "2025-10-02",
-            "validation_start": "2025-10-04",
-            "validation_end": "2026-06-09"
-          }
-        ]
-      }
-    },
     {
       "league": "NBA",
       "version": "sport-review-v6-contextual-rest-r1",
-      "checked": "2026-10-22T17:20:06.861969+00:00",
+      "checked": "2026-10-22T17:24:45.124715+00:00",
       "development_sha256": "05f6ec36556ef7d31520348f16bfbcd4a356e3014a3b13dd96b5131806694c4b",
       "development_through": "2013-04-27",
       "excluded_final_test_from": "2013-04-28",
@@ -1027,7 +346,7 @@
     {
       "league": "NFL",
       "version": "sport-review-v6-contextual-rest-r1",
-      "checked": "2026-10-22T17:20:29.773777+00:00",
+      "checked": "2026-10-22T17:25:09.954549+00:00",
       "development_sha256": "6f69454aaf7fe6f3e6e7c62910c0b90f49e66a414cad2ff24359dab8aa914719",
       "development_through": "2022-12-01",
       "excluded_final_test_from": "2022-12-04",
@@ -1368,7 +687,7 @@
     {
       "league": "NHL",
       "version": "sport-review-v6-contextual-rest-r1",
-      "checked": "2026-10-22T17:20:42.320093+00:00",
+      "checked": "2026-10-22T17:25:22.061599+00:00",
       "development_sha256": "34dbe740a8fa9c0aa9471c14248b642d42308fd8906dadb168e71f88eebf582a",
       "development_through": "2026-03-19",
       "excluded_final_test_from": "2026-03-20",
@@ -1702,6 +1021,1370 @@
             "train_end": "2025-12-14",
             "validation_start": "2025-12-15",
             "validation_end": "2026-03-19"
+          }
+        ]
+      }
+    },
+    {
+      "league": "CFB",
+      "version": "sport-review-v6-contextual-rest-r1",
+      "checked": "2026-10-22T17:25:31.605272+00:00",
+      "development_sha256": "b1c2943b0e8afc478904824cccfed6c9279aebf6c0d1c63197ddb8c61a2f9926",
+      "development_through": "2023-12-02",
+      "excluded_final_test_from": "2023-12-03",
+      "candidate_count": 78,
+      "completed_candidates": 78,
+      "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
+      "selected": "logistic_context_ratings_w20_C0.03",
+      "accuracy_gain": 0.0033936651583711397,
+      "log_loss_gain": 0.005369664866221147,
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.014353620414546698,
+          0.0025601577924541812
+        ],
+        "accuracy_gain_95": [
+          -0.015686974789915965,
+          0.023599805364305268
+        ],
+        "calendar_weeks": 23,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      },
+      "note": "Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.",
+      "rest_policy_review": {
+        "before": {
+          "name": "logistic_baseline_w20_C1.0_legacy_rest_reference",
+          "specification": {
+            "kind": "logistic",
+            "window": 20,
+            "variant": "baseline",
+            "c": 1.0,
+            "leaves": 7,
+            "decay": false,
+            "legacy": true,
+            "diagnostic_only": true
+          },
+          "folds": [
+            {
+              "n": 121,
+              "log_loss": 0.5828647829637472,
+              "brier": 0.19833650130526267,
+              "accuracy": 0.7355371900826446,
+              "roc_auc": 0.7709130672498633,
+              "precision": 0.7419354838709677,
+              "recall": 0.7419354838709677,
+              "balanced_accuracy": 0.7353745215965009,
+              "calibration_error": 0.09129399646488828,
+              "train_end": "2022-11-20",
+              "validation_start": "2022-11-23",
+              "validation_end": "2023-08-26"
+            },
+            {
+              "n": 382,
+              "log_loss": 0.5398728383721368,
+              "brier": 0.1804629956540107,
+              "accuracy": 0.7591623036649214,
+              "roc_auc": 0.7933333333333334,
+              "precision": 0.8125,
+              "recall": 0.7844827586206896,
+              "balanced_accuracy": 0.7522413793103448,
+              "calibration_error": 0.06598426274219507,
+              "train_end": "2023-08-26",
+              "validation_start": "2023-08-27",
+              "validation_end": "2023-10-15"
+            },
+            {
+              "n": 381,
+              "log_loss": 0.5628456732382708,
+              "brier": 0.1903742977889081,
+              "accuracy": 0.7034120734908137,
+              "roc_auc": 0.7753931389557335,
+              "precision": 0.7167381974248928,
+              "recall": 0.780373831775701,
+              "balanced_accuracy": 0.6925821254686888,
+              "calibration_error": 0.03471212172583126,
+              "train_end": "2023-10-15",
+              "validation_start": "2023-10-17",
+              "validation_end": "2023-12-02"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 884,
+            "log_loss": 0.5556586702494921,
+            "brier": 0.1871812086598901,
+            "accuracy": 0.7319004524886877,
+            "roc_auc": 0.7813913553359022,
+            "precision": 0.7610789980732178,
+            "recall": 0.7775590551181102,
+            "balanced_accuracy": 0.7238859105377785,
+            "calibration_error": 0.038075157688872575
+          }
+        },
+        "after": {
+          "name": "logistic_weak_w20",
+          "specification": {
+            "kind": "logistic",
+            "window": 20,
+            "variant": "rest_guard",
+            "c": 1.0,
+            "leaves": 7,
+            "decay": false,
+            "legacy": false,
+            "guard_legacy": true
+          },
+          "folds": [
+            {
+              "n": 121,
+              "log_loss": 0.5825230187072897,
+              "brier": 0.19804093045670215,
+              "accuracy": 0.7355371900826446,
+              "roc_auc": 0.7714598141060688,
+              "precision": 0.7419354838709677,
+              "recall": 0.7419354838709677,
+              "balanced_accuracy": 0.7353745215965009,
+              "calibration_error": 0.09087517162334681,
+              "train_end": "2022-11-20",
+              "validation_start": "2022-11-23",
+              "validation_end": "2023-08-26"
+            },
+            {
+              "n": 382,
+              "log_loss": 0.5381440545341187,
+              "brier": 0.17987892169223127,
+              "accuracy": 0.7617801047120419,
+              "roc_auc": 0.7949137931034482,
+              "precision": 0.8133333333333334,
+              "recall": 0.7887931034482759,
+              "balanced_accuracy": 0.754396551724138,
+              "calibration_error": 0.06949318298022471,
+              "train_end": "2023-08-26",
+              "validation_start": "2023-08-27",
+              "validation_end": "2023-10-15"
+            },
+            {
+              "n": 381,
+              "log_loss": 0.56533269435749,
+              "brier": 0.1914190153308555,
+              "accuracy": 0.7034120734908137,
+              "roc_auc": 0.7735463652134982,
+              "precision": 0.7167381974248928,
+              "recall": 0.780373831775701,
+              "balanced_accuracy": 0.6925821254686888,
+              "calibration_error": 0.037015694699331136,
+              "train_end": "2023-10-15",
+              "validation_start": "2023-10-17",
+              "validation_end": "2023-12-02"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 884,
+            "log_loss": 0.5559367314997954,
+            "brier": 0.18733862614564395,
+            "accuracy": 0.7330316742081447,
+            "roc_auc": 0.7808573462891606,
+            "precision": 0.7615384615384615,
+            "recall": 0.7795275590551181,
+            "balanced_accuracy": 0.7248701625062824,
+            "calibration_error": 0.03806858061963431
+          }
+        }
+      },
+      "incumbent": {
+        "name": "logistic_weak_w20",
+        "validation": {
+          "n": 884,
+          "log_loss": 0.5559367314997954,
+          "brier": 0.18733862614564395,
+          "accuracy": 0.7330316742081447,
+          "roc_auc": 0.7808573462891606,
+          "precision": 0.7615384615384615,
+          "recall": 0.7795275590551181,
+          "balanced_accuracy": 0.7248701625062824,
+          "calibration_error": 0.03806858061963431
+        },
+        "folds": [
+          {
+            "n": 121,
+            "log_loss": 0.5825230187072897,
+            "brier": 0.19804093045670215,
+            "accuracy": 0.7355371900826446,
+            "roc_auc": 0.7714598141060688,
+            "precision": 0.7419354838709677,
+            "recall": 0.7419354838709677,
+            "balanced_accuracy": 0.7353745215965009,
+            "calibration_error": 0.09087517162334681,
+            "train_end": "2022-11-20",
+            "validation_start": "2022-11-23",
+            "validation_end": "2023-08-26"
+          },
+          {
+            "n": 382,
+            "log_loss": 0.5381440545341187,
+            "brier": 0.17987892169223127,
+            "accuracy": 0.7617801047120419,
+            "roc_auc": 0.7949137931034482,
+            "precision": 0.8133333333333334,
+            "recall": 0.7887931034482759,
+            "balanced_accuracy": 0.754396551724138,
+            "calibration_error": 0.06949318298022471,
+            "train_end": "2023-08-26",
+            "validation_start": "2023-08-27",
+            "validation_end": "2023-10-15"
+          },
+          {
+            "n": 381,
+            "log_loss": 0.56533269435749,
+            "brier": 0.1914190153308555,
+            "accuracy": 0.7034120734908137,
+            "roc_auc": 0.7735463652134982,
+            "precision": 0.7167381974248928,
+            "recall": 0.780373831775701,
+            "balanced_accuracy": 0.6925821254686888,
+            "calibration_error": 0.037015694699331136,
+            "train_end": "2023-10-15",
+            "validation_start": "2023-10-17",
+            "validation_end": "2023-12-02"
+          }
+        ]
+      },
+      "best": {
+        "name": "logistic_context_ratings_w20_C0.03",
+        "validation": {
+          "n": 884,
+          "log_loss": 0.5505670666335742,
+          "brier": 0.18531519168248142,
+          "accuracy": 0.7364253393665159,
+          "roc_auc": 0.7866057966158485,
+          "precision": 0.7579737335834896,
+          "recall": 0.7952755905511811,
+          "balanced_accuracy": 0.7260952420841011,
+          "calibration_error": 0.044672674806862045
+        },
+        "folds": [
+          {
+            "n": 121,
+            "log_loss": 0.584977709629699,
+            "brier": 0.1981696172013973,
+            "accuracy": 0.7520661157024794,
+            "roc_auc": 0.777747402952433,
+            "precision": 0.7352941176470589,
+            "recall": 0.8064516129032258,
+            "balanced_accuracy": 0.750683433570257,
+            "calibration_error": 0.1111797546212398,
+            "train_end": "2022-11-20",
+            "validation_start": "2022-11-23",
+            "validation_end": "2023-08-26"
+          },
+          {
+            "n": 382,
+            "log_loss": 0.5424955709209945,
+            "brier": 0.18243733731318756,
+            "accuracy": 0.7382198952879581,
+            "roc_auc": 0.7927298850574713,
+            "precision": 0.7894736842105263,
+            "recall": 0.7758620689655172,
+            "balanced_accuracy": 0.7279310344827586,
+            "calibration_error": 0.06732282107992583,
+            "train_end": "2023-08-26",
+            "validation_start": "2023-08-27",
+            "validation_end": "2023-10-15"
+          },
+          {
+            "n": 381,
+            "log_loss": 0.5477314329319322,
+            "brier": 0.1841182228669471,
+            "accuracy": 0.7296587926509186,
+            "roc_auc": 0.7892719234428339,
+            "precision": 0.7341772151898734,
+            "recall": 0.8130841121495327,
+            "balanced_accuracy": 0.7179193015837484,
+            "calibration_error": 0.054587523214175745,
+            "train_end": "2023-10-15",
+            "validation_start": "2023-10-17",
+            "validation_end": "2023-12-02"
+          }
+        ]
+      },
+      "accuracy_leader": {
+        "name": "logistic_context_ratings_w20_C0.03",
+        "validation": {
+          "n": 884,
+          "log_loss": 0.5505670666335742,
+          "brier": 0.18531519168248142,
+          "accuracy": 0.7364253393665159,
+          "roc_auc": 0.7866057966158485,
+          "precision": 0.7579737335834896,
+          "recall": 0.7952755905511811,
+          "balanced_accuracy": 0.7260952420841011,
+          "calibration_error": 0.044672674806862045
+        },
+        "folds": [
+          {
+            "n": 121,
+            "log_loss": 0.584977709629699,
+            "brier": 0.1981696172013973,
+            "accuracy": 0.7520661157024794,
+            "roc_auc": 0.777747402952433,
+            "precision": 0.7352941176470589,
+            "recall": 0.8064516129032258,
+            "balanced_accuracy": 0.750683433570257,
+            "calibration_error": 0.1111797546212398,
+            "train_end": "2022-11-20",
+            "validation_start": "2022-11-23",
+            "validation_end": "2023-08-26"
+          },
+          {
+            "n": 382,
+            "log_loss": 0.5424955709209945,
+            "brier": 0.18243733731318756,
+            "accuracy": 0.7382198952879581,
+            "roc_auc": 0.7927298850574713,
+            "precision": 0.7894736842105263,
+            "recall": 0.7758620689655172,
+            "balanced_accuracy": 0.7279310344827586,
+            "calibration_error": 0.06732282107992583,
+            "train_end": "2023-08-26",
+            "validation_start": "2023-08-27",
+            "validation_end": "2023-10-15"
+          },
+          {
+            "n": 381,
+            "log_loss": 0.5477314329319322,
+            "brier": 0.1841182228669471,
+            "accuracy": 0.7296587926509186,
+            "roc_auc": 0.7892719234428339,
+            "precision": 0.7341772151898734,
+            "recall": 0.8130841121495327,
+            "balanced_accuracy": 0.7179193015837484,
+            "calibration_error": 0.054587523214175745,
+            "train_end": "2023-10-15",
+            "validation_start": "2023-10-17",
+            "validation_end": "2023-12-02"
+          }
+        ]
+      }
+    },
+    {
+      "league": "WNBA",
+      "version": "sport-review-v6-contextual-rest-r1",
+      "checked": "2026-10-22T17:25:39.761843+00:00",
+      "development_sha256": "496f541cd39130b89272fd38d3268b49f4ea4e7db732467c0fc0a940eb60c433",
+      "development_through": "2026-05-20",
+      "excluded_final_test_from": "2026-05-21",
+      "candidate_count": 78,
+      "completed_candidates": 78,
+      "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
+      "selected": "logistic_ratings_w10_C0.03",
+      "accuracy_gain": 0.00783699059561127,
+      "log_loss_gain": 0.0012534565752591043,
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.00395035115873393,
+          0.001615587950870061
+        ],
+        "accuracy_gain_95": [
+          -0.004360782934436233,
+          0.0214595565970668
+        ],
+        "calendar_weeks": 54,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      },
+      "note": "Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.",
+      "rest_policy_review": {
+        "before": {
+          "name": "logistic_baseline_w10_C0.1_legacy_rest_reference",
+          "specification": {
+            "kind": "logistic",
+            "window": 10,
+            "variant": "baseline",
+            "c": 0.1,
+            "leaves": 7,
+            "decay": false,
+            "legacy": true,
+            "diagnostic_only": true
+          },
+          "folds": [
+            {
+              "n": 215,
+              "log_loss": 0.5988398337921734,
+              "brier": 0.2054124433331453,
+              "accuracy": 0.6883720930232559,
+              "roc_auc": 0.7394676537986955,
+              "precision": 0.7165354330708661,
+              "recall": 0.7459016393442623,
+              "balanced_accuracy": 0.6794024325753569,
+              "calibration_error": 0.055567345960765575,
+              "train_end": "2023-08-31",
+              "validation_start": "2023-09-01",
+              "validation_end": "2024-08-22"
+            },
+            {
+              "n": 210,
+              "log_loss": 0.6181897568008256,
+              "brier": 0.21384789718630232,
+              "accuracy": 0.6761904761904762,
+              "roc_auc": 0.7188413742690059,
+              "precision": 0.6825396825396826,
+              "recall": 0.7543859649122807,
+              "balanced_accuracy": 0.668859649122807,
+              "calibration_error": 0.03704781909424108,
+              "train_end": "2024-08-22",
+              "validation_start": "2024-08-23",
+              "validation_end": "2025-07-07"
+            },
+            {
+              "n": 213,
+              "log_loss": 0.6149405021207969,
+              "brier": 0.2122826267040942,
+              "accuracy": 0.6854460093896714,
+              "roc_auc": 0.723370429252782,
+              "precision": 0.6864406779661016,
+              "recall": 0.7297297297297297,
+              "balanced_accuracy": 0.683492315845257,
+              "calibration_error": 0.06978268709633258,
+              "train_end": "2025-07-07",
+              "validation_start": "2025-07-08",
+              "validation_end": "2026-05-19"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 638,
+            "log_loss": 0.6105842322025398,
+            "brier": 0.21048265394000282,
+            "accuracy": 0.6833855799373041,
+            "roc_auc": 0.7279479485427375,
+            "precision": 0.6954177897574124,
+            "recall": 0.7435158501440923,
+            "balanced_accuracy": 0.6775998494706716,
+            "calibration_error": 0.0333227223348453
+          }
+        },
+        "after": {
+          "name": "logistic_w10",
+          "specification": {
+            "kind": "logistic",
+            "window": 10,
+            "variant": "rest_guard",
+            "c": 0.1,
+            "leaves": 7,
+            "decay": false,
+            "legacy": false,
+            "guard_legacy": true
+          },
+          "folds": [
+            {
+              "n": 215,
+              "log_loss": 0.5987199171606723,
+              "brier": 0.20533549069911683,
+              "accuracy": 0.6930232558139535,
+              "roc_auc": 0.7396439273752864,
+              "precision": 0.7222222222222222,
+              "recall": 0.7459016393442623,
+              "balanced_accuracy": 0.6847787766613784,
+              "calibration_error": 0.05953200274225414,
+              "train_end": "2023-08-31",
+              "validation_start": "2023-09-01",
+              "validation_end": "2024-08-22"
+            },
+            {
+              "n": 210,
+              "log_loss": 0.615720884434717,
+              "brier": 0.21286519452708638,
+              "accuracy": 0.6761904761904762,
+              "roc_auc": 0.7209429824561404,
+              "precision": 0.6825396825396826,
+              "recall": 0.7543859649122807,
+              "balanced_accuracy": 0.668859649122807,
+              "calibration_error": 0.04078024783257622,
+              "train_end": "2024-08-22",
+              "validation_start": "2024-08-23",
+              "validation_end": "2025-07-07"
+            },
+            {
+              "n": 213,
+              "log_loss": 0.6152948785949937,
+              "brier": 0.2124420784779833,
+              "accuracy": 0.6854460093896714,
+              "roc_auc": 0.723105458399576,
+              "precision": 0.6864406779661016,
+              "recall": 0.7297297297297297,
+              "balanced_accuracy": 0.683492315845257,
+              "calibration_error": 0.0724590718636155,
+              "train_end": "2025-07-07",
+              "validation_start": "2025-07-08",
+              "validation_end": "2026-05-19"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 638,
+            "log_loss": 0.6098494938269102,
+            "brier": 0.21018649540252152,
+            "accuracy": 0.6849529780564263,
+            "roc_auc": 0.7289481763173791,
+            "precision": 0.6972972972972973,
+            "recall": 0.7435158501440923,
+            "balanced_accuracy": 0.6793180625290909,
+            "calibration_error": 0.036212874704187645
+          }
+        }
+      },
+      "incumbent": {
+        "name": "logistic_w10",
+        "validation": {
+          "n": 638,
+          "log_loss": 0.6098494938269102,
+          "brier": 0.21018649540252152,
+          "accuracy": 0.6849529780564263,
+          "roc_auc": 0.7289481763173791,
+          "precision": 0.6972972972972973,
+          "recall": 0.7435158501440923,
+          "balanced_accuracy": 0.6793180625290909,
+          "calibration_error": 0.036212874704187645
+        },
+        "folds": [
+          {
+            "n": 215,
+            "log_loss": 0.5987199171606723,
+            "brier": 0.20533549069911683,
+            "accuracy": 0.6930232558139535,
+            "roc_auc": 0.7396439273752864,
+            "precision": 0.7222222222222222,
+            "recall": 0.7459016393442623,
+            "balanced_accuracy": 0.6847787766613784,
+            "calibration_error": 0.05953200274225414,
+            "train_end": "2023-08-31",
+            "validation_start": "2023-09-01",
+            "validation_end": "2024-08-22"
+          },
+          {
+            "n": 210,
+            "log_loss": 0.615720884434717,
+            "brier": 0.21286519452708638,
+            "accuracy": 0.6761904761904762,
+            "roc_auc": 0.7209429824561404,
+            "precision": 0.6825396825396826,
+            "recall": 0.7543859649122807,
+            "balanced_accuracy": 0.668859649122807,
+            "calibration_error": 0.04078024783257622,
+            "train_end": "2024-08-22",
+            "validation_start": "2024-08-23",
+            "validation_end": "2025-07-07"
+          },
+          {
+            "n": 213,
+            "log_loss": 0.6152948785949937,
+            "brier": 0.2124420784779833,
+            "accuracy": 0.6854460093896714,
+            "roc_auc": 0.723105458399576,
+            "precision": 0.6864406779661016,
+            "recall": 0.7297297297297297,
+            "balanced_accuracy": 0.683492315845257,
+            "calibration_error": 0.0724590718636155,
+            "train_end": "2025-07-07",
+            "validation_start": "2025-07-08",
+            "validation_end": "2026-05-19"
+          }
+        ]
+      },
+      "best": {
+        "name": "logistic_ratings_w10_C0.03",
+        "validation": {
+          "n": 638,
+          "log_loss": 0.6085960372516511,
+          "brier": 0.20964270804981872,
+          "accuracy": 0.6927899686520376,
+          "roc_auc": 0.7305425988096297,
+          "precision": 0.7024128686327078,
+          "recall": 0.7550432276657061,
+          "balanced_accuracy": 0.6867999643483169,
+          "calibration_error": 0.048001537752490844
+        },
+        "folds": [
+          {
+            "n": 215,
+            "log_loss": 0.5979585125384318,
+            "brier": 0.20516878164061067,
+            "accuracy": 0.7023255813953488,
+            "roc_auc": 0.7401727481050591,
+            "precision": 0.7301587301587301,
+            "recall": 0.7540983606557377,
+            "balanced_accuracy": 0.6942534814031376,
+            "calibration_error": 0.05823375459024266,
+            "train_end": "2023-08-31",
+            "validation_start": "2023-09-01",
+            "validation_end": "2024-08-22"
+          },
+          {
+            "n": 210,
+            "log_loss": 0.6138208814944502,
+            "brier": 0.21193800276601027,
+            "accuracy": 0.680952380952381,
+            "roc_auc": 0.7243238304093568,
+            "precision": 0.6850393700787402,
+            "recall": 0.7631578947368421,
+            "balanced_accuracy": 0.6732456140350878,
+            "calibration_error": 0.06115547020345414,
+            "train_end": "2024-08-22",
+            "validation_start": "2024-08-23",
+            "validation_end": "2025-07-07"
+          },
+          {
+            "n": 213,
+            "log_loss": 0.6141821899387606,
+            "brier": 0.21189567653610736,
+            "accuracy": 0.6948356807511737,
+            "roc_auc": 0.7259318141671083,
+            "precision": 0.6916666666666667,
+            "recall": 0.7477477477477478,
+            "balanced_accuracy": 0.692501324854266,
+            "calibration_error": 0.07522064605382094,
+            "train_end": "2025-07-07",
+            "validation_start": "2025-07-08",
+            "validation_end": "2026-05-19"
+          }
+        ]
+      },
+      "accuracy_leader": {
+        "name": "logistic_ratings_w10_C0.03",
+        "validation": {
+          "n": 638,
+          "log_loss": 0.6085960372516511,
+          "brier": 0.20964270804981872,
+          "accuracy": 0.6927899686520376,
+          "roc_auc": 0.7305425988096297,
+          "precision": 0.7024128686327078,
+          "recall": 0.7550432276657061,
+          "balanced_accuracy": 0.6867999643483169,
+          "calibration_error": 0.048001537752490844
+        },
+        "folds": [
+          {
+            "n": 215,
+            "log_loss": 0.5979585125384318,
+            "brier": 0.20516878164061067,
+            "accuracy": 0.7023255813953488,
+            "roc_auc": 0.7401727481050591,
+            "precision": 0.7301587301587301,
+            "recall": 0.7540983606557377,
+            "balanced_accuracy": 0.6942534814031376,
+            "calibration_error": 0.05823375459024266,
+            "train_end": "2023-08-31",
+            "validation_start": "2023-09-01",
+            "validation_end": "2024-08-22"
+          },
+          {
+            "n": 210,
+            "log_loss": 0.6138208814944502,
+            "brier": 0.21193800276601027,
+            "accuracy": 0.680952380952381,
+            "roc_auc": 0.7243238304093568,
+            "precision": 0.6850393700787402,
+            "recall": 0.7631578947368421,
+            "balanced_accuracy": 0.6732456140350878,
+            "calibration_error": 0.06115547020345414,
+            "train_end": "2024-08-22",
+            "validation_start": "2024-08-23",
+            "validation_end": "2025-07-07"
+          },
+          {
+            "n": 213,
+            "log_loss": 0.6141821899387606,
+            "brier": 0.21189567653610736,
+            "accuracy": 0.6948356807511737,
+            "roc_auc": 0.7259318141671083,
+            "precision": 0.6916666666666667,
+            "recall": 0.7477477477477478,
+            "balanced_accuracy": 0.692501324854266,
+            "calibration_error": 0.07522064605382094,
+            "train_end": "2025-07-07",
+            "validation_start": "2025-07-08",
+            "validation_end": "2026-05-19"
+          }
+        ]
+      }
+    },
+    {
+      "league": "MLB",
+      "version": "sport-review-v6-contextual-rest-r1",
+      "checked": "2026-10-22T17:26:01.232365+00:00",
+      "development_sha256": "1622559aad9beccfdd6b3e6b4cad7551311432ce455617936db8f61be1910770",
+      "development_through": "2026-06-09",
+      "excluded_final_test_from": "2026-06-10",
+      "candidate_count": 78,
+      "completed_candidates": 78,
+      "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
+      "selected": "logistic_baseline_w40_C0.03",
+      "accuracy_gain": 0.003441353599082264,
+      "log_loss_gain": 7.413672236089575e-05,
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.0013418314605204292,
+          0.0011825966234871286
+        ],
+        "accuracy_gain_95": [
+          -0.006778470588080791,
+          0.013542383245433002
+        ],
+        "calendar_weeks": 48,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      },
+      "note": "Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.",
+      "rest_policy_review": {
+        "before": {
+          "name": "logistic_baseline_w20_C0.1_legacy_rest_reference",
+          "specification": {
+            "kind": "logistic",
+            "window": 20,
+            "variant": "baseline",
+            "c": 0.1,
+            "leaves": 7,
+            "decay": false,
+            "legacy": true,
+            "diagnostic_only": true
+          },
+          "folds": [
+            {
+              "n": 1143,
+              "log_loss": 0.676000091654632,
+              "brier": 0.24155249649704702,
+              "accuracy": 0.5730533683289589,
+              "roc_auc": 0.5886753921841641,
+              "precision": 0.595945945945946,
+              "recall": 0.7,
+              "balanced_accuracy": 0.5585769980506823,
+              "calibration_error": 0.028841525550058155,
+              "train_end": "2024-10-14",
+              "validation_start": "2024-10-15",
+              "validation_end": "2025-06-20"
+            },
+            {
+              "n": 1306,
+              "log_loss": 0.6820104470674304,
+              "brier": 0.24452744941045865,
+              "accuracy": 0.557427258805513,
+              "roc_auc": 0.5725504297284871,
+              "precision": 0.5714285714285714,
+              "recall": 0.7018544935805991,
+              "balanced_accuracy": 0.5459685691043492,
+              "calibration_error": 0.0075365030355084755,
+              "train_end": "2025-06-20",
+              "validation_start": "2025-06-21",
+              "validation_end": "2025-10-02"
+            },
+            {
+              "n": 1038,
+              "log_loss": 0.6908695053335726,
+              "brier": 0.2488305647134269,
+              "accuracy": 0.5327552986512524,
+              "roc_auc": 0.5426363947705412,
+              "precision": 0.5396618985695709,
+              "recall": 0.76007326007326,
+              "balanced_accuracy": 0.5202805324756544,
+              "calibration_error": 0.0284376700017333,
+              "train_end": "2025-10-02",
+              "validation_start": "2025-10-04",
+              "validation_end": "2026-06-09"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 3487,
+            "log_loss": 0.6826774577480806,
+            "brier": 0.24483323160273038,
+            "accuracy": 0.555205047318612,
+            "roc_auc": 0.5687812916739743,
+            "precision": 0.5687763713080168,
+            "recall": 0.7181672882258924,
+            "balanced_accuracy": 0.5416923397651201,
+            "calibration_error": 0.009621098195686168
+          }
+        },
+        "after": {
+          "name": "logistic_w20",
+          "specification": {
+            "kind": "logistic",
+            "window": 20,
+            "variant": "rest_guard",
+            "c": 0.1,
+            "leaves": 7,
+            "decay": false,
+            "legacy": false,
+            "guard_legacy": true
+          },
+          "folds": [
+            {
+              "n": 1143,
+              "log_loss": 0.6765973743671716,
+              "brier": 0.24182699373573305,
+              "accuracy": 0.5721784776902887,
+              "roc_auc": 0.5872489866641913,
+              "precision": 0.5951417004048583,
+              "recall": 0.7,
+              "balanced_accuracy": 0.5576023391812865,
+              "calibration_error": 0.028487927773898514,
+              "train_end": "2024-10-14",
+              "validation_start": "2024-10-15",
+              "validation_end": "2025-06-20"
+            },
+            {
+              "n": 1306,
+              "log_loss": 0.6820104470674304,
+              "brier": 0.24452744941045865,
+              "accuracy": 0.557427258805513,
+              "roc_auc": 0.5725504297284871,
+              "precision": 0.5714285714285714,
+              "recall": 0.7018544935805991,
+              "balanced_accuracy": 0.5459685691043492,
+              "calibration_error": 0.0075365030355084755,
+              "train_end": "2025-06-20",
+              "validation_start": "2025-06-21",
+              "validation_end": "2025-10-02"
+            },
+            {
+              "n": 1038,
+              "log_loss": 0.6909646465064705,
+              "brier": 0.2488775916419561,
+              "accuracy": 0.5317919075144508,
+              "roc_auc": 0.5418174305369428,
+              "precision": 0.538860103626943,
+              "recall": 0.7619047619047619,
+              "balanced_accuracy": 0.519163763066202,
+              "calibration_error": 0.029257292568743463,
+              "train_end": "2025-10-02",
+              "validation_start": "2025-10-04",
+              "validation_end": "2026-06-09"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 3487,
+            "log_loss": 0.6829015617566554,
+            "brier": 0.24493720759803622,
+            "accuracy": 0.5546314883854316,
+            "roc_auc": 0.5680910134779631,
+            "precision": 0.5682392586352149,
+            "recall": 0.7187000532765051,
+            "balanced_accuracy": 0.5410270452717929,
+            "calibration_error": 0.009725895815209686
+          }
+        }
+      },
+      "incumbent": {
+        "name": "logistic_w20",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6829015617566554,
+          "brier": 0.24493720759803622,
+          "accuracy": 0.5546314883854316,
+          "roc_auc": 0.5680910134779631,
+          "precision": 0.5682392586352149,
+          "recall": 0.7187000532765051,
+          "balanced_accuracy": 0.5410270452717929,
+          "calibration_error": 0.009725895815209686
+        },
+        "folds": [
+          {
+            "n": 1143,
+            "log_loss": 0.6765973743671716,
+            "brier": 0.24182699373573305,
+            "accuracy": 0.5721784776902887,
+            "roc_auc": 0.5872489866641913,
+            "precision": 0.5951417004048583,
+            "recall": 0.7,
+            "balanced_accuracy": 0.5576023391812865,
+            "calibration_error": 0.028487927773898514,
+            "train_end": "2024-10-14",
+            "validation_start": "2024-10-15",
+            "validation_end": "2025-06-20"
+          },
+          {
+            "n": 1306,
+            "log_loss": 0.6820104470674304,
+            "brier": 0.24452744941045865,
+            "accuracy": 0.557427258805513,
+            "roc_auc": 0.5725504297284871,
+            "precision": 0.5714285714285714,
+            "recall": 0.7018544935805991,
+            "balanced_accuracy": 0.5459685691043492,
+            "calibration_error": 0.0075365030355084755,
+            "train_end": "2025-06-20",
+            "validation_start": "2025-06-21",
+            "validation_end": "2025-10-02"
+          },
+          {
+            "n": 1038,
+            "log_loss": 0.6909646465064705,
+            "brier": 0.2488775916419561,
+            "accuracy": 0.5317919075144508,
+            "roc_auc": 0.5418174305369428,
+            "precision": 0.538860103626943,
+            "recall": 0.7619047619047619,
+            "balanced_accuracy": 0.519163763066202,
+            "calibration_error": 0.029257292568743463,
+            "train_end": "2025-10-02",
+            "validation_start": "2025-10-04",
+            "validation_end": "2026-06-09"
+          }
+        ]
+      },
+      "best": {
+        "name": "logistic_baseline_w40_C0.03",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6828274250342945,
+          "brier": 0.24492250608338165,
+          "accuracy": 0.5580728419845139,
+          "roc_auc": 0.5638583440603315,
+          "precision": 0.5686835650040883,
+          "recall": 0.7410761854022376,
+          "balanced_accuracy": 0.5428983411483238,
+          "calibration_error": 0.008886920340461
+        },
+        "folds": [
+          {
+            "n": 1143,
+            "log_loss": 0.6778978400095961,
+            "brier": 0.2425014003871022,
+            "accuracy": 0.5835520559930009,
+            "roc_auc": 0.577771589467496,
+            "precision": 0.6002604166666666,
+            "recall": 0.7317460317460317,
+            "balanced_accuracy": 0.5666527429685324,
+            "calibration_error": 0.02864249044377369,
+            "train_end": "2024-10-14",
+            "validation_start": "2024-10-15",
+            "validation_end": "2025-06-20"
+          },
+          {
+            "n": 1306,
+            "log_loss": 0.6822993996383736,
+            "brier": 0.244671142499434,
+            "accuracy": 0.5505359877488515,
+            "roc_auc": 0.5688485162872401,
+            "precision": 0.5630530973451328,
+            "recall": 0.7261055634807418,
+            "balanced_accuracy": 0.5366065007486354,
+            "calibration_error": 0.0098680733684379,
+            "train_end": "2025-06-20",
+            "validation_start": "2025-06-21",
+            "validation_end": "2025-10-02"
+          },
+          {
+            "n": 1038,
+            "log_loss": 0.6889200231559738,
+            "brier": 0.247904784167662,
+            "accuracy": 0.5394990366088632,
+            "roc_auc": 0.5435595908156884,
+            "precision": 0.5439276485788114,
+            "recall": 0.7710622710622711,
+            "balanced_accuracy": 0.5267912981327616,
+            "calibration_error": 0.03115928541791513,
+            "train_end": "2025-10-02",
+            "validation_start": "2025-10-04",
+            "validation_end": "2026-06-09"
+          }
+        ]
+      },
+      "accuracy_leader": {
+        "name": "logistic_ratings_w40_C0.03",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6834064843532315,
+          "brier": 0.24520097672581065,
+          "accuracy": 0.562661313449957,
+          "roc_auc": 0.564474498423214,
+          "precision": 0.5756663800515908,
+          "recall": 0.7133724027703783,
+          "balanced_accuracy": 0.5501644622547543,
+          "calibration_error": 0.0201619999407569
+        },
+        "folds": [
+          {
+            "n": 1143,
+            "log_loss": 0.6781945146730249,
+            "brier": 0.2426307426201111,
+            "accuracy": 0.5809273840769904,
+            "roc_auc": 0.5807791082644884,
+            "precision": 0.6044260027662517,
+            "recall": 0.6936507936507936,
+            "balanced_accuracy": 0.5680729601782233,
+            "calibration_error": 0.04455308544582869,
+            "train_end": "2024-10-14",
+            "validation_start": "2024-10-15",
+            "validation_end": "2025-06-20"
+          },
+          {
+            "n": 1306,
+            "log_loss": 0.6829053728853789,
+            "brier": 0.24499690421046938,
+            "accuracy": 0.5612557427258805,
+            "roc_auc": 0.5655710260430789,
+            "precision": 0.5745920745920746,
+            "recall": 0.703281027104137,
+            "balanced_accuracy": 0.549987620990085,
+            "calibration_error": 0.01668790426974874,
+            "train_end": "2025-06-20",
+            "validation_start": "2025-06-21",
+            "validation_end": "2025-10-02"
+          },
+          {
+            "n": 1038,
+            "log_loss": 0.6897761692486952,
+            "brier": 0.2482879673692116,
+            "accuracy": 0.5443159922928709,
+            "roc_auc": 0.5481941838649156,
+            "precision": 0.548993288590604,
+            "recall": 0.7490842490842491,
+            "balanced_accuracy": 0.5330787099079782,
+            "calibration_error": 0.019439842912615475,
+            "train_end": "2025-10-02",
+            "validation_start": "2025-10-04",
+            "validation_end": "2026-06-09"
+          }
+        ]
+      }
+    },
+    {
+      "league": "UFC",
+      "version": "sport-review-v6-contextual-rest-r1",
+      "checked": "2026-10-22T17:26:07.472402+00:00",
+      "development_sha256": "9c88f4b741e344dce21d91d66e899655a1d71efc6f809395deb4593ba2ee7395",
+      "development_through": "2025-11-15",
+      "excluded_final_test_from": "2025-11-16",
+      "candidate_count": 65,
+      "completed_candidates": 65,
+      "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
+      "selected": "logistic_form_w20_C0.1_elo0.25",
+      "accuracy_gain": 0.0,
+      "log_loss_gain": 0.005448118011742276,
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.018156875246922072,
+          0.009430681537134462
+        ],
+        "accuracy_gain_95": [
+          -0.03694809341361066,
+          0.03721423186220495
+        ],
+        "calendar_weeks": 67,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      },
+      "note": "Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.",
+      "rest_policy_review": {
+        "before": {
+          "name": "elo_baseline_w20_legacy_rest_reference",
+          "specification": {
+            "kind": "elo",
+            "window": 20,
+            "variant": "baseline",
+            "c": 0.1,
+            "leaves": 7,
+            "decay": false,
+            "legacy": true,
+            "diagnostic_only": true
+          },
+          "folds": [
+            {
+              "n": 111,
+              "log_loss": 0.6811487810421232,
+              "brier": 0.2440142204717424,
+              "accuracy": 0.6036036036036037,
+              "roc_auc": 0.5498575498575499,
+              "precision": 0.41935483870967744,
+              "recall": 0.3333333333333333,
+              "balanced_accuracy": 0.5416666666666666,
+              "calibration_error": 0.13164424323403995,
+              "train_end": "2024-04-27",
+              "validation_start": "2024-05-05",
+              "validation_end": "2024-10-12"
+            },
+            {
+              "n": 165,
+              "log_loss": 0.6817495394087614,
+              "brier": 0.24433298715021726,
+              "accuracy": 0.5818181818181818,
+              "roc_auc": 0.581893984514592,
+              "precision": 0.5384615384615384,
+              "recall": 0.3835616438356164,
+              "balanced_accuracy": 0.5613460393091125,
+              "calibration_error": 0.04871353680035265,
+              "train_end": "2024-10-12",
+              "validation_start": "2024-10-19",
+              "validation_end": "2025-05-31"
+            },
+            {
+              "n": 150,
+              "log_loss": 0.6818684121099523,
+              "brier": 0.24437328881730924,
+              "accuracy": 0.6333333333333333,
+              "roc_auc": 0.6198435277382647,
+              "precision": 0.6792452830188679,
+              "recall": 0.4864864864864865,
+              "balanced_accuracy": 0.6314011379800853,
+              "calibration_error": 0.10611723532320762,
+              "train_end": "2025-05-31",
+              "validation_start": "2025-06-01",
+              "validation_end": "2025-11-15"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 426,
+            "log_loss": 0.6816348603629441,
+            "brier": 0.244264118954802,
+            "accuracy": 0.6056338028169014,
+            "roc_auc": 0.5889336917562724,
+            "precision": 0.5661764705882353,
+            "recall": 0.41397849462365593,
+            "balanced_accuracy": 0.5840725806451613,
+            "calibration_error": 0.07431457582577139
+          }
+        },
+        "after": {
+          "name": "elo_w20",
+          "specification": {
+            "kind": "elo",
+            "window": 20,
+            "variant": "rest_guard",
+            "c": 0.1,
+            "leaves": 7,
+            "decay": false,
+            "legacy": false,
+            "guard_legacy": true
+          },
+          "folds": [
+            {
+              "n": 111,
+              "log_loss": 0.6811487810421232,
+              "brier": 0.2440142204717424,
+              "accuracy": 0.6036036036036037,
+              "roc_auc": 0.5498575498575499,
+              "precision": 0.41935483870967744,
+              "recall": 0.3333333333333333,
+              "balanced_accuracy": 0.5416666666666666,
+              "calibration_error": 0.13164424323403995,
+              "train_end": "2024-04-27",
+              "validation_start": "2024-05-05",
+              "validation_end": "2024-10-12"
+            },
+            {
+              "n": 165,
+              "log_loss": 0.6817495394087614,
+              "brier": 0.24433298715021726,
+              "accuracy": 0.5818181818181818,
+              "roc_auc": 0.581893984514592,
+              "precision": 0.5384615384615384,
+              "recall": 0.3835616438356164,
+              "balanced_accuracy": 0.5613460393091125,
+              "calibration_error": 0.04871353680035265,
+              "train_end": "2024-10-12",
+              "validation_start": "2024-10-19",
+              "validation_end": "2025-05-31"
+            },
+            {
+              "n": 150,
+              "log_loss": 0.6818684121099523,
+              "brier": 0.24437328881730924,
+              "accuracy": 0.6333333333333333,
+              "roc_auc": 0.6198435277382647,
+              "precision": 0.6792452830188679,
+              "recall": 0.4864864864864865,
+              "balanced_accuracy": 0.6314011379800853,
+              "calibration_error": 0.10611723532320762,
+              "train_end": "2025-05-31",
+              "validation_start": "2025-06-01",
+              "validation_end": "2025-11-15"
+            }
+          ],
+          "status": "completed",
+          "validation": {
+            "n": 426,
+            "log_loss": 0.6816348603629441,
+            "brier": 0.244264118954802,
+            "accuracy": 0.6056338028169014,
+            "roc_auc": 0.5889336917562724,
+            "precision": 0.5661764705882353,
+            "recall": 0.41397849462365593,
+            "balanced_accuracy": 0.5840725806451613,
+            "calibration_error": 0.07431457582577139
+          }
+        }
+      },
+      "incumbent": {
+        "name": "elo_w20",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.6816348603629441,
+          "brier": 0.244264118954802,
+          "accuracy": 0.6056338028169014,
+          "roc_auc": 0.5889336917562724,
+          "precision": 0.5661764705882353,
+          "recall": 0.41397849462365593,
+          "balanced_accuracy": 0.5840725806451613,
+          "calibration_error": 0.07431457582577139
+        },
+        "folds": [
+          {
+            "n": 111,
+            "log_loss": 0.6811487810421232,
+            "brier": 0.2440142204717424,
+            "accuracy": 0.6036036036036037,
+            "roc_auc": 0.5498575498575499,
+            "precision": 0.41935483870967744,
+            "recall": 0.3333333333333333,
+            "balanced_accuracy": 0.5416666666666666,
+            "calibration_error": 0.13164424323403995,
+            "train_end": "2024-04-27",
+            "validation_start": "2024-05-05",
+            "validation_end": "2024-10-12"
+          },
+          {
+            "n": 165,
+            "log_loss": 0.6817495394087614,
+            "brier": 0.24433298715021726,
+            "accuracy": 0.5818181818181818,
+            "roc_auc": 0.581893984514592,
+            "precision": 0.5384615384615384,
+            "recall": 0.3835616438356164,
+            "balanced_accuracy": 0.5613460393091125,
+            "calibration_error": 0.04871353680035265,
+            "train_end": "2024-10-12",
+            "validation_start": "2024-10-19",
+            "validation_end": "2025-05-31"
+          },
+          {
+            "n": 150,
+            "log_loss": 0.6818684121099523,
+            "brier": 0.24437328881730924,
+            "accuracy": 0.6333333333333333,
+            "roc_auc": 0.6198435277382647,
+            "precision": 0.6792452830188679,
+            "recall": 0.4864864864864865,
+            "balanced_accuracy": 0.6314011379800853,
+            "calibration_error": 0.10611723532320762,
+            "train_end": "2025-05-31",
+            "validation_start": "2025-06-01",
+            "validation_end": "2025-11-15"
+          }
+        ]
+      },
+      "best": {
+        "name": "logistic_form_w20_C0.1_elo0.25",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.6761867423512018,
+          "brier": 0.2416347939314367,
+          "accuracy": 0.6056338028169014,
+          "roc_auc": 0.5742831541218638,
+          "precision": 0.625,
+          "recall": 0.24193548387096775,
+          "balanced_accuracy": 0.5647177419354839,
+          "calibration_error": 0.03552141522971506
+        },
+        "folds": [
+          {
+            "n": 111,
+            "log_loss": 0.6638195496029716,
+            "brier": 0.23554372564771225,
+            "accuracy": 0.6576576576576577,
+            "roc_auc": 0.511039886039886,
+            "precision": 0.5294117647058824,
+            "recall": 0.23076923076923078,
+            "balanced_accuracy": 0.5598290598290598,
+            "calibration_error": 0.09589951513873865,
+            "train_end": "2024-04-27",
+            "validation_start": "2024-05-05",
+            "validation_end": "2024-10-12"
+          },
+          {
+            "n": 165,
+            "log_loss": 0.6755579943817865,
+            "brier": 0.24150202832558748,
+            "accuracy": 0.5878787878787879,
+            "roc_auc": 0.6048243001786777,
+            "precision": 0.6190476190476191,
+            "recall": 0.1780821917808219,
+            "balanced_accuracy": 0.5455628350208457,
+            "calibration_error": 0.07093392309511207,
+            "train_end": "2024-10-12",
+            "validation_start": "2024-10-19",
+            "validation_end": "2025-05-31"
+          },
+          {
+            "n": 150,
+            "log_loss": 0.686030087751249,
+            "brier": 0.24628822662782696,
+            "accuracy": 0.5866666666666667,
+            "roc_auc": 0.5915718349928876,
+            "precision": 0.6764705882352942,
+            "recall": 0.3108108108108108,
+            "balanced_accuracy": 0.5830369843527738,
+            "calibration_error": 0.04885893468890527,
+            "train_end": "2025-05-31",
+            "validation_start": "2025-06-01",
+            "validation_end": "2025-11-15"
+          }
+        ]
+      },
+      "accuracy_leader": {
+        "name": "logistic_form_w20_C0.1_elo0.25",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.6761867423512018,
+          "brier": 0.2416347939314367,
+          "accuracy": 0.6056338028169014,
+          "roc_auc": 0.5742831541218638,
+          "precision": 0.625,
+          "recall": 0.24193548387096775,
+          "balanced_accuracy": 0.5647177419354839,
+          "calibration_error": 0.03552141522971506
+        },
+        "folds": [
+          {
+            "n": 111,
+            "log_loss": 0.6638195496029716,
+            "brier": 0.23554372564771225,
+            "accuracy": 0.6576576576576577,
+            "roc_auc": 0.511039886039886,
+            "precision": 0.5294117647058824,
+            "recall": 0.23076923076923078,
+            "balanced_accuracy": 0.5598290598290598,
+            "calibration_error": 0.09589951513873865,
+            "train_end": "2024-04-27",
+            "validation_start": "2024-05-05",
+            "validation_end": "2024-10-12"
+          },
+          {
+            "n": 165,
+            "log_loss": 0.6755579943817865,
+            "brier": 0.24150202832558748,
+            "accuracy": 0.5878787878787879,
+            "roc_auc": 0.6048243001786777,
+            "precision": 0.6190476190476191,
+            "recall": 0.1780821917808219,
+            "balanced_accuracy": 0.5455628350208457,
+            "calibration_error": 0.07093392309511207,
+            "train_end": "2024-10-12",
+            "validation_start": "2024-10-19",
+            "validation_end": "2025-05-31"
+          },
+          {
+            "n": 150,
+            "log_loss": 0.686030087751249,
+            "brier": 0.24628822662782696,
+            "accuracy": 0.5866666666666667,
+            "roc_auc": 0.5915718349928876,
+            "precision": 0.6764705882352942,
+            "recall": 0.3108108108108108,
+            "balanced_accuracy": 0.5830369843527738,
+            "calibration_error": 0.04885893468890527,
+            "train_end": "2025-05-31",
+            "validation_start": "2025-06-01",
+            "validation_end": "2025-11-15"
           }
         ]
       }
