@@ -143,7 +143,12 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if context['league']!=league:raise ValueError('Prediction context belongs to another league')
  rows=context['rows'];report=context['report'];art=context['artifact']
  d=date.fromisoformat(event_date); latest=date.fromisoformat(rows[-1]['date'])
- if d<=latest: raise ValueError('Prediction date must follow all training results; historical backtests are in the experiment panel')
+ if d<=date.fromisoformat(art['last_date']): raise ValueError('Prediction date must follow the model weight-training period; use saved predictions for previous games')
+ if d<latest: raise ValueError('Prediction date precedes the latest imported results; use saved predictions for previous games')
+ # Imported same-day outcomes are not weight-training data. Date-grouped
+ # features exclude every outcome on the forecast date, even in batch mode.
+ prior_rows=[r for r in rows if r['date']<event_date]
+ if not prior_rows:raise ValueError('No results precede the prediction date')
  if home==away or not all(any(r['home']==t or r['away']==t for r in rows) for t in (home,away)): raise ValueError('Choose two known opponents')
  if not scenario and (date.today()-latest).days>30: raise ValueError('Data are stale. Only explicitly hypothetical scenarios are available.')
  if not scenario and not 0<=(d-date.today()).days<=14: raise ValueError('Live prediction dates must be within the next 14 days')
@@ -175,7 +180,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if m is not None and hasattr(m,'named_steps'):
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
- result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
+ result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':prior_rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
  return result
 
 def predict(db,root,league,home,away,event_date,scenario=False,overrides=None):

@@ -125,3 +125,26 @@ def test_prediction_archive_preserves_original_picks_and_grades_results(tmp_path
  ledger={'ambiguous':dict(base,id='ambiguous')}
  (tmp_path/'state.json').write_text(json.dumps({'ledger':ledger}))
  assert prediction_history(tmp_path,results,asof)[0]['correct'] is None
+
+
+def test_imported_same_day_result_does_not_block_or_leak_into_forecast(public_source):
+ root,artifacts,db,feed,now=public_source
+ fixture=dict(feed['upcoming'][0],date=now.date().isoformat(),start_time=(now+timedelta(hours=2)).isoformat())
+ feed['upcoming']=[fixture]
+ with db:db.execute('UPDATE settings SET value=? WHERE key=?',(json.dumps(feed),'feed_NFL'))
+ before=next(l for l in export_snapshot(root,artifacts,now)['leagues'] if l['name']=='NFL')
+ original=json.loads(db.execute("SELECT payload FROM games WHERE event_id='nflverse-test-1'").fetchone()[0])
+ same_day=dict(original,event_id='nflverse-same-day',date=now.date().isoformat(),home_score='500',away_score='0',outcome='home')
+ ingest(db,[same_day])
+ after=next(l for l in export_snapshot(root,artifacts,now)['leagues'] if l['name']=='NFL')
+ assert len(after['predictions'])==1
+ assert after['predictions'][0]['home_probability']==before['predictions'][0]['home_probability']
+ assert after['predictions'][0]['factors']==before['predictions'][0]['factors']
+ assert after['predictions'][0]['data_through']<fixture['date']
+ assert after['model_training_sha256']==before['model_training_sha256']
+ # Actual weights trained through that day must still prevent same-day picks.
+ import joblib
+ path=root/'public-lifecycle'/'NFL'/'champion.joblib'
+ art=joblib.load(path);art['last_date']=fixture['date'];joblib.dump(art,path)
+ blocked=next(l for l in export_snapshot(root,artifacts,now)['leagues'] if l['name']=='NFL')
+ assert not blocked['predictions'] and 'weight-training' in blocked['withheld'][0]['reason']
