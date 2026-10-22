@@ -78,3 +78,19 @@ Feedback settlement also excludes ties/no contests from wins and losses, settles
 - The complete [quality deployment](https://github.com/cbegalla111/sportsMLmodel/actions/runs/39803920543) evaluated 40 candidates for each of six team sports and 32 for UFC. All completed on common per-sport folds; all seven feeds were fresh in the verified public snapshot. Team-sport selections did not change. UFC identified temperature-calibrated Elo with reduced development log loss/Brier/calibration error and unchanged accuracy. See MODEL_REVIEW.md for actual values and cohort limitations.
 - Calibrators use only an inner, later training block; outer validation and the archived final test are not used in calibration fitting. Insufficient final calibration data produce an unavailable candidate and a retryable loss review. They do not silently substitute an uncalibrated model or change production weights.
 - Development bootstrap intervals explicitly exclude selection uncertainty and are not promotion evidence. Existing locked trials remain unchanged. Production weights were not promoted by this development review.
+
+## Expanded accuracy review (October 22, 2026)
+
+Real public-source research results are recorded in `artifacts/research/accuracy-review-v5.json`. These are paired development comparisons on the same three chronological folds, with archived final-test dates excluded. The new selection prioritizes winner accuracy while requiring lower log loss and non-worse Brier.
+
+| Sport | Incumbent accuracy | Eligible selection accuracy | Highest candidate accuracy |
+|---|---:|---:|---:|
+| CFB | 69.64% | 70.27% | 70.27% |
+| MLB | 55.52% | 55.86% | 56.32% |
+| NBA | 68.50% | 69.24% | 69.24% |
+| NFL | 63.79% | 65.11% | 65.11% |
+| NHL | 54.31% | 55.36% | 55.85% |
+
+The highest candidate can fail the probability-quality checks; it is reported separately rather than automatically promoted. Comparing 67 team-sport/54 UFC challengers introduces selection optimism. These percentages are not new independent test scores or evidence of a live-model promotion. The GitHub deployment also runs WNBA and UFC research using their reachable public feeds.
+
+Validation: 65 automated tests passed, including same-date leakage checks for both team and combat rating features, archived-test outcome mutation, common temporal folds, nested calibration, frozen estimator serialization, direct/batch inference for linear/kernel/ensemble models, and loss-triggered promotion checks. Desktop/mobile Model Lab rendering was checked with actual exported reports.

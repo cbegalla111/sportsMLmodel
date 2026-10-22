@@ -116,7 +116,7 @@ def train(db,root,league):
 def model_features(rows,window=20,extra=False,variant='baseline'):
  if variant=='baseline':return features(rows,window,extra)
  if extra:raise ValueError('Combined uploaded and form features are not validated')
- if variant not in ('form','profile'):raise ValueError('Unknown model feature variant')
+ if variant not in ('form','profile','ratings'):raise ValueError('Unknown model feature variant')
  from .research import build
  return build(rows,window,variant)
 
@@ -177,7 +177,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  factor_inputs=list(zip(names,x))
  if m is None or art.get('research_spec',{}).get('kind')=='elo':factor_inputs=factor_inputs[:2]
  factors=[{'factor':name,'difference':float(v)} for name,v in factor_inputs]
- if m is not None and hasattr(m,'named_steps'):
+ if m is not None and hasattr(m,'named_steps') and set(m.named_steps)=={'standardscaler','logisticregression'}:
   scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
   for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
  result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':prior_rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}

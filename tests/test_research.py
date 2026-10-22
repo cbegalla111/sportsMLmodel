@@ -15,7 +15,8 @@ def test_form_features_never_see_current_or_same_date_results():
 def test_review_uses_identical_folds_and_excludes_original_test():
  rows=synthetic_rows(800);report={'league':'NBA','selected':'logistic_w20','final_test_start':rows[640]['date'],'last_date':rows[-1]['date']}
  artifact,result=review(rows,report)
- assert result['candidate_count']==40
+ assert result['candidate_count']==len(definitions('NBA'))
+ assert {'extra_trees','kernel','ensemble'}<=set(c['specification']['kind'] for c in result['candidates'])
  assert any(c['specification'].get('calibrate') for c in result['candidates'])
  assert any(c['specification'].get('elo_weight') for c in result['candidates'])
  for c in result['candidates']:
@@ -37,8 +38,9 @@ def test_review_uses_identical_folds_and_excludes_original_test():
  assert second['selected']==result['selected']
  assert second['candidates']==result['candidates']
 
-@pytest.mark.parametrize('variant',['form','profile'])
-def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(tmp_path,variant):
+@pytest.mark.parametrize('variant',['form','profile','ratings'])
+@pytest.mark.parametrize('kind',['logistic','kernel','ensemble'])
+def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(tmp_path,variant,kind):
  import json
  import joblib
  import pytest
@@ -46,7 +48,7 @@ def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(t
  from sportslab.model import estimate,fixture_inputs
  from sportslab.research import fit
  rows=synthetic_rows(800);db=connect(tmp_path);ingest(db,rows);rows=load(db,'NBA');built,names=__import__('sportslab.research',fromlist=['build']).build(rows,20,variant);warm=np.array([v[2]>=5 for v in built]);X=np.array([v[1] for v in built]);y=np.array([v[0]['outcome']=='home' for v in built],dtype=int)
- spec={'kind':'logistic','c':.03,'variant':variant,'window':20};m=fit(spec,X[warm],y[warm],[v[0]['date'] for v in built if v[2]>=5],'NBA')
+ spec={'kind':kind,'c':.03,'variant':variant,'window':20};m=fit(spec,X[warm],y[warm],[v[0]['date'] for v in built if v[2]>=5],'NBA')
  artifact={'model':m,'window':20,'variant':variant,'extra':False,'names':names,'digest':version(rows),'last_date':rows[-1]['date'],'training_event_ids':[r['event_id'] for r in rows]}
  (tmp_path/'models').mkdir();joblib.dump(artifact,tmp_path/'models'/'NBA-test.joblib')
  report={'id':'NBA-test','selected':'logistic_form_w20_C0.03','outcome_rules':'Synthetic test only'}
@@ -55,7 +57,7 @@ def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(t
  direct=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True)
  inputs=fixture_inputs(rows,[fixture],20,variant=variant);batch=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True,prepared_inputs=inputs)
  assert direct['home_probability']==pytest.approx(batch['home_probability'])
- assert len(direct['factors'])==(12 if variant=='form' else 17)
+ assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11}[variant])
  assert direct['factors']==batch['factors']
 
 
@@ -105,3 +107,41 @@ def test_calibration_readiness_changes_shared_dates_without_using_validation_sco
  for c in result['candidates']:
   if c['status']=='completed':assert [(f['validation_start'],f['validation_end'],f['n']) for f in c['folds']]==common
  assert all(f['validation_end']<report['final_test_start'] for f in result['incumbent']['folds'])
+
+
+@pytest.mark.parametrize('league',['NBA','UFC'])
+def test_multiscale_ratings_exclude_same_day_results_and_combat_scores(league):
+ from sportslab.research import rating_features
+ rows=[dict(r,league=league) for r in synthetic_rows(160)]
+ original,names=rating_features(rows);changed=copy.deepcopy(rows);cut=rows[80]['date']
+ for r in changed:
+  if r['date']>=cut:r.update(home_score='500',away_score='0',outcome='home')
+ altered,_=rating_features(changed)
+ assert all(a[1]==b[1] for a,b in zip(original,altered) if a[0]['date']<=cut)
+ assert any(a[1]!=b[1] for a,b in zip(original,altered) if a[0]['date']>cut)
+ if league=='UFC':
+  score_changed=[dict(r,home_score='999',away_score='0') for r in rows]
+  same,_=rating_features(score_changed)
+  # UFC baseline score margins already use result encodings; new rating inputs
+  # specifically never interpret those encodings as physical performance.
+  assert all(a[1][5:]==b[1][5:] for a,b in zip(original,same))
+  assert not any('margin' in name for name in names[5:])
+
+
+@pytest.mark.parametrize('kind',['extra_trees','kernel','ensemble'])
+def test_new_estimators_produce_frozen_finite_probabilities(tmp_path,kind):
+ from sportslab.research import fit
+ import joblib
+ rng=np.random.default_rng(12);X=rng.normal(size=(300,11));X[:,0]*=100;y=np.array([0,1]*150);days=[f'2020-01-{i//12+1:02}' for i in range(300)]
+ spec={'kind':kind,'variant':'ratings','window':20,'depth':4,'gamma':.1}
+ m=fit(spec,X,y,days,'NBA');p=m.predict_proba(X[-10:]);joblib.dump(m,tmp_path/'model.joblib');loaded=joblib.load(tmp_path/'model.joblib')
+ assert np.isfinite(p).all() and ((p>0)&(p<1)).all()
+ assert np.allclose(p.sum(axis=1),1) and np.allclose(p,loaded.predict_proba(X[-10:]))
+
+
+def test_accuracy_selection_respects_probability_quality():
+ rows=synthetic_rows(800);report={'league':'NBA','selected':'logistic_w20','final_test_start':rows[640]['date'],'last_date':rows[-1]['date']}
+ _,r=review(rows,report);inc=r['incumbent']['validation'];best=r['best']['validation']
+ eligible=[c for c in r['candidates'][1:] if c['validation'] is not None and c['validation']['accuracy']>=inc['accuracy'] and c['validation']['brier']<=inc['brier'] and c['validation']['log_loss']<inc['log_loss']]
+ assert best['accuracy']==max([inc['accuracy']]+[c['validation']['accuracy'] for c in eligible])
+ assert r['accuracy_leader']['validation']['accuracy']==max(c['validation']['accuracy'] for c in r['candidates'] if c['validation'] is not None)
