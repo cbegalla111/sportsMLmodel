@@ -15,7 +15,7 @@ from sklearn.neural_network import MLPClassifier
 from .data import now,version
 from .model import features,elo,scores
 
-VERSION='sport-review-v8-scoring-and-bayesian-priors'
+VERSION='sport-review-v9-targeted-calibration-horizons'
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -180,6 +180,17 @@ def definitions(league=None):
     for method in (None,'sigmoid'):result.append({'kind':'margin','window':20,'variant':variant,'ridge_alpha':alpha,'decay':False,**({'calibrate':method} if method else {})})
    for alpha in (.1,1.):
     for method in (None,'sigmoid'):result.append({'kind':'poisson','window':20,'variant':variant,'score_alpha':alpha,'decay':False,**({'calibrate':method} if method else {})})
+ if league in ('UFC','MLB','NHL','NFL'):
+  # Fixed sport-specific horizons: fight careers, football seasons, and shorter
+  # baseball/hockey form. All retain the same minimum-history validation cohort.
+  windows={'UFC':(3,5,8),'NFL':(5,8,16),'MLB':(5,15,60),'NHL':(5,15,30)}[league]
+  for window in windows:
+   for variant in ('context_form','context_bayesian'):
+    for c in (.03,.3):result.append({'kind':'logistic','window':window,'variant':variant,'c':c,'decay':False})
+  for variant in ('context_form','context_bayesian'):
+   for kind,settings in (('neural',{'alpha':1.}),('forest',{'depth':8})):
+    for method in ('temperature','sigmoid'):
+     result.append(dict(kind=kind,window=20,variant=variant,decay=False,calibrate=method,calibration_refit=True,**settings))
  return result
 
 class InsufficientCalibration(ValueError):pass
@@ -257,7 +268,7 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
 
 def fit(spec,X,y,days,league,score_targets=None):
  if spec.get('training_years'):
@@ -289,7 +300,7 @@ def fit(spec,X,y,days,league,score_targets=None):
   from scipy.special import expit,logit
   unique=sorted(set(days));boundary=unique[int(len(unique)*.8)];ds=np.array(days);inner=ds<boundary;cal=~inner
   if inner.sum()<80 or cal.sum()<30 or len(set(y[inner]))<2 or len(set(y[cal]))<2:raise InsufficientCalibration('Inner chronological calibration block has insufficient observations or classes')
-  base={k:v for k,v in spec.items() if k!='calibrate'};model=fit(base,X[inner],y[inner],list(ds[inner]),league,None if score_targets is None else score_targets[inner]);z=logit(np.clip(predict(model,X[cal]),1e-6,1-1e-6))
+  base={k:v for k,v in spec.items() if k not in ('calibrate','calibration_refit')};model=fit(base,X[inner],y[inner],list(ds[inner]),league,None if score_targets is None else score_targets[inner]);z=logit(np.clip(predict(model,X[cal]),1e-6,1-1e-6))
   if spec['calibrate']=='temperature':
    objective=lambda t:float(np.mean(np.logaddexp(0,z/t)-y[cal]*z/t))
    optimum=minimize_scalar(objective,bounds=(.75,3.),method='bounded');parameter=float(optimum.x)
@@ -304,6 +315,11 @@ def fit(spec,X,y,days,league,score_targets=None):
   else:
    parameter=LogisticRegression(C=.1,max_iter=500,random_state=42);parameter.fit(z.reshape(-1,1),y[cal])
   audit={'base_train_end':str(max(ds[inner])),'calibration_start':str(min(ds[cal])),'calibration_end':str(max(ds[cal])),'calibration_n':int(cal.sum()),'method':spec['calibrate']}
+  if spec.get('calibration_refit'):
+   # Freeze calibration learned from out-of-time inner predictions, then refit
+   # the predictor on all outer-training rows. Outer validation stays unseen.
+   model=fit(base,X,y,days,league,score_targets)
+   audit['refit_through']=str(max(days));audit['refit_n']=len(y)
   return TemporalCalibration(model,spec['calibrate'],parameter,audit)
  if spec.get('elo_weight'):
   base={k:v for k,v in spec.items() if k!='elo_weight'}

@@ -225,3 +225,28 @@ def test_direct_bayesian_prior_uses_only_causal_strength_log_odds():
  assert np.allclose(m.predict_proba(X)[:,1],expit(X[:,-4]))
  other=X.copy();other[:,4]=10000
  assert np.allclose(m.predict_proba(other),m.predict_proba(X))
+
+
+def test_refit_calibration_is_frozen_from_inner_predictions(tmp_path):
+ from datetime import date,timedelta
+ import joblib
+ from sportslab.research import fit,predict
+ rng=np.random.default_rng(19);X=rng.normal(size=(500,7));y=rng.binomial(1,1/(1+np.exp(-X[:,0])))
+ days=[(date(2010,1,1)+timedelta(days=i//4)).isoformat() for i in range(len(y))]
+ spec={'kind':'logistic','c':.1,'calibrate':'temperature'}
+ original=fit(spec,X,y,days,'NFL');refit=fit(dict(spec,calibration_refit=True),X,y,days,'NFL')
+ # Refitting must not recalculate calibration using in-sample predictions.
+ assert refit.parameter==original.parameter
+ audit=refit.calibration_audit
+ assert audit['base_train_end']<audit['calibration_start']<=audit['calibration_end']==audit['refit_through']
+ assert audit['refit_n']==len(y)
+ full=fit({'kind':'logistic','c':.1},X,y,days,'NFL')
+ assert np.allclose(predict(full,X),predict(refit.model,X))
+ path=tmp_path/'refit.joblib';joblib.dump(refit,path)
+ assert np.allclose(predict(refit,X),predict(joblib.load(path),X))
+ # Calibration and the refit receive no future rows, even when later inputs
+ # and labels are appended to the caller's dataset.
+ future_X=np.vstack([X,np.full((20,7),100.)]);future_y=np.r_[y,np.zeros(20)]
+ repeated=fit(dict(spec,calibration_refit=True),future_X[:500],future_y[:500],days,'NFL')
+ assert repeated.parameter==refit.parameter
+ assert np.allclose(predict(repeated,X),predict(refit,X))
