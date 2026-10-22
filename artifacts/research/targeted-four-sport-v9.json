@@ -1,0 +1,755 @@
+{
+  "note": "Same development hashes, validation dates and game counts verified against the public v8 snapshot. Development selection is optimistic; prospective promotion remains required.",
+  "results": [
+    {
+      "league": "NFL",
+      "version": "sport-review-v9-targeted-calibration-horizons",
+      "development_sha256": "6f69454aaf7fe6f3e6e7c62910c0b90f49e66a414cad2ff24359dab8aa914719",
+      "before": {
+        "name": "logistic_ratings_w20_C0.3",
+        "validation": {
+          "n": 2654,
+          "log_loss": 0.630147844911981,
+          "brier": 0.22014717087909683,
+          "accuracy": 0.6488319517709118,
+          "roc_auc": 0.690934154446623,
+          "precision": 0.6563573883161512,
+          "recall": 0.7753721244925575,
+          "balanced_accuracy": 0.6325840214299523,
+          "calibration_error": 0.02262201186117457
+        }
+      },
+      "after": {
+        "name": "logistic_ratings_w20_C0.3",
+        "specification": {
+          "kind": "logistic",
+          "window": 20,
+          "variant": "ratings",
+          "c": 0.3,
+          "decay": false
+        },
+        "folds": [
+          {
+            "n": 904,
+            "log_loss": 0.6208066957196072,
+            "brier": 0.21615131663366358,
+            "accuracy": 0.6581858407079646,
+            "roc_auc": 0.6974168268150847,
+            "precision": 0.6751700680272109,
+            "recall": 0.7708737864077669,
+            "balanced_accuracy": 0.6399356078568398,
+            "calibration_error": 0.032079742556087865,
+            "train_end": "2012-12-03",
+            "validation_start": "2012-12-06",
+            "validation_end": "2016-09-19"
+          },
+          {
+            "n": 877,
+            "log_loss": 0.6208697926999209,
+            "brier": 0.21627552960137866,
+            "accuracy": 0.6533637400228051,
+            "roc_auc": 0.6956944976381974,
+            "precision": 0.6712328767123288,
+            "recall": 0.7777777777777778,
+            "balanced_accuracy": 0.6315162347333929,
+            "calibration_error": 0.02731503185233593,
+            "train_end": "2016-09-19",
+            "validation_start": "2016-09-22",
+            "validation_end": "2019-10-28"
+          },
+          {
+            "n": 873,
+            "log_loss": 0.6491412591844905,
+            "brier": 0.22817429761270208,
+            "accuracy": 0.6345933562428407,
+            "roc_auc": 0.6802700683064423,
+            "precision": 0.6219512195121951,
+            "recall": 0.7777777777777778,
+            "balanced_accuracy": 0.6268115942028986,
+            "calibration_error": 0.05173670852008202,
+            "train_end": "2019-10-28",
+            "validation_start": "2019-10-31",
+            "validation_end": "2022-12-01"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 2654,
+          "log_loss": 0.6301478449119878,
+          "brier": 0.22014717087909946,
+          "accuracy": 0.6488319517709118,
+          "roc_auc": 0.690934154446623,
+          "precision": 0.6563573883161512,
+          "recall": 0.7753721244925575,
+          "balanced_accuracy": 0.6325840214299523,
+          "calibration_error": 0.02262201186115513
+        }
+      },
+      "accuracy_leader": {
+        "name": "logistic_profile_w40_C0.3",
+        "specification": {
+          "kind": "logistic",
+          "window": 40,
+          "variant": "profile",
+          "c": 0.3,
+          "decay": false
+        },
+        "folds": [
+          {
+            "n": 904,
+            "log_loss": 0.6316064786055989,
+            "brier": 0.2207995774290424,
+            "accuracy": 0.6570796460176991,
+            "roc_auc": 0.6816232810043178,
+            "precision": 0.6683087027914614,
+            "recall": 0.7902912621359224,
+            "balanced_accuracy": 0.6355055282401977,
+            "calibration_error": 0.03361974989564534,
+            "train_end": "2012-12-03",
+            "validation_start": "2012-12-06",
+            "validation_end": "2016-09-19"
+          },
+          {
+            "n": 877,
+            "log_loss": 0.6218215839827879,
+            "brier": 0.2163111443282034,
+            "accuracy": 0.6602052451539339,
+            "roc_auc": 0.6949125494701902,
+            "precision": 0.6788194444444444,
+            "recall": 0.7757936507936508,
+            "balanced_accuracy": 0.6399075492574152,
+            "calibration_error": 0.015537714302502658,
+            "train_end": "2016-09-19",
+            "validation_start": "2016-09-22",
+            "validation_end": "2019-10-28"
+          },
+          {
+            "n": 873,
+            "log_loss": 0.6537151071625129,
+            "brier": 0.2303511456234351,
+            "accuracy": 0.6300114547537228,
+            "roc_auc": 0.6734288992032669,
+            "precision": 0.6188811188811189,
+            "recall": 0.7712418300653595,
+            "balanced_accuracy": 0.6223358908780904,
+            "calibration_error": 0.05564864849267202,
+            "train_end": "2019-10-28",
+            "validation_start": "2019-10-31",
+            "validation_end": "2022-12-01"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 2654,
+          "log_loss": 0.6356454688640694,
+          "brier": 0.22245826740804353,
+          "accuracy": 0.6492087415222306,
+          "roc_auc": 0.6828944703727229,
+          "precision": 0.6556630620375641,
+          "recall": 0.7794316644113667,
+          "balanced_accuracy": 0.6324879410492208,
+          "calibration_error": 0.020356719336562905
+        }
+      },
+      "candidate_count": 150,
+      "completed_candidates": 150,
+      "previous_search": {
+        "version": "sport-review-v8-scoring-and-bayesian-priors",
+        "name": "logistic_ratings_w20_C0.3",
+        "validation": {
+          "n": 2654,
+          "log_loss": 0.630147844911981,
+          "brier": 0.22014717087909683,
+          "accuracy": 0.6488319517709118,
+          "roc_auc": 0.690934154446623,
+          "precision": 0.6563573883161512,
+          "recall": 0.7753721244925575,
+          "balanced_accuracy": 0.6325840214299523,
+          "calibration_error": 0.02262201186117457
+        },
+        "accuracy_gain": 0.0,
+        "note": "Same development data and chronological validation games; search-selection optimism remains."
+      },
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.006620474877401662,
+          0.0006139167169146923
+        ],
+        "accuracy_gain_95": [
+          0.0007139643470483992,
+          0.019782272174591543
+        ],
+        "calendar_weeks": 211,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      }
+    },
+    {
+      "league": "NHL",
+      "version": "sport-review-v9-targeted-calibration-horizons",
+      "development_sha256": "34dbe740a8fa9c0aa9471c14248b642d42308fd8906dadb168e71f88eebf582a",
+      "before": {
+        "name": "kernel_profile_w20_gamma0.03",
+        "validation": {
+          "n": 1427,
+          "log_loss": 0.6875203191396586,
+          "brier": 0.2471907029167301,
+          "accuracy": 0.5557112824106517,
+          "roc_auc": 0.5443259466641359,
+          "precision": 0.5513878469617405,
+          "recall": 0.953307392996109,
+          "balanced_accuracy": 0.5208610135712253,
+          "calibration_error": 0.01813788425931973
+        }
+      },
+      "after": {
+        "name": "logistic_context_form_w5_C0.03",
+        "specification": {
+          "kind": "logistic",
+          "window": 5,
+          "variant": "context_form",
+          "c": 0.03,
+          "decay": false
+        },
+        "folds": [
+          {
+            "n": 328,
+            "log_loss": 0.6572478276955351,
+            "brier": 0.23224943492031905,
+            "accuracy": 0.625,
+            "roc_auc": 0.6131313131313132,
+            "precision": 0.6482213438735178,
+            "recall": 0.8282828282828283,
+            "balanced_accuracy": 0.5718337218337218,
+            "calibration_error": 0.061594592296800976,
+            "train_end": "2025-03-15",
+            "validation_start": "2025-03-16",
+            "validation_end": "2025-05-29"
+          },
+          {
+            "n": 519,
+            "log_loss": 0.7083473808754297,
+            "brier": 0.2572788731968811,
+            "accuracy": 0.5048169556840078,
+            "roc_auc": 0.5006689659273355,
+            "precision": 0.5130641330166271,
+            "recall": 0.8059701492537313,
+            "balanced_accuracy": 0.4946185407623238,
+            "calibration_error": 0.0792535811047864,
+            "train_end": "2025-05-29",
+            "validation_start": "2025-06-04",
+            "validation_end": "2025-12-14"
+          },
+          {
+            "n": 580,
+            "log_loss": 0.6848038601603105,
+            "brier": 0.2458264064586311,
+            "accuracy": 0.5620689655172414,
+            "roc_auc": 0.5679642324888227,
+            "precision": 0.5546038543897216,
+            "recall": 0.8491803278688524,
+            "balanced_accuracy": 0.546408345752608,
+            "calibration_error": 0.028860750187893778,
+            "train_end": "2025-12-14",
+            "validation_start": "2025-12-15",
+            "validation_end": "2026-03-19"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 1427,
+          "log_loss": 0.687032808024852,
+          "brier": 0.24687096397270633,
+          "accuracy": 0.5557112824106517,
+          "roc_auc": 0.5516335294675905,
+          "precision": 0.5600350569675723,
+          "recall": 0.8287937743190662,
+          "balanced_accuracy": 0.5317749359400209,
+          "calibration_error": 0.02400496291449169
+        }
+      },
+      "accuracy_leader": {
+        "name": "logistic_profile_w40_C0.03",
+        "specification": {
+          "kind": "logistic",
+          "window": 40,
+          "variant": "profile",
+          "c": 0.03,
+          "decay": false
+        },
+        "folds": [
+          {
+            "n": 328,
+            "log_loss": 0.6589285774100224,
+            "brier": 0.23305444980419918,
+            "accuracy": 0.6310975609756098,
+            "roc_auc": 0.5993783993783994,
+            "precision": 0.6431226765799256,
+            "recall": 0.8737373737373737,
+            "balanced_accuracy": 0.5676379176379176,
+            "calibration_error": 0.044213059713388736,
+            "train_end": "2025-03-15",
+            "validation_start": "2025-03-16",
+            "validation_end": "2025-05-29"
+          },
+          {
+            "n": 519,
+            "log_loss": 0.7095596211423616,
+            "brier": 0.25766374294058525,
+            "accuracy": 0.5105973025048169,
+            "roc_auc": 0.5184634595944579,
+            "precision": 0.5173267326732673,
+            "recall": 0.7798507462686567,
+            "balanced_accuracy": 0.5014791579948861,
+            "calibration_error": 0.08190449693015517,
+            "train_end": "2025-05-29",
+            "validation_start": "2025-06-04",
+            "validation_end": "2025-12-14"
+          },
+          {
+            "n": 580,
+            "log_loss": 0.6857116889773105,
+            "brier": 0.24619818521371428,
+            "accuracy": 0.5672413793103448,
+            "roc_auc": 0.5748912071535023,
+            "precision": 0.5579399141630901,
+            "recall": 0.8524590163934426,
+            "balanced_accuracy": 0.5516840536512667,
+            "calibration_error": 0.024535171207977366,
+            "train_end": "2025-12-14",
+            "validation_start": "2025-12-15",
+            "validation_end": "2026-03-19"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 1427,
+          "log_loss": 0.6882290093694556,
+          "brier": 0.24734708447504933,
+          "accuracy": 0.5613174491941135,
+          "roc_auc": 0.5579090348296478,
+          "precision": 0.5636523266022827,
+          "recall": 0.8326848249027238,
+          "balanced_accuracy": 0.5375314368416058,
+          "calibration_error": 0.023589952544982196
+        }
+      },
+      "candidate_count": 150,
+      "completed_candidates": 150,
+      "previous_search": {
+        "version": "sport-review-v8-scoring-and-bayesian-priors",
+        "name": "kernel_profile_w20_gamma0.03",
+        "validation": {
+          "n": 1427,
+          "log_loss": 0.6875203191396586,
+          "brier": 0.2471907029167301,
+          "accuracy": 0.5557112824106517,
+          "roc_auc": 0.5443259466641359,
+          "precision": 0.5513878469617405,
+          "recall": 0.953307392996109,
+          "balanced_accuracy": 0.5208610135712253,
+          "calibration_error": 0.01813788425931973
+        },
+        "accuracy_gain": 0.0,
+        "note": "Same development data and chronological validation games; search-selection optimism remains."
+      },
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.004279333540275742,
+          0.0029335475839642974
+        ],
+        "accuracy_gain_95": [
+          -0.005872373842123632,
+          0.02406171679197995
+        ],
+        "calendar_weeks": 37,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      }
+    },
+    {
+      "league": "MLB",
+      "version": "sport-review-v9-targeted-calibration-horizons",
+      "development_sha256": "1622559aad9beccfdd6b3e6b4cad7551311432ce455617936db8f61be1910770",
+      "before": {
+        "name": "logistic_baseline_w40_C0.03",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6828274250342945,
+          "brier": 0.24492250608338165,
+          "accuracy": 0.5580728419845139,
+          "roc_auc": 0.5638583440603315,
+          "precision": 0.5686835650040883,
+          "recall": 0.7410761854022376,
+          "balanced_accuracy": 0.5428983411483238,
+          "calibration_error": 0.008886920340461
+        }
+      },
+      "after": {
+        "name": "logistic_baseline_w40_C0.03",
+        "specification": {
+          "kind": "logistic",
+          "window": 40,
+          "variant": "baseline",
+          "c": 0.03,
+          "decay": false
+        },
+        "folds": [
+          {
+            "n": 1143,
+            "log_loss": 0.6778978400095961,
+            "brier": 0.2425014003871022,
+            "accuracy": 0.5835520559930009,
+            "roc_auc": 0.577771589467496,
+            "precision": 0.6002604166666666,
+            "recall": 0.7317460317460317,
+            "balanced_accuracy": 0.5666527429685324,
+            "calibration_error": 0.02864249044377369,
+            "train_end": "2024-10-14",
+            "validation_start": "2024-10-15",
+            "validation_end": "2025-06-20"
+          },
+          {
+            "n": 1306,
+            "log_loss": 0.6822993996383736,
+            "brier": 0.244671142499434,
+            "accuracy": 0.5505359877488515,
+            "roc_auc": 0.5688485162872401,
+            "precision": 0.5630530973451328,
+            "recall": 0.7261055634807418,
+            "balanced_accuracy": 0.5366065007486354,
+            "calibration_error": 0.0098680733684379,
+            "train_end": "2025-06-20",
+            "validation_start": "2025-06-21",
+            "validation_end": "2025-10-02"
+          },
+          {
+            "n": 1038,
+            "log_loss": 0.6889200231559738,
+            "brier": 0.247904784167662,
+            "accuracy": 0.5394990366088632,
+            "roc_auc": 0.5435595908156884,
+            "precision": 0.5439276485788114,
+            "recall": 0.7710622710622711,
+            "balanced_accuracy": 0.5267912981327616,
+            "calibration_error": 0.03115928541791513,
+            "train_end": "2025-10-02",
+            "validation_start": "2025-10-04",
+            "validation_end": "2026-06-09"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6828274250342945,
+          "brier": 0.24492250608338165,
+          "accuracy": 0.5580728419845139,
+          "roc_auc": 0.5638583440603315,
+          "precision": 0.5686835650040883,
+          "recall": 0.7410761854022376,
+          "balanced_accuracy": 0.5428983411483238,
+          "calibration_error": 0.008886920340461
+        }
+      },
+      "accuracy_leader": {
+        "name": "logistic_ratings_w40_C0.03",
+        "specification": {
+          "kind": "logistic",
+          "window": 40,
+          "variant": "ratings",
+          "c": 0.03,
+          "decay": false
+        },
+        "folds": [
+          {
+            "n": 1143,
+            "log_loss": 0.6781945146730249,
+            "brier": 0.2426307426201111,
+            "accuracy": 0.5809273840769904,
+            "roc_auc": 0.5807791082644884,
+            "precision": 0.6044260027662517,
+            "recall": 0.6936507936507936,
+            "balanced_accuracy": 0.5680729601782233,
+            "calibration_error": 0.04455308544582869,
+            "train_end": "2024-10-14",
+            "validation_start": "2024-10-15",
+            "validation_end": "2025-06-20"
+          },
+          {
+            "n": 1306,
+            "log_loss": 0.6829053728853789,
+            "brier": 0.24499690421046938,
+            "accuracy": 0.5612557427258805,
+            "roc_auc": 0.5655710260430789,
+            "precision": 0.5745920745920746,
+            "recall": 0.703281027104137,
+            "balanced_accuracy": 0.549987620990085,
+            "calibration_error": 0.01668790426974874,
+            "train_end": "2025-06-20",
+            "validation_start": "2025-06-21",
+            "validation_end": "2025-10-02"
+          },
+          {
+            "n": 1038,
+            "log_loss": 0.6897761692486952,
+            "brier": 0.2482879673692116,
+            "accuracy": 0.5443159922928709,
+            "roc_auc": 0.5481941838649156,
+            "precision": 0.548993288590604,
+            "recall": 0.7490842490842491,
+            "balanced_accuracy": 0.5330787099079782,
+            "calibration_error": 0.019439842912615475,
+            "train_end": "2025-10-02",
+            "validation_start": "2025-10-04",
+            "validation_end": "2026-06-09"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6834064843532315,
+          "brier": 0.24520097672581065,
+          "accuracy": 0.562661313449957,
+          "roc_auc": 0.564474498423214,
+          "precision": 0.5756663800515908,
+          "recall": 0.7133724027703783,
+          "balanced_accuracy": 0.5501644622547543,
+          "calibration_error": 0.0201619999407569
+        }
+      },
+      "candidate_count": 150,
+      "completed_candidates": 150,
+      "previous_search": {
+        "version": "sport-review-v8-scoring-and-bayesian-priors",
+        "name": "logistic_baseline_w40_C0.03",
+        "validation": {
+          "n": 3487,
+          "log_loss": 0.6828274250342945,
+          "brier": 0.24492250608338165,
+          "accuracy": 0.5580728419845139,
+          "roc_auc": 0.5638583440603315,
+          "precision": 0.5686835650040883,
+          "recall": 0.7410761854022376,
+          "balanced_accuracy": 0.5428983411483238,
+          "calibration_error": 0.008886920340461
+        },
+        "accuracy_gain": 0.0,
+        "note": "Same development data and chronological validation games; search-selection optimism remains."
+      },
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.0013418314605204292,
+          0.0011825966234871286
+        ],
+        "accuracy_gain_95": [
+          -0.006778470588080791,
+          0.013542383245433002
+        ],
+        "calendar_weeks": 48,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      }
+    },
+    {
+      "league": "UFC",
+      "version": "sport-review-v9-targeted-calibration-horizons",
+      "development_sha256": "9c88f4b741e344dce21d91d66e899655a1d71efc6f809395deb4593ba2ee7395",
+      "before": {
+        "name": "logistic_form_w20_C0.1_elo0.25",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.6761867423512018,
+          "brier": 0.2416347939314367,
+          "accuracy": 0.6056338028169014,
+          "roc_auc": 0.5742831541218638,
+          "precision": 0.625,
+          "recall": 0.24193548387096775,
+          "balanced_accuracy": 0.5647177419354839,
+          "calibration_error": 0.03552141522971511
+        }
+      },
+      "after": {
+        "name": "logistic_form_w20_C0.1_elo0.25",
+        "specification": {
+          "kind": "logistic",
+          "window": 20,
+          "variant": "form",
+          "c": 0.1,
+          "decay": false,
+          "elo_weight": 0.25
+        },
+        "folds": [
+          {
+            "n": 111,
+            "log_loss": 0.6638195496029716,
+            "brier": 0.23554372564771225,
+            "accuracy": 0.6576576576576577,
+            "roc_auc": 0.511039886039886,
+            "precision": 0.5294117647058824,
+            "recall": 0.23076923076923078,
+            "balanced_accuracy": 0.5598290598290598,
+            "calibration_error": 0.09589951513873865,
+            "train_end": "2024-04-27",
+            "validation_start": "2024-05-05",
+            "validation_end": "2024-10-12"
+          },
+          {
+            "n": 165,
+            "log_loss": 0.6755579943817865,
+            "brier": 0.24150202832558748,
+            "accuracy": 0.5878787878787879,
+            "roc_auc": 0.6048243001786777,
+            "precision": 0.6190476190476191,
+            "recall": 0.1780821917808219,
+            "balanced_accuracy": 0.5455628350208457,
+            "calibration_error": 0.07093392309511207,
+            "train_end": "2024-10-12",
+            "validation_start": "2024-10-19",
+            "validation_end": "2025-05-31"
+          },
+          {
+            "n": 150,
+            "log_loss": 0.686030087751249,
+            "brier": 0.24628822662782696,
+            "accuracy": 0.5866666666666667,
+            "roc_auc": 0.5915718349928876,
+            "precision": 0.6764705882352942,
+            "recall": 0.3108108108108108,
+            "balanced_accuracy": 0.5830369843527738,
+            "calibration_error": 0.04885893468890527,
+            "train_end": "2025-05-31",
+            "validation_start": "2025-06-01",
+            "validation_end": "2025-11-15"
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.6761867423512018,
+          "brier": 0.2416347939314367,
+          "accuracy": 0.6056338028169014,
+          "roc_auc": 0.5742831541218638,
+          "precision": 0.625,
+          "recall": 0.24193548387096775,
+          "balanced_accuracy": 0.5647177419354839,
+          "calibration_error": 0.03552141522971506
+        }
+      },
+      "accuracy_leader": {
+        "name": "bayesian_prior_context_bayesian_w20_decision",
+        "specification": {
+          "kind": "bayesian_prior",
+          "window": 20,
+          "variant": "context_bayesian",
+          "decay": false,
+          "calibrate": "decision"
+        },
+        "folds": [
+          {
+            "n": 111,
+            "log_loss": 0.683459350111911,
+            "brier": 0.23915638630016847,
+            "accuracy": 0.6576576576576577,
+            "roc_auc": 0.5356125356125356,
+            "precision": 0.5384615384615384,
+            "recall": 0.1794871794871795,
+            "balanced_accuracy": 0.548076923076923,
+            "calibration_error": 0.10742025642544721,
+            "train_end": "2024-04-27",
+            "validation_start": "2024-05-05",
+            "validation_end": "2024-10-12",
+            "calibration": {
+              "base_train_end": "2024-03-02",
+              "calibration_start": "2024-03-09",
+              "calibration_end": "2024-04-27",
+              "calibration_n": 34,
+              "method": "decision"
+            }
+          },
+          {
+            "n": 165,
+            "log_loss": 0.7233573368939189,
+            "brier": 0.25856293455112317,
+            "accuracy": 0.593939393939394,
+            "roc_auc": 0.6021441334127458,
+            "precision": 0.6153846153846154,
+            "recall": 0.2191780821917808,
+            "balanced_accuracy": 0.5552412150089339,
+            "calibration_error": 0.15044841690315264,
+            "train_end": "2024-10-12",
+            "validation_start": "2024-10-19",
+            "validation_end": "2025-05-31",
+            "calibration": {
+              "base_train_end": "2024-07-14",
+              "calibration_start": "2024-07-20",
+              "calibration_end": "2024-10-12",
+              "calibration_n": 61,
+              "method": "decision"
+            }
+          },
+          {
+            "n": 150,
+            "log_loss": 0.7171332679455249,
+            "brier": 0.25577064662139987,
+            "accuracy": 0.5866666666666667,
+            "roc_auc": 0.6008179231863442,
+            "precision": 0.603448275862069,
+            "recall": 0.47297297297297297,
+            "balanced_accuracy": 0.5851706970128022,
+            "calibration_error": 0.09745120276055085,
+            "train_end": "2025-05-31",
+            "validation_start": "2025-06-01",
+            "validation_end": "2025-11-15",
+            "calibration": {
+              "base_train_end": "2025-01-19",
+              "calibration_start": "2025-02-01",
+              "calibration_end": "2025-05-31",
+              "calibration_n": 97,
+              "method": "decision"
+            }
+          }
+        ],
+        "status": "completed",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.7107698090181865,
+          "brier": 0.252523098764,
+          "accuracy": 0.607981220657277,
+          "roc_auc": 0.592921146953405,
+          "precision": 0.5979381443298969,
+          "recall": 0.3118279569892473,
+          "balanced_accuracy": 0.5746639784946237,
+          "calibration_error": 0.08975456954256529
+        }
+      },
+      "candidate_count": 121,
+      "completed_candidates": 121,
+      "previous_search": {
+        "version": "sport-review-v8-scoring-and-bayesian-priors",
+        "name": "logistic_form_w20_C0.1_elo0.25",
+        "validation": {
+          "n": 426,
+          "log_loss": 0.6761867423512018,
+          "brier": 0.2416347939314367,
+          "accuracy": 0.6056338028169014,
+          "roc_auc": 0.5742831541218638,
+          "precision": 0.625,
+          "recall": 0.24193548387096775,
+          "balanced_accuracy": 0.5647177419354839,
+          "calibration_error": 0.03552141522971511
+        },
+        "accuracy_gain": 0.0,
+        "note": "Same development data and chronological validation games; search-selection optimism remains."
+      },
+      "comparison_uncertainty": {
+        "log_loss_delta_95": [
+          -0.018156875246922072,
+          0.009430681537134462
+        ],
+        "accuracy_gain_95": [
+          -0.03694809341361066,
+          0.03721423186220495
+        ],
+        "calendar_weeks": 67,
+        "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+      }
+    }
+  ]
+}

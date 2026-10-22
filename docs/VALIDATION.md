@@ -134,3 +134,16 @@ The highest raw accuracy candidate and the eligible selection are distinct. A hi
 College football improved its eligible winner accuracy; the other six eligible winners did not improve accuracy over their prior research winner. NBA reached a higher raw accuracy candidate but worsened probability loss/Brier; it was not treated as an overall improvement. These results do not substantiate higher winner accuracy in every sport. Original sealed test metrics and independent prospective promotion checks remain unchanged.
 
 The public workflow, all 130 team-sport/101 UFC challengers, and 114 tests completed successfully. Desktop/mobile Model Lab checks verified the complete candidate catalog, matched prior-search comparison, raw accuracy leader and no viewport overflow. Live HTML/JavaScript matched committed assets. The checked-in public snapshot was refreshed from the verified deployment.
+
+## Targeted four-sport review (v9)
+
+The deployed review completed 150/150 challengers each for NFL, NHL and MLB, and 121/121 for UFC. The additional 20 candidates per sport test sport-specific history windows and chronologically calibrated/refitted nonlinear estimators. All 115 automated tests passed, including calibration freezing and serialization checks. `artifacts/research/targeted-four-sport-v9.json` preserves the measured comparison against the previous public v8 review; development hashes, validation dates and sample counts were verified identical.
+
+| Sport | Prior winner accuracy | New winner accuracy | Prior log loss | New log loss |
+|---|---:|---:|---:|---:|
+| UFC | 60.56% | 60.56% | 0.676187 | 0.676187 |
+| MLB | 55.81% | 55.81% | 0.682827 | 0.682827 |
+| NHL | 55.57% | 55.57% | 0.687520 | 0.687033 |
+| NFL | 64.88% | 64.88% | 0.630148 | 0.630148 |
+
+NHL selected contextual logistic form with a five-game window and C=0.03. On the same 1,427 development games, its Brier score also decreased from 0.247191 to 0.246871. The improvement is in probability scoring; winner accuracy did not rise. The other three sports retained their prior eligible selections. These results do not establish an independent or future gain; research candidates still require prospective promotion before replacing live weights. Daily updates include the expanded search, with unchanged development reviews cached.
