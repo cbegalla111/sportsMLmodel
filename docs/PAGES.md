@@ -6,6 +6,7 @@ Public website: https://cbegalla111.github.io/sportsMLmodel/
 
 ## What the website displays
 
+- Opens on today in the browser’s local timezone and shows sports with scheduled events that day. Today, Tomorrow, previous/next day, seven quick date choices and the calendar support future browsing. The selected day remains active across sport switches and refreshes. Enable All sports to browse off-day models and history. Schedules depend on each provider’s publication horizon; empty days do not receive invented fixtures. Started events stay on the daily schedule while pre-event probabilities expire. Recent results are separately labeled with source dates.
 - Seven sport views: NBA, NFL, NHL, CFB, WNBA, MLB and UFC. Forecasts, Model Lab, and Data & Sources sections stay separate within each sport.
 - Real public result counts/coverage; descriptive rolling team statistics; latest 20 imported final results; exact source/check timestamps; missing-input status.
 - Limited statistics-only forecasts for source-backed fixtures when fresh inputs and validated model lineage exist. Rank by the larger opponent win probability, filter by event date, and inspect model factors, raw input differences and the dataset/version audit trail.

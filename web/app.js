@@ -15,20 +15,31 @@ const SPORT_INFO={
  MLB:{title:'MLB Baseball',kicker:'BASEBALL / MLB',description:'Regular-season and postseason history. This baseline does not claim a starting-pitcher or confirmed-lineup edge.',needs:'Starting-pitcher strikeout/walk rates, handedness, batting strength, bullpen quality/workload, park factors, weather and lineups.'},
  UFC:{title:'UFC Mixed Martial Arts',kicker:'COMBAT SPORTS / UFC',description:'Fighter-specific data and validation are required. No raw career-win-rate shortcut is presented as a trained model.',needs:'Opponent strength, striking/grappling, takedowns and defense, age, reach, weight class, layoffs and scheduled fight length.'}
 };
-let snapshot=null,league='NFL',view='forecasts',selected=null,dateFilter='',teamFilter='';
+const localDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const shiftDay=(day,n)=>{const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);return localDay(d);};
+const dayLabel=day=>new Date(day+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+let snapshot=null,league='NFL',view='forecasts',selected=null,dateFilter=localDay(),teamFilter='',allSports=false;
 try{league=localStorage.getItem('courtside_public_league')||'NFL';}catch(_){}
 const expired=p=>Date.now()>=Date.parse(p.valid_until)||Date.now()>=Date.parse(snapshot.valid_until);
 const active=l=>(l.predictions||[]).filter(p=>!expired(p));
 const freshFeed=l=>l.feed_status==='fresh'&&Date.now()<Date.parse(snapshot.valid_until)&&Date.now()-Date.parse(l.feed_checked)<=86400000;
-const eventDay=p=>{const start=p.event_start_utc||p.start_time;return start?new Date(start).toLocaleDateString('en-CA'):p.date;};
-const fixtures=l=>freshFeed(l)?(l.schedule||[]).filter(p=>p.start_time?Date.parse(p.start_time)>Date.now():p.date>=new Date().toISOString().slice(0,10)):[];
+const eventDay=p=>{const start=p.event_start_utc||p.start_time;return start?localDay(new Date(start)):p.date;};
+const fixtures=l=>freshFeed(l)?(l.schedule||[]).filter(p=>p.start_time?Date.parse(p.start_time)>Date.now():p.date>=localDay()):[];
+const dayEvents=l=>freshFeed(l)?(l.schedule||[]).filter(p=>eventDay(p)===dateFilter):[];
+const daySports=()=>snapshot.leagues.filter(l=>dayEvents(l).length||active(l).some(p=>eventDay(p)===dateFilter));
+function chooseDay(day){dateFilter=day||localDay();selected=null;render();}
 function current(){return snapshot.leagues.find(l=>l.name===league)||snapshot.leagues[0];}
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?esc(u.href):'#';}catch(_){return '#';}}
 function empty(title,body){return `<div class="empty"><strong>${esc(title)}</strong><p>${esc(body)}</p></div>`;}
 function render(){
- const l=current();league=l.name;const info=SPORT_INFO[league],report=l.benchmark,forecasts=active(l),overdue=Date.now()>=Date.parse(snapshot.valid_until);
+ const playing=daySports();if(!allSports&&playing.length&&!playing.some(s=>s.name===league))league=playing[0].name;
+ const l=current();league=l.name;const info=SPORT_INFO[league],report=l.benchmark,forecasts=active(l).filter(p=>eventDay(p)===dateFilter),overdue=Date.now()>=Date.parse(snapshot.valid_until);
  $('dashboard').hidden=false;$('loading').hidden=true;$('updated').textContent=time(snapshot.generated_at);$('refresh-detail').textContent='Next scheduled run: daily 11:17 UTC';
- $('sports').innerHTML=snapshot.leagues.map(s=>`<button data-league="${s.name}" type="button" class="${s.name===league?'selected':''}"><span class="sport-dot ${active(s).length?'ready':''}"></span>${s.name}</button>`).join('');
+ $('day-summary').textContent=`${dayLabel(dateFilter)} · ${playing.length} scheduled sports · Times in ${Intl.DateTimeFormat().resolvedOptions().timeZone}. Future schedules appear as feeds publish them.`;
+ $('today').classList.toggle('selected',dateFilter===localDay());$('tomorrow').classList.toggle('selected',dateFilter===shiftDay(localDay(),1));
+ $('all-sports').checked=allSports;
+ $('day-options').innerHTML=Array.from({length:7},(_,i)=>{const day=shiftDay(localDay(),i);const count=snapshot.leagues.filter(s=>freshFeed(s)&&(s.schedule||[]).some(p=>eventDay(p)===day)).length;return `<button type="button" data-day="${day}" class="${dateFilter===day?'selected':''}">${esc(dayLabel(day))}<small>${count} sports</small></button>`;}).join('');
+ $('sports').innerHTML=(!allSports&&!playing.length?'<p class="muted">No scheduled sports returned for this day. Choose another date or enable All sports to browse model history.</p>':'')+(allSports?snapshot.leagues:playing).map(s=>`<button data-league="${s.name}" type="button" class="${s.name===league?'selected':''}"><span class="sport-dot ${active(s).length?'ready':''}"></span>${s.name} <small>${dayEvents(s).length} events</small></button>`).join('');
  $('sport-kicker').textContent=info.kicker;$('sport-title').textContent=info.title;$('sport-description').textContent=info.description;
  $('readiness').textContent=forecasts.length?'Predictions ready':report?'Model ready':'Building model history';$('readiness').className='tag'+(!forecasts.length?' warn':'');
  $('freshness-alert').textContent=overdue?'Update overdue. Current probabilities are withheld until a successful refresh publishes a new snapshot. Historical results remain available.':l.limitation;$('freshness-alert').className='status-banner'+(!forecasts.length||overdue?' warn':'');
@@ -43,7 +54,7 @@ function render(){
  // CSSOM assignment avoids requiring unsafe-inline in the content security policy.
  $('matchups').querySelectorAll('.prob-track span').forEach((b,i)=>{const p=filtered[i];b.removeAttribute('style');b.style.width=(100*Math.max(p.home_probability,p.away_probability))+'%';});
  const prediction=filtered.find(p=>p.id===selected);renderDetail(prediction,l);
- const withheld=[...(l.withheld||[]),...(l.predictions||[]).filter(expired).map(p=>({...p,reason:'Forecast expired; current probability withheld.'}))];
+ const withheld=[...(l.withheld||[]),...(l.predictions||[]).filter(expired).map(p=>({...p,reason:'Forecast expired; current probability withheld.'}))].filter(p=>{const fixture=(l.schedule||[]).find(f=>f.home===p.home&&f.away===p.away&&f.date===p.date);return eventDay(fixture||p)===dateFilter&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase()));});
  $('withheld-details').hidden=!withheld.length;$('withheld-summary').textContent=withheld.length+' fixtures with forecasts withheld — see reasons';$('withheld-list').innerHTML=table(['Date','Matchup','Reason'],withheld.map(w=>[w.date,w.home+' / '+w.away,w.reason]));
  if(view==='models')renderModels(l);if(view==='data')renderData(l);renderStatus(l);
 }
@@ -72,10 +83,10 @@ function renderStatus(l){
  $('feed-overview').innerHTML=snapshot.leagues.map(s=>`<button type="button" data-feed-league="${esc(s.name)}" class="feed-tile ${s.name===league?'selected':''}"><b>${esc(s.name)}</b><span class="feed-state ${freshFeed(s)?'ready':''}">${freshFeed(s)?'Updated':s.feed_status==='unavailable'?'Checking source':'Update overdue'}</span><small>${s.result_count.toLocaleString()} results · ${fixtures(s).length} fixtures</small></button>`).join('');
  const c=l.lifecycle;
  $('model-status').innerHTML=`<div class="section-heading"><div><h3>${c?'Model update checks':'Daily collection'}</h3><p class="muted">${esc(c?c.status:'Results and schedules refresh daily. Model validation begins when enough history is available.')}</p></div><span class="tag subdued">${freshFeed(l)?'Feed updated':'Feed check pending'}</span></div>${c?`<div class="lifecycle-stats"><span>Weights through <b>${esc(c.weights_trained_through)}</b></span><span>Tracked picks <b>${c.live_record.wins} correct · ${c.live_record.losses} missed · ${c.live_record.pending} pending</b></span><span>Promotion <b>Backtest improvement required</b></span></div><details><summary>Review policy and evidence</summary><p class="muted">${esc(c.policy.description)} At least ${c.policy.minimum_results} new results across ${c.policy.minimum_weeks} calendar weeks; log-loss improvement ≥ ${c.policy.minimum_log_loss_gain}; Brier and accuracy cannot worsen. The first exported pre-event picks are retained for scoring.</p>${c.confirmation?table(['Confirmation sample','Weeks','Decision'],[[c.confirmation.n,c.confirmation.weeks,c.confirmation.status]]):''}${c.last_decision?table(['Model','Log loss','Brier','Accuracy'],[['Prior champion',num(c.last_decision.champion.log_loss),num(c.last_decision.champion.brier),percent(c.last_decision.champion.accuracy)],['Challenger',num(c.last_decision.challenger.log_loss),num(c.last_decision.challenger.brier),percent(c.last_decision.challenger.accuracy)]]):''}<p class="muted">Fresh results update model inputs daily. Weights stay fixed while a challenger collects independent evidence. A missed favorite alone does not justify retraining.</p></details>`:''}`;
- const schedule=fixtures(l).filter(p=>(!dateFilter||eventDay(p)===dateFilter)&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase())));
- $('schedule-content').innerHTML='<h3>Schedule & results</h3>'+ (schedule.length?table(['Start','Home / first opponent','Away / second opponent'],schedule.slice(0,10).map(p=>[p.start_time?time(p.start_time):p.date,p.home,p.away]))+(schedule.length>10?'<details><summary>Show '+(schedule.length-10)+' more fixtures</summary>'+table(['Start','Home / first','Away / second'],schedule.slice(10).map(p=>[p.start_time?time(p.start_time):p.date,p.home,p.away]))+'</details>':''):'<p class="muted">No upcoming fixtures returned in the next 14 days.</p>')+(l.recent_results.length?'<h4>Latest final results</h4>'+table(['Date','Home / first','Away / second','Result'],l.recent_results.slice(0,8).map(r=>[r.date,r.home,r.away,l.name==='UFC'?(r.outcome==='home'?r.home:r.outcome==='away'?r.away:pretty(r.outcome)):r.home_score+' – '+r.away_score])):'');
+ const schedule=dayEvents(l).filter(p=>(!dateFilter||eventDay(p)===dateFilter)&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase())));
+ $('schedule-content').innerHTML='<h3>Schedule · '+esc(dayLabel(dateFilter))+'</h3><p class="muted">Started events stay on the schedule; pre-event probabilities expire at game time. This is a daily snapshot, not a live scoreboard.</p>'+ (schedule.length?table(['Start','Home / first opponent','Away / second opponent'],schedule.slice(0,10).map(p=>[p.start_time?time(p.start_time):p.date,p.home,p.away]))+(schedule.length>10?'<details><summary>Show '+(schedule.length-10)+' more fixtures</summary>'+table(['Start','Home / first','Away / second'],schedule.slice(10).map(p=>[p.start_time?time(p.start_time):p.date,p.home,p.away]))+'</details>':''):'<p class="muted">No fixtures returned for this day. Try another date; future schedules depend on the source publishing them.</p>')+(l.recent_results.length?'<details><summary>Recent final results · source dates, separate from selected day</summary>'+table(['Date','Home / first','Away / second','Result'],l.recent_results.slice(0,8).map(r=>[r.date,r.home,r.away,l.name==='UFC'?(r.outcome==='home'?r.home:r.outcome==='away'?r.away:pretty(r.outcome)):r.home_score+' – '+r.away_score]))+'</details>':'');
 }
-$('feed-overview').onclick=e=>{const b=e.target.closest('[data-feed-league]');if(b){league=b.dataset.feedLeague;selected=null;dateFilter='';teamFilter='';$('team-filter').value='';render();}};
+$('feed-overview').onclick=e=>{const b=e.target.closest('[data-feed-league]');if(b){league=b.dataset.feedLeague;selected=null;teamFilter='';allSports=true;$('team-filter').value='';render();}};
 
 async function load(){
  $('refresh').disabled=true;$('error').hidden=true;
@@ -83,9 +94,13 @@ async function load(){
  catch(e){$('loading').hidden=true;$('error').textContent=e.message+' No substitute statistics or probabilities are shown.';$('error').hidden=false;}
  finally{$('refresh').disabled=false;}
 }
-$('sports').onclick=e=>{const b=e.target.closest('[data-league]');if(!b)return;league=b.dataset.league;selected=null;dateFilter='';teamFilter='';$('team-filter').value='';try{localStorage.setItem('courtside_public_league',league);}catch(_){}render();};
+$('sports').onclick=e=>{const b=e.target.closest('[data-league]');if(!b)return;league=b.dataset.league;selected=null;teamFilter='';$('team-filter').value='';try{localStorage.setItem('courtside_public_league',league);}catch(_){}render();};
 document.querySelector('.view-tabs').onclick=e=>{const b=e.target.closest('[data-view]');if(!b)return;view=b.dataset.view;render();};
 $('matchups').onclick=e=>{const b=e.target.closest('[data-fixture]');if(!b)return;selected=b.dataset.fixture;render();};
 $('team-filter').oninput=()=>{teamFilter=$('team-filter').value;render();};
-$('date-filter').onchange=()=>{dateFilter=$('date-filter').value;render();};$('all-dates').onclick=()=>{dateFilter='';render();};$('refresh').onclick=load;
+$('date-filter').onchange=()=>chooseDay($('date-filter').value);
+$('previous-day').onclick=()=>chooseDay(shiftDay(dateFilter,-1));$('next-day').onclick=()=>chooseDay(shiftDay(dateFilter,1));
+$('today').onclick=()=>chooseDay(localDay());$('tomorrow').onclick=()=>chooseDay(shiftDay(localDay(),1));
+$('day-options').onclick=e=>{const b=e.target.closest('[data-day]');if(b)chooseDay(b.dataset.day);};
+$('all-sports').onchange=()=>{allSports=$('all-sports').checked;render();};$('refresh').onclick=load;
 load();setInterval(()=>{if(snapshot&&!document.hidden)render();},30000);setInterval(()=>{if(!document.hidden)load();},60000);
