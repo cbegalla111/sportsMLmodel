@@ -113,3 +113,15 @@ def test_target_uses_retained_candidate_if_new_experiment_fails_confirmation():
  passed={'validation':{'n':1322,'accuracy':930/1322}}
  summary=target_summary({'previous':previous,'selected':passed,'passed':True})
  assert summary['target_reference']==passed and summary['additional_correct_needed']==0 and summary['target_reached']
+
+
+def test_partial_source_cannot_delete_previously_verified_box_history(tmp_path,monkeypatch):
+ import io
+ import pyarrow as pa
+ import pyarrow.parquet as pq
+ from sportslab.nba_box import fetch_history
+ game,pair=source_pair();existing=observations(pair,{game['event_id']:game});path=tmp_path/'nba-box-history.json';path.write_text(json.dumps({'observations':existing}));original=path.read_bytes()
+ buffer=io.BytesIO();pq.write_table(pa.Table.from_pylist(pair).slice(0,0),buffer)
+ monkeypatch.setattr('sportslab.refresh.fetch',lambda *a:(buffer.getvalue(),{'url':'synthetic-test-source','sha256':'test'}))
+ with pytest.raises(ValueError,match='disappeared'):fetch_history(tmp_path,[game])
+ assert path.read_bytes()==original

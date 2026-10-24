@@ -91,6 +91,7 @@ def fetch_history(root,rows):
  path=Path(root)/'nba-box-history.json'
  if path.exists():
   previous=json.loads(path.read_text()).get('observations',{})
+  if any(eid in known and eid not in boxes for eid in previous):raise ValueError('Previously verified NBA boxes disappeared; cached history retained')
   if any(eid in previous and previous[eid]!=box for eid,box in boxes.items()):raise ValueError('NBA box history revision needs review; cached history retained')
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(report,allow_nan=False));temporary.replace(path)
  return report
