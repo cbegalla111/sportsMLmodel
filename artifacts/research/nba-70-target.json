@@ -1,0 +1,1697 @@
+{
+  "version": "nba-box-research-v1",
+  "checked": "2026-10-24T17:49:41.796833+00:00",
+  "fit_status": "ready",
+  "fit_error": null,
+  "fit_dataset_sha256": "b22acb73e512aa2ae45716088ece501cc721faae2c11c56eade9942e0b801c46",
+  "league": "NBA",
+  "development_sha256": "2604739e642dc0ff6825db47212187f72a1ec07ec2f8a9de668776c8408889a9",
+  "development_through": "2025-06-23",
+  "excluded_final_test_from": "2025-07-01",
+  "selected": "nba_box_blend_context_nba_box_blend_w20_box0.5",
+  "incumbent": {
+    "name": "logistic_context_nba_feedback_w20_C0.03",
+    "specification": {
+      "kind": "logistic",
+      "window": 20,
+      "variant": "context_nba_feedback",
+      "c": 0.03,
+      "decay": false
+    },
+    "folds": [
+      {
+        "n": 907,
+        "log_loss": 0.6143518473542536,
+        "brier": 0.2130150048432479,
+        "accuracy": 0.6681367144432194,
+        "roc_auc": 0.7128674217715314,
+        "precision": 0.6704545454545454,
+        "recall": 0.8082191780821918,
+        "balanced_accuracy": 0.6477964577279646,
+        "calibration_error": 0.03235309210448715,
+        "train_end": "2023-04-13",
+        "validation_start": "2023-04-14",
+        "validation_end": "2024-02-16"
+      },
+      {
+        "n": 901,
+        "log_loss": 0.6187731673713527,
+        "brier": 0.21434530777646224,
+        "accuracy": 0.6514983351831298,
+        "roc_auc": 0.7125130395906811,
+        "precision": 0.6482412060301508,
+        "recall": 0.7881873727087576,
+        "balanced_accuracy": 0.637996125378769,
+        "calibration_error": 0.04176371079709158,
+        "train_end": "2024-02-16",
+        "validation_start": "2024-02-23",
+        "validation_end": "2024-12-20"
+      },
+      {
+        "n": 918,
+        "log_loss": 0.6046712676074134,
+        "brier": 0.20883708213310526,
+        "accuracy": 0.6764705882352942,
+        "roc_auc": 0.7330146188785831,
+        "precision": 0.6678141135972461,
+        "recall": 0.7886178861788617,
+        "balanced_accuracy": 0.6677831214931867,
+        "calibration_error": 0.03257227474091877,
+        "train_end": "2024-12-20",
+        "validation_start": "2024-12-21",
+        "validation_end": "2025-06-23"
+      }
+    ],
+    "status": "completed",
+    "validation": {
+      "n": 2726,
+      "log_loss": 0.6125531815904264,
+      "brier": 0.21204775242025273,
+      "accuracy": 0.6654438738077769,
+      "roc_auc": 0.7194188007441019,
+      "precision": 0.6622073578595318,
+      "recall": 0.7951807228915663,
+      "balanced_accuracy": 0.6516488030042247,
+      "calibration_error": 0.025723161943353792
+    }
+  },
+  "best": {
+    "name": "nba_box_blend_context_nba_box_blend_w20_box0.5",
+    "specification": {
+      "kind": "nba_box_blend",
+      "variant": "context_nba_box_blend",
+      "window": 20,
+      "decay": false,
+      "box_weight": 0.5
+    },
+    "folds": [
+      {
+        "n": 907,
+        "log_loss": 0.6133088327647047,
+        "brier": 0.212484241195572,
+        "accuracy": 0.6703417861080485,
+        "roc_auc": 0.7151999446519994,
+        "precision": 0.6743421052631579,
+        "recall": 0.8023483365949119,
+        "balanced_accuracy": 0.6511741682974559,
+        "calibration_error": 0.035141940988625,
+        "train_end": "2023-04-13",
+        "validation_start": "2023-04-14",
+        "validation_end": "2024-02-16"
+      },
+      {
+        "n": 901,
+        "log_loss": 0.6201773143430205,
+        "brier": 0.21504829475416315,
+        "accuracy": 0.6503884572697003,
+        "roc_auc": 0.7106701107744275,
+        "precision": 0.6481481481481481,
+        "recall": 0.7841140529531568,
+        "balanced_accuracy": 0.6371789776960906,
+        "calibration_error": 0.031915606735514426,
+        "train_end": "2024-02-16",
+        "validation_start": "2024-02-23",
+        "validation_end": "2024-12-20"
+      },
+      {
+        "n": 918,
+        "log_loss": 0.6037538884416952,
+        "brier": 0.20842680930573895,
+        "accuracy": 0.6753812636165577,
+        "roc_auc": 0.733863887934654,
+        "precision": 0.6684027777777778,
+        "recall": 0.782520325203252,
+        "balanced_accuracy": 0.6670817588457574,
+        "calibration_error": 0.03236548687485085,
+        "train_end": "2024-12-20",
+        "validation_start": "2024-12-21",
+        "validation_end": "2025-06-23"
+      }
+    ],
+    "status": "completed",
+    "validation": {
+      "n": 2726,
+      "log_loss": 0.612361313694103,
+      "brier": 0.21196534529734157,
+      "accuracy": 0.6654438738077769,
+      "roc_auc": 0.7199610128826996,
+      "precision": 0.6636670416197975,
+      "recall": 0.7898259705488622,
+      "balanced_accuracy": 0.6522181800796258,
+      "calibration_error": 0.018333802427251376
+    }
+  },
+  "accuracy_leader": {
+    "name": "logistic_context_nba_box_w10_C0.03",
+    "specification": {
+      "kind": "logistic",
+      "variant": "context_nba_box",
+      "window": 10,
+      "c": 0.03,
+      "decay": false
+    },
+    "folds": [
+      {
+        "n": 907,
+        "log_loss": 0.6132587250599707,
+        "brier": 0.2124128847491368,
+        "accuracy": 0.6703417861080485,
+        "roc_auc": 0.7163019628773053,
+        "precision": 0.6766666666666666,
+        "recall": 0.7945205479452054,
+        "balanced_accuracy": 0.6523107790231077,
+        "calibration_error": 0.03396791628738915,
+        "train_end": "2023-04-13",
+        "validation_start": "2023-04-14",
+        "validation_end": "2024-02-16"
+      },
+      {
+        "n": 901,
+        "log_loss": 0.6232732356319325,
+        "brier": 0.21646621294701782,
+        "accuracy": 0.6548279689234184,
+        "roc_auc": 0.7074511946748796,
+        "precision": 0.652027027027027,
+        "recall": 0.7861507128309573,
+        "balanced_accuracy": 0.6418558442203567,
+        "calibration_error": 0.030913268075523276,
+        "train_end": "2024-02-16",
+        "validation_start": "2024-02-23",
+        "validation_end": "2024-12-20"
+      },
+      {
+        "n": 918,
+        "log_loss": 0.603728253158753,
+        "brier": 0.2084041965030133,
+        "accuracy": 0.6830065359477124,
+        "roc_auc": 0.7333008893469217,
+        "precision": 0.675392670157068,
+        "recall": 0.7865853658536586,
+        "balanced_accuracy": 0.6749828237718998,
+        "calibration_error": 0.034497803510812886,
+        "train_end": "2024-12-20",
+        "validation_start": "2024-12-21",
+        "validation_end": "2025-06-23"
+      }
+    ],
+    "status": "completed",
+    "validation": {
+      "n": 2726,
+      "log_loss": 0.6133592756175715,
+      "brier": 0.21240264003026277,
+      "accuracy": 0.6694790902421129,
+      "roc_auc": 0.7187858577165807,
+      "precision": 0.6679886685552407,
+      "recall": 0.7891566265060241,
+      "balanced_accuracy": 0.6567536379283367,
+      "calibration_error": 0.01870592600860895
+    }
+  },
+  "rest_policy_review": null,
+  "selection_objective": "Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.",
+  "candidates": [
+    {
+      "name": "logistic_context_nba_feedback_w20_C0.03",
+      "specification": {
+        "kind": "logistic",
+        "window": 20,
+        "variant": "context_nba_feedback",
+        "c": 0.03,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6143518473542536,
+          "brier": 0.2130150048432479,
+          "accuracy": 0.6681367144432194,
+          "roc_auc": 0.7128674217715314,
+          "precision": 0.6704545454545454,
+          "recall": 0.8082191780821918,
+          "balanced_accuracy": 0.6477964577279646,
+          "calibration_error": 0.03235309210448715,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6187731673713527,
+          "brier": 0.21434530777646224,
+          "accuracy": 0.6514983351831298,
+          "roc_auc": 0.7125130395906811,
+          "precision": 0.6482412060301508,
+          "recall": 0.7881873727087576,
+          "balanced_accuracy": 0.637996125378769,
+          "calibration_error": 0.04176371079709158,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6046712676074134,
+          "brier": 0.20883708213310526,
+          "accuracy": 0.6764705882352942,
+          "roc_auc": 0.7330146188785831,
+          "precision": 0.6678141135972461,
+          "recall": 0.7886178861788617,
+          "balanced_accuracy": 0.6677831214931867,
+          "calibration_error": 0.03257227474091877,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6125531815904264,
+        "brier": 0.21204775242025273,
+        "accuracy": 0.6654438738077769,
+        "roc_auc": 0.7194188007441019,
+        "precision": 0.6622073578595318,
+        "recall": 0.7951807228915663,
+        "balanced_accuracy": 0.6516488030042247,
+        "calibration_error": 0.025723161943353792
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w5_C0.03",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 5,
+        "c": 0.03,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6128601612862056,
+          "brier": 0.21235150901754105,
+          "accuracy": 0.6714443219404631,
+          "roc_auc": 0.7155508114412225,
+          "precision": 0.6731707317073171,
+          "recall": 0.8101761252446184,
+          "balanced_accuracy": 0.6513001838344303,
+          "calibration_error": 0.03645068749702975,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6225333031351541,
+          "brier": 0.21611945150334003,
+          "accuracy": 0.6481687014428413,
+          "roc_auc": 0.7064378321990961,
+          "precision": 0.6464646464646465,
+          "recall": 0.7820773930753564,
+          "balanced_accuracy": 0.6349411355620684,
+          "calibration_error": 0.03486220741261354,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6034029286489953,
+          "brier": 0.20815990303941997,
+          "accuracy": 0.6753812636165577,
+          "roc_auc": 0.7345843352799725,
+          "precision": 0.6689895470383276,
+          "recall": 0.7804878048780488,
+          "balanced_accuracy": 0.6672392076033437,
+          "calibration_error": 0.041984143499058844,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6128725461889728,
+        "brier": 0.21218533949875518,
+        "accuracy": 0.66507703595011,
+        "roc_auc": 0.7189368947652081,
+        "precision": 0.6629276500280427,
+        "recall": 0.7911646586345381,
+        "balanced_accuracy": 0.6516699916549313,
+        "calibration_error": 0.01992520449175884
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w5_C0.3",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 5,
+        "c": 0.3,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.621595470838652,
+          "brier": 0.21482636924050114,
+          "accuracy": 0.6637265711135611,
+          "roc_auc": 0.7089683528039692,
+          "precision": 0.6677524429967426,
+          "recall": 0.8023483365949119,
+          "balanced_accuracy": 0.6435984107216983,
+          "calibration_error": 0.032612874448774275,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6275628183684766,
+          "brier": 0.21663416742187988,
+          "accuracy": 0.6570477247502775,
+          "roc_auc": 0.7059609557399038,
+          "precision": 0.6558219178082192,
+          "recall": 0.780040733197556,
+          "balanced_accuracy": 0.6448984153792658,
+          "calibration_error": 0.03341364079292614,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6023191815100363,
+          "brier": 0.20770967314618838,
+          "accuracy": 0.6764705882352942,
+          "roc_auc": 0.7351091644719263,
+          "precision": 0.6695652173913044,
+          "recall": 0.782520325203252,
+          "balanced_accuracy": 0.6682554677659452,
+          "calibration_error": 0.037333801412363414,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6170763756518224,
+        "brier": 0.21302728602217502,
+        "accuracy": 0.6658107116654439,
+        "roc_auc": 0.7168853987378083,
+        "precision": 0.664410603496898,
+        "recall": 0.7884872824631861,
+        "balanced_accuracy": 0.6527663685043203,
+        "calibration_error": 0.02149689692482916
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w10_C0.03",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 10,
+        "c": 0.03,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6132587250599707,
+          "brier": 0.2124128847491368,
+          "accuracy": 0.6703417861080485,
+          "roc_auc": 0.7163019628773053,
+          "precision": 0.6766666666666666,
+          "recall": 0.7945205479452054,
+          "balanced_accuracy": 0.6523107790231077,
+          "calibration_error": 0.03396791628738915,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6232732356319325,
+          "brier": 0.21646621294701782,
+          "accuracy": 0.6548279689234184,
+          "roc_auc": 0.7074511946748796,
+          "precision": 0.652027027027027,
+          "recall": 0.7861507128309573,
+          "balanced_accuracy": 0.6418558442203567,
+          "calibration_error": 0.030913268075523276,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.603728253158753,
+          "brier": 0.2084041965030133,
+          "accuracy": 0.6830065359477124,
+          "roc_auc": 0.7333008893469217,
+          "precision": 0.675392670157068,
+          "recall": 0.7865853658536586,
+          "balanced_accuracy": 0.6749828237718998,
+          "calibration_error": 0.034497803510812886,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6133592756175715,
+        "brier": 0.21240264003026277,
+        "accuracy": 0.6694790902421129,
+        "roc_auc": 0.7187858577165807,
+        "precision": 0.6679886685552407,
+        "recall": 0.7891566265060241,
+        "balanced_accuracy": 0.6567536379283367,
+        "calibration_error": 0.01870592600860895
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w10_C0.3",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 10,
+        "c": 0.3,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6225126680801674,
+          "brier": 0.21507429736972103,
+          "accuracy": 0.6571113561190739,
+          "roc_auc": 0.7094872403091581,
+          "precision": 0.6672240802675585,
+          "recall": 0.7808219178082192,
+          "balanced_accuracy": 0.6391483326414833,
+          "calibration_error": 0.03793657210366019,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6289254249069842,
+          "brier": 0.2172066452639073,
+          "accuracy": 0.6548279689234184,
+          "roc_auc": 0.7066265957975262,
+          "precision": 0.6535836177474402,
+          "recall": 0.780040733197556,
+          "balanced_accuracy": 0.6424593909890219,
+          "calibration_error": 0.03434707063203504,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.602578906011421,
+          "brier": 0.20795176385764025,
+          "accuracy": 0.6797385620915033,
+          "roc_auc": 0.7338066338409863,
+          "precision": 0.6730769230769231,
+          "recall": 0.782520325203252,
+          "balanced_accuracy": 0.6717765945265086,
+          "calibration_error": 0.02708102100741209,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6179193813310304,
+        "brier": 0.21338051882554337,
+        "accuracy": 0.6639765223771094,
+        "roc_auc": 0.7164024061614424,
+        "precision": 0.6645785876993167,
+        "recall": 0.7811244979919679,
+        "balanced_accuracy": 0.6515200412037762,
+        "calibration_error": 0.020295017266856268
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w20_C0.03",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 20,
+        "c": 0.03,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6131066731331466,
+          "brier": 0.21237487133513233,
+          "accuracy": 0.6703417861080485,
+          "roc_auc": 0.7160351064460653,
+          "precision": 0.6726384364820847,
+          "recall": 0.8082191780821918,
+          "balanced_accuracy": 0.6503217102532171,
+          "calibration_error": 0.03465963706689316,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.621839558545339,
+          "brier": 0.21576865698858036,
+          "accuracy": 0.6514983351831298,
+          "roc_auc": 0.7082410213104168,
+          "precision": 0.6487394957983194,
+          "recall": 0.7861507128309573,
+          "balanced_accuracy": 0.6381973076349908,
+          "calibration_error": 0.03455806372270096,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6041285576901396,
+          "brier": 0.2085818344723415,
+          "accuracy": 0.6710239651416122,
+          "roc_auc": 0.7335489904194816,
+          "precision": 0.6643598615916955,
+          "recall": 0.7804878048780488,
+          "balanced_accuracy": 0.6625443719225925,
+          "calibration_error": 0.028237275672669784,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6129696297654669,
+        "brier": 0.2122192561604128,
+        "accuracy": 0.6643433602347762,
+        "roc_auc": 0.7193438255185243,
+        "precision": 0.6620033575825406,
+        "recall": 0.7918340026773761,
+        "balanced_accuracy": 0.6507871312088179,
+        "calibration_error": 0.02019200381485513
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w20_C0.3",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 20,
+        "c": 0.3,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.62199576109181,
+          "brier": 0.21497885841722336,
+          "accuracy": 0.6615214994487321,
+          "roc_auc": 0.710505248176481,
+          "precision": 0.6672131147540984,
+          "recall": 0.7964774951076321,
+          "balanced_accuracy": 0.6419256162406848,
+          "calibration_error": 0.03409427445566283,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6258088943075684,
+          "brier": 0.21597938636093536,
+          "accuracy": 0.6548279689234184,
+          "roc_auc": 0.7089911082410213,
+          "precision": 0.65,
+          "recall": 0.7942973523421588,
+          "balanced_accuracy": 0.6410511151954696,
+          "calibration_error": 0.03687576120831495,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.603480782340339,
+          "brier": 0.20837052754287377,
+          "accuracy": 0.6742919389978214,
+          "roc_auc": 0.7338161761899309,
+          "precision": 0.6678260869565218,
+          "recall": 0.7804878048780488,
+          "balanced_accuracy": 0.6660654986831558,
+          "calibration_error": 0.03188210157894122,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6170210298128472,
+        "brier": 0.21308415112985415,
+        "accuracy": 0.6636096845194424,
+        "roc_auc": 0.7173917531598255,
+        "precision": 0.661624649859944,
+        "recall": 0.7904953145917001,
+        "balanced_accuracy": 0.6501177871659799,
+        "calibration_error": 0.01676139385306522
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w40_C0.03",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 40,
+        "c": 0.03,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.616080877720925,
+          "brier": 0.21370643678451198,
+          "accuracy": 0.6648291069459757,
+          "roc_auc": 0.7106732688924471,
+          "precision": 0.6716417910447762,
+          "recall": 0.7925636007827789,
+          "balanced_accuracy": 0.6462818003913895,
+          "calibration_error": 0.030085366275225234,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6212968832051738,
+          "brier": 0.2156340380735586,
+          "accuracy": 0.6470588235294118,
+          "roc_auc": 0.7084446872981967,
+          "precision": 0.6458684654300169,
+          "recall": 0.780040733197556,
+          "balanced_accuracy": 0.6339228056231683,
+          "calibration_error": 0.03645341462285591,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.605776185622865,
+          "brier": 0.20932504303546834,
+          "accuracy": 0.6699346405228758,
+          "roc_auc": 0.7312492843238292,
+          "precision": 0.6620926243567753,
+          "recall": 0.7845528455284553,
+          "balanced_accuracy": 0.6610557654872323,
+          "calibration_error": 0.02917886504942546,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6143346978219114,
+        "brier": 0.2128680836296363,
+        "accuracy": 0.6606749816581071,
+        "roc_auc": 0.7165719153670962,
+        "precision": 0.6599213041034289,
+        "recall": 0.785809906291834,
+        "balanced_accuracy": 0.6473692388602027,
+        "calibration_error": 0.018464633684884928
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w40_C0.3",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 40,
+        "c": 0.3,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6255006743563941,
+          "brier": 0.2165535231044919,
+          "accuracy": 0.6527012127894156,
+          "roc_auc": 0.7029591413153057,
+          "precision": 0.6638795986622074,
+          "recall": 0.776908023483366,
+          "balanced_accuracy": 0.6346661329538041,
+          "calibration_error": 0.025859618752292198,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6250532760330487,
+          "brier": 0.215742564981314,
+          "accuracy": 0.6470588235294118,
+          "roc_auc": 0.7092394813968507,
+          "precision": 0.6468590831918506,
+          "recall": 0.7759674134419552,
+          "balanced_accuracy": 0.6343251701356117,
+          "calibration_error": 0.030971824003677633,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6049082481704563,
+          "brier": 0.20898839800238475,
+          "accuracy": 0.6721132897603486,
+          "roc_auc": 0.7315641818390015,
+          "precision": 0.6638078902229846,
+          "recall": 0.7865853658536586,
+          "balanced_accuracy": 0.6632457345700218,
+          "calibration_error": 0.03326038233816027,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.618418153032834,
+        "brier": 0.21373787449381043,
+        "accuracy": 0.6573734409391049,
+        "roc_auc": 0.7143177689111424,
+        "precision": 0.6581920903954802,
+        "recall": 0.7797858099062919,
+        "balanced_accuracy": 0.6443571906674317,
+        "calibration_error": 0.01786770954947863
+      }
+    },
+    {
+      "name": "boost_context_nba_box_w20_leaves3",
+      "specification": {
+        "kind": "boost",
+        "variant": "context_nba_box",
+        "window": 20,
+        "leaves": 3,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6211661955149814,
+          "brier": 0.2156720484459947,
+          "accuracy": 0.6670341786108048,
+          "roc_auc": 0.7083086244045147,
+          "precision": 0.6738768718801996,
+          "recall": 0.7925636007827789,
+          "balanced_accuracy": 0.648807052916642,
+          "calibration_error": 0.055438083603248076,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.628402867223784,
+          "brier": 0.21946640720193122,
+          "accuracy": 0.6381798002219756,
+          "roc_auc": 0.6995578957826238,
+          "precision": 0.6372712146422629,
+          "recall": 0.780040733197556,
+          "balanced_accuracy": 0.6241667080621927,
+          "calibration_error": 0.042018518716191604,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6132369764450867,
+          "brier": 0.21207513440207806,
+          "accuracy": 0.6666666666666666,
+          "roc_auc": 0.7254737776251002,
+          "precision": 0.6581632653061225,
+          "recall": 0.7865853658536586,
+          "balanced_accuracy": 0.6573771899690828,
+          "calibration_error": 0.03973575870835427,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6208878455896211,
+        "brier": 0.21571487681972296,
+        "accuracy": 0.6573734409391049,
+        "roc_auc": 0.7101191562787948,
+        "precision": 0.6564245810055865,
+        "recall": 0.786479250334672,
+        "balanced_accuracy": 0.6436454693231801,
+        "calibration_error": 0.03217777463307564
+      }
+    },
+    {
+      "name": "boost_context_nba_box_w20_leaves7",
+      "specification": {
+        "kind": "boost",
+        "variant": "context_nba_box",
+        "window": 20,
+        "leaves": 7,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6219798278170074,
+          "brier": 0.21604964649527297,
+          "accuracy": 0.6659316427783903,
+          "roc_auc": 0.7016545098736879,
+          "precision": 0.6768707482993197,
+          "recall": 0.7788649706457925,
+          "balanced_accuracy": 0.6495334954239064,
+          "calibration_error": 0.024741006169875995,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6287339611771563,
+          "brier": 0.2197402512291835,
+          "accuracy": 0.6381798002219756,
+          "roc_auc": 0.6977447717450699,
+          "precision": 0.6337115072933549,
+          "recall": 0.7963340122199593,
+          "balanced_accuracy": 0.6225572500124187,
+          "calibration_error": 0.03342640945410883,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6104435943661534,
+          "brier": 0.21093434354238338,
+          "accuracy": 0.6666666666666666,
+          "roc_auc": 0.7286394518874766,
+          "precision": 0.6560402684563759,
+          "recall": 0.7947154471544715,
+          "balanced_accuracy": 0.6567473949387381,
+          "calibration_error": 0.029157601181069012,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6203273009826751,
+        "brier": 0.21554685366860415,
+        "accuracy": 0.657006603081438,
+        "roc_auc": 0.7086305177419636,
+        "precision": 0.6551915602443087,
+        "recall": 0.7898259705488622,
+        "balanced_accuracy": 0.6428837644952103,
+        "calibration_error": 0.020789853281405708
+      }
+    },
+    {
+      "name": "kernel_context_nba_box_w20_gamma0.03",
+      "specification": {
+        "kind": "kernel",
+        "variant": "context_nba_box",
+        "window": 20,
+        "gamma": 0.03,
+        "c": 0.1,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6326972659765412,
+          "brier": 0.2206905987871491,
+          "accuracy": 0.6571113561190739,
+          "roc_auc": 0.6982990373401332,
+          "precision": 0.6587301587301587,
+          "recall": 0.812133072407045,
+          "balanced_accuracy": 0.6346018897388761,
+          "calibration_error": 0.04937412812893207,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6351664858963392,
+          "brier": 0.2220811055794819,
+          "accuracy": 0.6470588235294118,
+          "roc_auc": 0.6930505190998957,
+          "precision": 0.6392914653784219,
+          "recall": 0.8085539714867617,
+          "balanced_accuracy": 0.6311062540360638,
+          "calibration_error": 0.03737710605950726,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6204111626811778,
+          "brier": 0.21506537793535513,
+          "accuracy": 0.6601307189542484,
+          "roc_auc": 0.7252280621397764,
+          "precision": 0.652027027027027,
+          "recall": 0.7845528455284553,
+          "balanced_accuracy": 0.6504923852055422,
+          "calibration_error": 0.054986912690040905,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6293759616194593,
+        "brier": 0.21925585699622652,
+        "accuracy": 0.6548055759354365,
+        "roc_auc": 0.7053370408039084,
+        "precision": 0.6500271296798698,
+        "recall": 0.8018741633199464,
+        "balanced_accuracy": 0.6391676011404928,
+        "calibration_error": 0.043257856691249603
+      }
+    },
+    {
+      "name": "kernel_context_nba_box_w20_gamma0.1",
+      "specification": {
+        "kind": "kernel",
+        "variant": "context_nba_box",
+        "window": 20,
+        "gamma": 0.1,
+        "c": 0.1,
+        "decay": false
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6677634478323019,
+          "brier": 0.23747580454351847,
+          "accuracy": 0.5821389195148843,
+          "roc_auc": 0.6589574808752892,
+          "precision": 0.5762124711316398,
+          "recall": 0.9765166340508806,
+          "balanced_accuracy": 0.524874478641602,
+          "calibration_error": 0.02742432689889274,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6744327020837105,
+          "brier": 0.24068145590867981,
+          "accuracy": 0.5738068812430632,
+          "roc_auc": 0.6269882271124138,
+          "precision": 0.5659679408138101,
+          "recall": 0.9348268839103869,
+          "balanced_accuracy": 0.5381451492722666,
+          "calibration_error": 0.049180444252116866,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6631098324447906,
+          "brier": 0.23523413174531524,
+          "accuracy": 0.5893246187363834,
+          "roc_auc": 0.6878506813237146,
+          "precision": 0.5721455457967378,
+          "recall": 0.926829268292683,
+          "balanced_accuracy": 0.5631798923623039,
+          "calibration_error": 0.06531342534148156,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6684006375442549,
+        "brier": 0.23778043999885956,
+        "accuracy": 0.5818048422597212,
+        "roc_auc": 0.6584715485317896,
+        "precision": 0.5715440582053355,
+        "recall": 0.9464524765729585,
+        "balanced_accuracy": 0.543031433091674,
+        "calibration_error": 0.0472609633507804
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w20_C0.03_temperature_refit",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 20,
+        "c": 0.03,
+        "decay": false,
+        "calibrate": "temperature",
+        "calibration_refit": true
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6124599725464125,
+          "brier": 0.21211981190808168,
+          "accuracy": 0.6703417861080485,
+          "roc_auc": 0.7160351064460653,
+          "precision": 0.6726384364820847,
+          "recall": 0.8082191780821918,
+          "balanced_accuracy": 0.6503217102532171,
+          "calibration_error": 0.02870247209585031,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16",
+          "calibration": {
+            "base_train_end": "2023-02-02",
+            "calibration_start": "2023-02-03",
+            "calibration_end": "2023-04-13",
+            "calibration_n": 458,
+            "method": "temperature",
+            "refit_through": "2023-04-13",
+            "refit_n": 1957
+          }
+        },
+        {
+          "n": 901,
+          "log_loss": 0.625602592294193,
+          "brier": 0.21683334253715233,
+          "accuracy": 0.6514983351831298,
+          "roc_auc": 0.7082410213104168,
+          "precision": 0.6487394957983194,
+          "recall": 0.7861507128309573,
+          "balanced_accuracy": 0.6381973076349908,
+          "calibration_error": 0.04738771569273414,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20",
+          "calibration": {
+            "base_train_end": "2023-11-11",
+            "calibration_start": "2023-11-12",
+            "calibration_end": "2024-02-16",
+            "calibration_n": 692,
+            "method": "temperature",
+            "refit_through": "2024-02-16",
+            "refit_n": 2864
+          }
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6068996774042392,
+          "brier": 0.20963318650190124,
+          "accuracy": 0.6710239651416122,
+          "roc_auc": 0.7335489904194816,
+          "precision": 0.6643598615916955,
+          "recall": 0.7804878048780488,
+          "balanced_accuracy": 0.6625443719225925,
+          "calibration_error": 0.03772156806412203,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23",
+          "calibration": {
+            "base_train_end": "2024-03-26",
+            "calibration_start": "2024-03-27",
+            "calibration_end": "2024-12-20",
+            "calibration_n": 647,
+            "method": "temperature",
+            "refit_through": "2024-12-20",
+            "refit_n": 3765
+          }
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6149314140182522,
+        "brier": 0.21284034344656996,
+        "accuracy": 0.6643433602347762,
+        "roc_auc": 0.7178796354248161,
+        "precision": 0.6620033575825406,
+        "recall": 0.7918340026773761,
+        "balanced_accuracy": 0.6507871312088179,
+        "calibration_error": 0.02276129796603901
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w20_C0.03_sigmoid_refit",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 20,
+        "c": 0.03,
+        "decay": false,
+        "calibrate": "sigmoid",
+        "calibration_refit": true
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6172631688203585,
+          "brier": 0.21399968262675206,
+          "accuracy": 0.6692392502756339,
+          "roc_auc": 0.7160351064460653,
+          "precision": 0.6854130052724078,
+          "recall": 0.7632093933463796,
+          "balanced_accuracy": 0.6555945956630889,
+          "calibration_error": 0.05407640809498825,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16",
+          "calibration": {
+            "base_train_end": "2023-02-02",
+            "calibration_start": "2023-02-03",
+            "calibration_end": "2023-04-13",
+            "calibration_n": 458,
+            "method": "sigmoid",
+            "refit_through": "2023-04-13",
+            "refit_n": 1957
+          }
+        },
+        {
+          "n": 901,
+          "log_loss": 0.62165085221177,
+          "brier": 0.21560923773855095,
+          "accuracy": 0.655937846836848,
+          "roc_auc": 0.7082410213104168,
+          "precision": 0.6557659208261618,
+          "recall": 0.7759674134419552,
+          "balanced_accuracy": 0.6440812676965874,
+          "calibration_error": 0.034619315422302184,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20",
+          "calibration": {
+            "base_train_end": "2023-11-11",
+            "calibration_start": "2023-11-12",
+            "calibration_end": "2024-02-16",
+            "calibration_n": 692,
+            "method": "sigmoid",
+            "refit_through": "2024-02-16",
+            "refit_n": 2864
+          }
+        },
+        {
+          "n": 918,
+          "log_loss": 0.610392782217461,
+          "brier": 0.21106281773684768,
+          "accuracy": 0.6742919389978214,
+          "roc_auc": 0.7335489904194816,
+          "precision": 0.6627318718381113,
+          "recall": 0.7987804878048781,
+          "balanced_accuracy": 0.6646484598648803,
+          "calibration_error": 0.045479632585630876,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23",
+          "calibration": {
+            "base_train_end": "2024-03-26",
+            "calibration_start": "2024-03-27",
+            "calibration_end": "2024-12-20",
+            "calibration_n": 647,
+            "method": "sigmoid",
+            "refit_through": "2024-12-20",
+            "refit_n": 3765
+          }
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6163997380918925,
+        "brier": 0.21354266398654612,
+        "accuracy": 0.6665443873807777,
+        "roc_auc": 0.7167783688868027,
+        "precision": 0.6678141135972461,
+        "recall": 0.7791164658634538,
+        "balanced_accuracy": 0.6545744666979607,
+        "calibration_error": 0.032294409610522504
+      }
+    },
+    {
+      "name": "logistic_context_nba_box_w20_C0.03_decision_refit",
+      "specification": {
+        "kind": "logistic",
+        "variant": "context_nba_box",
+        "window": 20,
+        "c": 0.03,
+        "decay": false,
+        "calibrate": "decision",
+        "calibration_refit": true
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6131066731331466,
+          "brier": 0.21237487133513233,
+          "accuracy": 0.6703417861080485,
+          "roc_auc": 0.7160351064460653,
+          "precision": 0.6726384364820847,
+          "recall": 0.8082191780821918,
+          "balanced_accuracy": 0.6503217102532171,
+          "calibration_error": 0.03465963706689316,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16",
+          "calibration": {
+            "base_train_end": "2023-02-02",
+            "calibration_start": "2023-02-03",
+            "calibration_end": "2023-04-13",
+            "calibration_n": 458,
+            "method": "decision",
+            "refit_through": "2023-04-13",
+            "refit_n": 1957
+          }
+        },
+        {
+          "n": 901,
+          "log_loss": 0.621839558545339,
+          "brier": 0.21576865698858036,
+          "accuracy": 0.6514983351831298,
+          "roc_auc": 0.7082410213104168,
+          "precision": 0.6487394957983194,
+          "recall": 0.7861507128309573,
+          "balanced_accuracy": 0.6381973076349908,
+          "calibration_error": 0.03455806372270096,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20",
+          "calibration": {
+            "base_train_end": "2023-11-11",
+            "calibration_start": "2023-11-12",
+            "calibration_end": "2024-02-16",
+            "calibration_n": 692,
+            "method": "decision",
+            "refit_through": "2024-02-16",
+            "refit_n": 2864
+          }
+        },
+        {
+          "n": 918,
+          "log_loss": 0.603554755325274,
+          "brier": 0.20832816714684413,
+          "accuracy": 0.6753812636165577,
+          "roc_auc": 0.7335489904194816,
+          "precision": 0.670774647887324,
+          "recall": 0.774390243902439,
+          "balanced_accuracy": 0.6677115538761021,
+          "calibration_error": 0.027643631166467564,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23",
+          "calibration": {
+            "base_train_end": "2024-03-26",
+            "calibration_start": "2024-03-27",
+            "calibration_end": "2024-12-20",
+            "calibration_n": 647,
+            "method": "decision",
+            "refit_through": "2024-12-20",
+            "refit_n": 3765
+          }
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6127763977144959,
+        "brier": 0.2121338318739834,
+        "accuracy": 0.6658107116654439,
+        "roc_auc": 0.7194231471339905,
+        "precision": 0.6640405177265053,
+        "recall": 0.7898259705488622,
+        "balanced_accuracy": 0.6526240242354701,
+        "calibration_error": 0.02313791557885295
+      }
+    },
+    {
+      "name": "nba_box_blend_context_nba_box_blend_w20_box0.25",
+      "specification": {
+        "kind": "nba_box_blend",
+        "variant": "context_nba_box_blend",
+        "window": 20,
+        "decay": false,
+        "box_weight": 0.25
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.613706309659878,
+          "brier": 0.21269219711925488,
+          "accuracy": 0.6659316427783903,
+          "roc_auc": 0.7143697246436972,
+          "precision": 0.6693811074918566,
+          "recall": 0.8043052837573386,
+          "balanced_accuracy": 0.6458395105655379,
+          "calibration_error": 0.030600427768668472,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6192667919939959,
+          "brier": 0.2146074348634185,
+          "accuracy": 0.6459489456159823,
+          "roc_auc": 0.7113258159058169,
+          "precision": 0.6442953020134228,
+          "recall": 0.7820773930753564,
+          "balanced_accuracy": 0.6325021111718245,
+          "calibration_error": 0.038947856285062345,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6041011246249876,
+          "brier": 0.20858348821634204,
+          "accuracy": 0.6721132897603486,
+          "roc_auc": 0.7337446085728464,
+          "precision": 0.6649395509499136,
+          "recall": 0.782520325203252,
+          "balanced_accuracy": 0.6635606320851941,
+          "calibration_error": 0.03136251028988373,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6123095505700067,
+        "brier": 0.21194158612681818,
+        "accuracy": 0.6614086573734409,
+        "roc_auc": 0.7198534397329578,
+        "precision": 0.6595863610955841,
+        "recall": 0.7898259705488622,
+        "balanced_accuracy": 0.6477538943653403,
+        "calibration_error": 0.022229728346301183
+      }
+    },
+    {
+      "name": "nba_box_blend_context_nba_box_blend_w20_box0.5",
+      "specification": {
+        "kind": "nba_box_blend",
+        "variant": "context_nba_box_blend",
+        "window": 20,
+        "decay": false,
+        "box_weight": 0.5
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6133088327647047,
+          "brier": 0.212484241195572,
+          "accuracy": 0.6703417861080485,
+          "roc_auc": 0.7151999446519994,
+          "precision": 0.6743421052631579,
+          "recall": 0.8023483365949119,
+          "balanced_accuracy": 0.6511741682974559,
+          "calibration_error": 0.035141940988625,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6201773143430205,
+          "brier": 0.21504829475416315,
+          "accuracy": 0.6503884572697003,
+          "roc_auc": 0.7106701107744275,
+          "precision": 0.6481481481481481,
+          "recall": 0.7841140529531568,
+          "balanced_accuracy": 0.6371789776960906,
+          "calibration_error": 0.031915606735514426,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6037538884416952,
+          "brier": 0.20842680930573895,
+          "accuracy": 0.6753812636165577,
+          "roc_auc": 0.733863887934654,
+          "precision": 0.6684027777777778,
+          "recall": 0.782520325203252,
+          "balanced_accuracy": 0.6670817588457574,
+          "calibration_error": 0.03236548687485085,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.612361313694103,
+        "brier": 0.21196534529734157,
+        "accuracy": 0.6654438738077769,
+        "roc_auc": 0.7199610128826996,
+        "precision": 0.6636670416197975,
+        "recall": 0.7898259705488622,
+        "balanced_accuracy": 0.6522181800796258,
+        "calibration_error": 0.018333802427251376
+      }
+    },
+    {
+      "name": "nba_box_blend_context_nba_box_blend_w20_box0.75",
+      "specification": {
+        "kind": "nba_box_blend",
+        "variant": "context_nba_box_blend",
+        "window": 20,
+        "decay": false,
+        "box_weight": 0.75
+      },
+      "folds": [
+        {
+          "n": 907,
+          "log_loss": 0.6131592134859714,
+          "brier": 0.21239113707219934,
+          "accuracy": 0.6681367144432194,
+          "roc_auc": 0.7158275514439898,
+          "precision": 0.6732673267326733,
+          "recall": 0.7984344422700587,
+          "balanced_accuracy": 0.6492172211350293,
+          "calibration_error": 0.03203419427336206,
+          "train_end": "2023-04-13",
+          "validation_start": "2023-04-14",
+          "validation_end": "2024-02-16"
+        },
+        {
+          "n": 901,
+          "log_loss": 0.6215095476791497,
+          "brier": 0.21566788744869625,
+          "accuracy": 0.655937846836848,
+          "roc_auc": 0.7093288957329491,
+          "precision": 0.6521008403361345,
+          "recall": 0.790224032586558,
+          "balanced_accuracy": 0.6426729919030352,
+          "calibration_error": 0.03613097364718678,
+          "train_end": "2024-02-16",
+          "validation_start": "2024-02-23",
+          "validation_end": "2024-12-20"
+        },
+        {
+          "n": 918,
+          "log_loss": 0.6036292813030857,
+          "brier": 0.20836704540129608,
+          "accuracy": 0.6764705882352942,
+          "roc_auc": 0.733739837398374,
+          "precision": 0.6695652173913044,
+          "recall": 0.782520325203252,
+          "balanced_accuracy": 0.6682554677659452,
+          "calibration_error": 0.037015097597599536,
+          "train_end": "2024-12-20",
+          "validation_start": "2024-12-21",
+          "validation_end": "2025-06-23"
+        }
+      ],
+      "status": "completed",
+      "validation": {
+        "n": 2726,
+        "log_loss": 0.6127099007068681,
+        "brier": 0.21211902993182313,
+        "accuracy": 0.6669112252384446,
+        "roc_auc": 0.7195491924407587,
+        "precision": 0.6649774774774775,
+        "recall": 0.7904953145917001,
+        "balanced_accuracy": 0.6537703845685774,
+        "calibration_error": 0.01841590927252796
+      }
+    }
+  ],
+  "fold_policy": "Original shared 40/60/80 percent expanding date folds",
+  "candidate_count": 18,
+  "completed_candidates": 18,
+  "comparison_uncertainty": {
+    "log_loss_delta_95": [
+      -0.0015490149628965538,
+      0.0011071860644848
+    ],
+    "accuracy_gain_95": [
+      -0.006093253433111868,
+      0.006110290249280812
+    ],
+    "calendar_weeks": 81,
+    "note": "Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence."
+  },
+  "accuracy_gain": 0.0,
+  "log_loss_gain": 0.0001918678963234166,
+  "status": "challenger identified",
+  "note": "Research only. All confirmation games remain in the denominator, including missing box histories. The confirmation period has been reported before; this follow-up is not an untouched test and does not promote or replace live weights. No candidate is selected on confirmation accuracy.",
+  "box_confirmation_games": 1321,
+  "fingerprint": "ed6dbd5622576a4f09a13faba777b70cdc75a637bc4a18f7986ff8c3dfe4d4a5",
+  "confirmation": {
+    "from": "2025-07-01",
+    "before": "2026-07-01",
+    "previous": {
+      "specification": {
+        "kind": "logistic",
+        "window": 20,
+        "variant": "context_nba_feedback",
+        "c": 0.03,
+        "decay": false
+      },
+      "validation": {
+        "n": 1322,
+        "log_loss": 0.6039392383588797,
+        "brier": 0.2078529230767737,
+        "accuracy": 0.6838124054462935,
+        "roc_auc": 0.7296161652671969,
+        "precision": 0.6965174129353234,
+        "recall": 0.7629427792915532,
+        "balanced_accuracy": 0.6739883964484976,
+        "calibration_error": 0.026037959828917927
+      }
+    },
+    "selected": {
+      "specification": {
+        "kind": "nba_box_blend",
+        "variant": "context_nba_box_blend",
+        "window": 20,
+        "decay": false,
+        "box_weight": 0.5
+      },
+      "validation": {
+        "n": 1322,
+        "log_loss": 0.6036448676136881,
+        "brier": 0.20777162820693895,
+        "accuracy": 0.6785173978819969,
+        "roc_auc": 0.7300679808708225,
+        "precision": 0.6909765142150803,
+        "recall": 0.7615803814713896,
+        "balanced_accuracy": 0.6682051567220894,
+        "calibration_error": 0.02147299454100008
+      }
+    },
+    "train_end": "2025-06-23",
+    "cohort_sha256": "e8fdd19b687775fb77f31fd09a8c919266170eb1b41ed71ed10c21a0da118e7b",
+    "passed": false,
+    "note": "Historical confirmation of specifications selected on pre-July 2025 results, both trained on the same recent history. The current season and original archived test are excluded. This is not prospective promotion evidence."
+  },
+  "raw_confirmation_sha256": "210791e3ebeeb0ed34759ab715ba5c83a1d3e1431f53d2a7a3d834870d6fc0d4",
+  "target_accuracy": 0.7,
+  "target_reached": false,
+  "additional_correct_needed": 22,
+  "history_from": "2022-01-01",
+  "target_reference": {
+    "specification": {
+      "kind": "logistic",
+      "window": 20,
+      "variant": "context_nba_feedback",
+      "c": 0.03,
+      "decay": false
+    },
+    "validation": {
+      "n": 1322,
+      "log_loss": 0.6039392383588797,
+      "brier": 0.2078529230767737,
+      "accuracy": 0.6838124054462935,
+      "roc_auc": 0.7296161652671969,
+      "precision": 0.6965174129353234,
+      "recall": 0.7629427792915532,
+      "balanced_accuracy": 0.6739883964484976,
+      "calibration_error": 0.026037959828917927
+    }
+  },
+  "candidate_accepted": false,
+  "source_status": {
+    "status": "ok",
+    "checked": "2026-10-24T17:49:31.187609+00:00",
+    "matched_games": 6114,
+    "error": null
+  },
+  "source_matched_games": 6114,
+  "source_manifests": [
+    {
+      "url": "https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/team_box/parquet/team_box_2022.parquet",
+      "fetched": "2026-10-24T17:49:29.735884+00:00",
+      "sha256": "f8185936836a81240d6f170ec7afeab47e3e736a718fe2c9f72999e681434b7f",
+      "league": "NBA"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/team_box/parquet/team_box_2023.parquet",
+      "fetched": "2026-10-24T17:49:30.020866+00:00",
+      "sha256": "b86bb087fe57eeeacead4e27965a20d1e67fdb39a3ee2ca36294a0b7d014e9b6",
+      "league": "NBA"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/team_box/parquet/team_box_2024.parquet",
+      "fetched": "2026-10-24T17:49:30.338156+00:00",
+      "sha256": "5e4d1b7a2ccc287f212f65888dcd674e370adec8a0e32d7ae0825eecacaaa8a9",
+      "league": "NBA"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/team_box/parquet/team_box_2025.parquet",
+      "fetched": "2026-10-24T17:49:30.511203+00:00",
+      "sha256": "f735bf3b743618e50987f3e3e296734e1dba43c450a21af848d7c34f23bf2aee",
+      "league": "NBA"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/team_box/parquet/team_box_2026.parquet",
+      "fetched": "2026-10-24T17:49:30.817180+00:00",
+      "sha256": "db846dfb39b0f75eee50ad91b1b5b7a7a62dd31d3ec0bb066a0a3bb08e366f7e",
+      "league": "NBA"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/team_box/parquet/team_box_2027.parquet",
+      "fetched": "2026-10-24T17:49:31.102183+00:00",
+      "sha256": "138742c750e4f12916b6084adb90f8708bc5556249058101598e60638bfd324f",
+      "league": "NBA"
+    }
+  ]
+}

@@ -166,3 +166,16 @@ The live saved-pick record at the start was 6 correct and 8 missed under the cur
 All 137 automated tests passed locally. Desktop (1440px) and mobile (390px) checks verified the actual saved-pick record, all 153 recent candidates, both confirmation percentages, and no viewport overflow or JavaScript errors.
 
 The GitHub workflow also passed and the public deployment was verified. All 153 older-period and recent-data NBA candidates completed. The recent candidate was locked after October 24 results with zero confirmation games at publication; the older trial and champion remained intact. All 14 previously settled current-policy picks were verified unchanged, and deployed HTML/JavaScript/CSS matched the source. The committed snapshot was refreshed from the verified public deployment.
+
+## NBA 70% target follow-up
+
+The source check matched **6,114** validated public box-score games to imported final results. All **18** additional candidates completed. The development-selected 50/50 box-score/feedback blend was tested on the same **1,322** historical confirmation games as the existing candidate:
+
+| Model | Correct winner accuracy | Log loss | Brier |
+|---|---:|---:|---:|
+| Retained NBA feedback candidate | 68.38% | 0.603939 | 0.207853 |
+| New box-score blend | 67.85% | 0.603645 | 0.207772 |
+
+The new model reduced probability errors slightly but made seven fewer correct winner picks. It failed confirmation acceptance and was not adopted. The supported target reference remains 904/1,322 correct (68.38%). Achieving at least 70% on this cohort would require 926 correct: **22 additional correct picks**. The study did not verify 70% accuracy. No hard games were removed, no current-season outcomes tuned these candidates, and the original archived test and locked live trials remain intact. The confirmation period is reused historical evidence, so none of these results is labelled a fresh independent test.
+
+The optional source updater preserves cached observations on failure. Tests cover source identity and UTC dates, score arithmetic, earlier-date isolation, missing-data cohort retention, blend input parity/serialization, an explicit isolated research catalog, historical caching despite new current-season data, and displaying the retained model's target score after a failed experiment.

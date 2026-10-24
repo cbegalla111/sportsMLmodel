@@ -162,6 +162,10 @@ def export_snapshot(source_root,artifacts,asof=None):
          item['withheld'].append(dict(safe,reason=str(e)))
        item['predictions'].sort(key=lambda p:max(p['home_probability'],p['away_probability']),reverse=True)
    if item['lifecycle']:
+    if league=='NBA':
+     from .nba_box import saved_research
+     try:item['lifecycle']['nba_box_research']=saved_research(source_root,rows,item['lifecycle'].get('nba_recent_review'))
+     except (ValueError,KeyError,TypeError) as e:item['lifecycle']['nba_box_research']={'status':'research unavailable','error':str(e)}
     item['lifecycle']['live_record']=record(lifecycle_root,item['predictions'])
     item['lifecycle']['feedback_policy']=REST_POLICY_VERSION if (lifecycle_root/'state.json').exists() and REST_POLICY_VERSION in json.loads((lifecycle_root/'state.json').read_text()).get('policy_ledgers',{}) else 'legacy'
    item['prediction_history']=prediction_history(lifecycle_root,rows,asof)

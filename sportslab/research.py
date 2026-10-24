@@ -115,6 +115,12 @@ def bayesian_features(rows,window=20):
  return [(r,x+extra[r['event_id']],n) for r,x,n in base],names
 
 def build(rows,window=20,variant='baseline'):
+ if variant=='context_nba_box_blend':
+  from .nba_box import blend_features
+  return blend_features(rows,window)
+ if variant=='nba_box':
+  from .nba_box import box_features
+  return box_features(rows,window)
  if variant.startswith('context_'):
   from .rest import adjusted_features
   built,names=build(rows,window,variant.removeprefix('context_'))
@@ -290,9 +296,14 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+(f"_feedback{spec['feedback_weight']}" if spec['kind']=='nba_blend' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+(f"_feedback{spec['feedback_weight']}" if spec['kind']=='nba_blend' else '')+(f"_box{spec['box_weight']}" if spec['kind']=='nba_box_blend' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
 
 def fit(spec,X,y,days,league,score_targets=None):
+ if spec['kind']=='nba_box_blend':
+  if league!='NBA':raise ValueError('NBA box-score blending is NBA-specific')
+  from .nba_box import BoxBlend
+  a,b=BoxBlend.inputs(X);left=fit({'kind':'logistic','c':.03},a,y,days,league);right=fit({'kind':'logistic','c':.03},b,y,days,league)
+  return BoxBlend(left,right,spec['box_weight'])
  if spec['kind']=='nba_blend':
   if league!='NBA':raise ValueError('Feedback blending is NBA-specific')
   from .nba import FeedbackBlend
@@ -392,7 +403,7 @@ def incumbent_spec(report,champion=None):
  selected=report['selected'];parts=selected.split('_w');window=int(parts[-1].split('_')[0]);kind='elo' if selected.startswith('elo') else 'boost' if selected.startswith('boost') else 'logistic'
  return {'kind':kind,'window':window,'variant':'baseline','c':.01 if 'strong' in selected else 1. if 'weak' in selected else .1,'leaves':7,'decay':False,'legacy':True}
 
-def review(rows,report,champion=None):
+def review(rows,report,champion=None,specifications=None):
  """Compare on identical expanding development dates; return a deployable challenger."""
  rows=[r for r in rows if r['outcome'] in ('home','away')];league=report['league'];cut=report['final_test_start'];dev=[r for r in rows if r['date']<cut]
  days=sorted({r['date'] for r in dev})
@@ -403,7 +414,7 @@ def review(rows,report,champion=None):
   start=days[int(len(days)*left)];end=days[int(len(days)*right)] if right<1 else cut;folds.append((start,end))
  reference_spec=incumbent_spec(report,champion);inc_spec=reference_spec
  if reference_spec['variant']=='baseline':inc_spec=dict(reference_spec,variant='rest_guard',legacy=False,guard_legacy=reference_spec.get('legacy',False))
- specs=[inc_spec,*definitions(league)]
+ specs=[inc_spec,*(definitions(league) if specifications is None else specifications)]
  if reference_spec['variant']=='baseline':specs.append(dict(reference_spec,diagnostic_only=True))
  cache={};results=[];predictions=[];ds=np.array([r['date'] for r in dev]);y=np.array([int(r['outcome']=='home') for r in dev]);min_history=3 if league=='UFC' else 5
  score_targets=np.array([[float(r['home_score']),float(r['away_score'])] for r in dev])
