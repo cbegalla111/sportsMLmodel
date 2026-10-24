@@ -147,3 +147,18 @@ The deployed review completed 150/150 challengers each for NFL, NHL and MLB, and
 | NFL | 64.88% | 64.88% | 0.630148 | 0.630148 |
 
 NHL selected contextual logistic form with a five-game window and C=0.03. On the same 1,427 development games, its Brier score also decreased from 0.247191 to 0.246871. The improvement is in probability scoring; winner accuracy did not rise. The other three sports retained their prior eligible selections. These results do not establish an independent or future gain; research candidates still require prospective promotion before replacing live weights. Daily updates include the expanded search, with unchanged development reviews cached.
+
+## NBA outcome-feedback and recent-data review
+
+The NBA-specific catalog adds 23 candidates (153 total), including causal win/margin error features, calibration and three fixed probability blends. The older development winner remains at 69.01%; lower-loss feedback/blend candidates did not improve that winner percentage. Original final-test metrics remain unchanged.
+
+A separate study selects from the same catalog on January 2022–June 2025 results, then confirms the fixed selection on July 2025–June 2026. `artifacts/research/nba-outcome-feedback.json` records the complete recent review and comparison cohort hash. Both specifications use identical recent training history and the same 1,322 confirmation games:
+
+| Specification | Winner accuracy | Log loss | Brier |
+|---|---:|---:|---:|
+| Previous contextual form | 68.23% | 0.607856 | 0.209461 |
+| New contextual NBA feedback | 68.38% | 0.603939 | 0.207853 |
+
+The gain is **two additional correct winners**, not evidence of a large or guaranteed future advantage. This recent study follows an older-specification three-season audit; it is historical confirmation, not a wholly untouched prospective experiment. Selection, training-history boundaries, cached research and immutable live trials remain separate. Current-season results are excluded from selection/confirmation but may fit future candidate weights. Passing historical checks gives priority for a locked NBA candidate; production weights still require the existing independent 100-result/eight-calendar-week gate.
+
+The live saved-pick record at the start was 6 correct and 8 missed under the current prediction policy. The UI now shows this actual record, descriptive uncertainty, confidence bands and confidently missed picks separately from backtest percentages. Testing covers date/future isolation, same-date feedback batching, frozen calibration/blends, exact live/batch feature inputs, recent-history inference boundaries, fresh-data refits without hyperparameter reselection, immutable parallel candidates and guarded promotion.

@@ -16,6 +16,10 @@ from .data import now,version
 from .model import features,elo,scores
 
 VERSION='sport-review-v9-targeted-calibration-horizons'
+NBA_VERSION='nba-review-v11-feedback-ensemble'
+
+def review_version(league):return NBA_VERSION if league=='NBA' else VERSION
+
 HALF_LIFE={'NBA':365,'WNBA':365,'NFL':730,'CFB':730,'MLB':180,'NHL':365,'UFC':730}
 
 def form_features(rows,window=20):
@@ -119,6 +123,12 @@ def build(rows,window=20,variant='baseline'):
   from .rest import adjusted_features
   built,names=features(rows,window)
   return adjusted_features(built,names,'guard' if variant=='rest_guard' else 'no_rest')
+ if variant=='nba_hybrid':
+  from .nba import hybrid_features
+  return hybrid_features(rows,window)
+ if variant=='nba_feedback':
+  from .nba import feedback_features
+  return feedback_features(rows,window)
  if variant=='bayesian':return bayesian_features(rows,window)
  if variant=='ratings':return rating_features(rows,window)
  if variant=='profile':return profile_features(rows,window)
@@ -191,6 +201,18 @@ def definitions(league=None):
    for kind,settings in (('neural',{'alpha':1.}),('forest',{'depth':8})):
     for method in ('temperature','sigmoid'):
      result.append(dict(kind=kind,window=20,variant=variant,decay=False,calibrate=method,calibration_refit=True,**settings))
+ if league=='NBA':
+  for window in (5,10,20):
+   for c in (.03,.3):result.append({'kind':'logistic','window':window,'variant':'context_nba_feedback','c':c,'decay':False})
+  for c in (.03,.3):result.append({'kind':'logistic','window':20,'variant':'context_nba_feedback','c':c,'decay':True,'half_life_scale':.5})
+  for leaves in (3,7):result.append({'kind':'boost','window':20,'variant':'context_nba_feedback','leaves':leaves,'decay':False})
+  for gamma in (.03,.1):result.append({'kind':'kernel','window':20,'variant':'context_nba_feedback','gamma':gamma,'c':.1,'decay':False})
+  for variant in ('context_form','context_bayesian','context_nba_feedback'):
+   for method in ('temperature','sigmoid'):
+    result.append({'kind':'neural','window':20,'variant':variant,'alpha':1.,'decay':False,'calibrate':method,'calibration_refit':True})
+  for method in ('temperature','sigmoid'):
+   result.append({'kind':'logistic','window':20,'variant':'context_nba_feedback','c':.3,'decay':False,'calibrate':method,'calibration_refit':True})
+  for weight in (.25,.5,.75):result.append({'kind':'nba_blend','window':20,'variant':'context_nba_hybrid','decay':False,'feedback_weight':weight})
  return result
 
 class InsufficientCalibration(ValueError):pass
@@ -268,9 +290,16 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+(f"_feedback{spec['feedback_weight']}" if spec['kind']=='nba_blend' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
 
 def fit(spec,X,y,days,league,score_targets=None):
+ if spec['kind']=='nba_blend':
+  if league!='NBA':raise ValueError('Feedback blending is NBA-specific')
+  from .nba import FeedbackBlend
+  feedback,form=FeedbackBlend.inputs(X)
+  left=fit({'kind':'logistic','c':.03},feedback,y,days,league)
+  right=fit({'kind':'logistic','c':.3},form,y,days,league)
+  return FeedbackBlend(left,right,spec['feedback_weight'])
  if spec.get('training_years'):
   boundary=(date.fromisoformat(max(days))-timedelta(days=365*spec['training_years'])).isoformat();keep=np.array(days)>=boundary
   if keep.sum()<100 or len(set(y[keep]))<2:raise InsufficientCalibration('Recent training horizon has insufficient observations or classes')
@@ -431,11 +460,11 @@ def review(rows,report,champion=None):
   else:m=fit(spec,X[warm],yy[warm],list(all_days[warm]),league,np.array([[float(r['home_score']),float(r['away_score'])] for r in rows])[warm])
  except InsufficientCalibration as e:fit_failure=str(e)
  artifact=None if fit_failure else {'model':m,'research_spec':dict(spec),'window':spec['window'],'variant':spec['variant'],'extra':False,'names':names,'digest':version(rows),'training_event_ids':[r['event_id'] for r in rows],'last_date':rows[-1]['date'],'league':league,'neutral_variation':len(np.unique(X[warm,1]))>1,'selected':chosen['name'],'refitted':now()}
- result={'version':VERSION,'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'accuracy_leader':accuracy_leader,'rest_policy_review':{'before':next(r for r in results if r['specification'].get('diagnostic_only')),'after':incumbent} if any(r['specification'].get('diagnostic_only') for r in results) else None,'selection_objective':'Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.','candidates':results,'fold_policy':fold_policy,'candidate_count':sum(not r['specification'].get('diagnostic_only') for r in results[1:]),'completed_candidates':sum(r['status']=='completed' and not r['specification'].get('diagnostic_only') for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
+ result={'version':review_version(league),'checked':now(),'fit_status':'unavailable' if fit_failure else 'ready','fit_error':fit_failure,'fit_dataset_sha256':version(rows),'league':league,'development_sha256':version(dev),'development_through':dev[-1]['date'],'excluded_final_test_from':cut,'selected':chosen['name'],'incumbent':incumbent,'best':chosen,'accuracy_leader':accuracy_leader,'rest_policy_review':{'before':next(r for r in results if r['specification'].get('diagnostic_only')),'after':incumbent} if any(r['specification'].get('diagnostic_only') for r in results) else None,'selection_objective':'Highest development winner accuracy among candidates with lower log loss and non-worse Brier than the incumbent; ties use lower log loss. Independent prospective promotion checks still apply.','candidates':results,'fold_policy':fold_policy,'candidate_count':sum(not r['specification'].get('diagnostic_only') for r in results[1:]),'completed_candidates':sum(r['status']=='completed' and not r['specification'].get('diagnostic_only') for r in results[1:]),'comparison_uncertainty':uncertainty(predictions[selected][0],predictions[0][1],predictions[selected][1],predictions[selected][2]),'accuracy_gain':chosen['validation']['accuracy']-incumbent['validation']['accuracy'],'log_loss_gain':incumbent['validation']['log_loss']-chosen['validation']['log_loss'],'status':'challenger identified' if selected else 'incumbent specification retained','note':'Expanding development backtests only. Candidate selection gains are optimistic; no new independent test or production improvement is claimed. Original final-test dates were excluded. Production promotion still requires the separate prospective loss-review gate.'}
  return artifact,result
 
 def saved_review(root,rows,report,champion=None):
- root=Path(root);root.mkdir(parents=True,exist_ok=True);path=root/'research-review.json';fingerprint=hashlib.sha256((VERSION+version([r for r in rows if r['date']<report['final_test_start']])+json.dumps(incumbent_spec(report,champion),sort_keys=True)).encode()).hexdigest()
+ root=Path(root);root.mkdir(parents=True,exist_ok=True);path=root/'research-review.json';fingerprint=hashlib.sha256((review_version(report['league'])+version([r for r in rows if r['date']<report['final_test_start']])+json.dumps(incumbent_spec(report,champion),sort_keys=True)).encode()).hexdigest()
  if path.exists():
   prior=json.loads(path.read_text())
   if prior.get('fingerprint')==fingerprint and (prior.get('fit_status')=='ready' or prior.get('fit_dataset_sha256')==version(rows)):return prior
@@ -445,6 +474,11 @@ def saved_review(root,rows,report,champion=None):
   if previous.get('development_sha256')==result['development_sha256'] and folds(previous)==folds(result):
    result['previous_search']={'version':previous['version'],'name':previous['best']['name'],'validation':previous['best']['validation'],'accuracy_gain':result['best']['validation']['accuracy']-previous['best']['validation']['accuracy'],'note':'Same development data and chronological validation games; search-selection optimism remains.'}
 
+ if report['league']=='NBA' and path.exists() and report.get('last_date'):
+  previous=json.loads(path.read_text())
+  if 'specification' in previous['best'] and 'specification' in result['best']:
+   from .nba import later_era_audit
+   result['later_era_audit']=later_era_audit(rows,previous['best']['specification'],result['best']['specification'],report['last_date'])
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(result,allow_nan=False));temporary.replace(path)
  if artifact is not None:joblib.dump(artifact,root/'research-challenger.joblib')
  else:(root/'research-challenger.joblib').unlink(missing_ok=True)

@@ -116,7 +116,7 @@ def train(db,root,league):
 def model_features(rows,window=20,extra=False,variant='baseline'):
  if variant=='baseline':return features(rows,window,extra)
  if extra:raise ValueError('Combined uploaded and form features are not validated')
- if variant not in ('form','profile','ratings','rest_guard','no_rest','context_baseline','context_form','context_ratings','context_bayesian'):raise ValueError('Unknown model feature variant')
+ if variant not in ('form','profile','ratings','rest_guard','no_rest','context_baseline','context_form','context_ratings','context_bayesian','context_nba_feedback','context_nba_hybrid'):raise ValueError('Unknown model feature variant')
  from .research import build
  return build(rows,window,variant)
 
@@ -136,7 +136,9 @@ def prediction_context(db,root,league,allow_updated_history=False):
   training_ids=set(art.get('training_event_ids',[]))
   history=[r for r in rows if r['event_id'] in training_ids] if training_ids else [r for r in rows if r['date']<=art['last_date']]
   if not allow_updated_history or version(history)!=art['digest']: raise ValueError('Dataset changed; rerun validation')
- return {'league':league,'rows':rows,'report':report,'artifact':art,'input_digest':version(rows)}
+ input_digest=version(rows)
+ if art.get('history_from'):rows=[r for r in rows if r['date']>=art['history_from']]
+ return {'league':league,'rows':rows,'report':report,'artifact':art,'input_digest':input_digest}
 
 def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,allow_updated_history=False,neutral=False,prepared_inputs=None,context=None):
  context=context or prediction_context(db,root,league,allow_updated_history)

@@ -38,7 +38,7 @@ def test_review_uses_identical_folds_and_excludes_original_test():
  assert second['selected']==result['selected']
  assert second['candidates']==result['candidates']
 
-@pytest.mark.parametrize('variant',['form','profile','ratings','context_baseline','context_form','context_ratings','context_bayesian'])
+@pytest.mark.parametrize('variant',['form','profile','ratings','context_baseline','context_form','context_ratings','context_bayesian','context_nba_feedback','context_nba_hybrid'])
 @pytest.mark.parametrize('kind',['logistic','kernel','ensemble','margin','poisson'])
 def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(tmp_path,variant,kind):
  import json
@@ -57,7 +57,7 @@ def test_form_challenger_uses_identical_inputs_in_batched_and_direct_forecasts(t
  direct=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True)
  inputs=fixture_inputs(rows,[fixture],20,variant=variant);batch=estimate(db,tmp_path,'NBA','T0','T1',fixture['date'],scenario=True,prepared_inputs=inputs)
  assert direct['home_probability']==pytest.approx(batch['home_probability'])
- assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11,'context_baseline':7,'context_form':14,'context_ratings':13,'context_bayesian':17}[variant])
+ assert len(direct['factors'])==({'form':12,'profile':17,'ratings':11,'context_baseline':7,'context_form':14,'context_ratings':13,'context_bayesian':17,'context_nba_feedback':23,'context_nba_hybrid':30}[variant])
  assert direct['factors']==batch['factors']
 
 

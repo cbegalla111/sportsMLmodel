@@ -107,3 +107,57 @@ def test_loss_feedback_uses_corrected_policy_without_rewriting_original(tmp_path
  assert state['ledger'][p['id']]['correct'] is True
  assert state['policy_ledgers'][VERSION][p['id']]['correct'] is False
  assert state['policy_ledgers'][VERSION][p['id']]['home_probability']==1-p['home_probability']
+
+
+def test_nba_feedback_trial_locks_weights_and_preserves_existing_trial(tmp_path):
+ from sportslab.lifecycle import nba_feedback_trial
+ from sportslab.research import NBA_VERSION
+ rows=synthetic_rows(120);champion={'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA','selected':'original'}
+ champion_path=tmp_path/'champion.joblib';joblib.dump(champion,champion_path)
+ candidate=dict(champion,selected='feedback');joblib.dump(candidate,tmp_path/'research-challenger.joblib')
+ state={'reviews':[],'trial':{'after':rows[-2]['date'],'selected':'older candidate'}};original=champion_path.read_bytes()
+ _,status=nba_feedback_trial(tmp_path,state,rows,champion,champion_path,{'version':NBA_VERSION},1)
+ assert status is None and state['trial']['selected']=='older candidate'
+ assert state['nba_feedback_trial']['after']==rows[-1]['date']
+ locked=(tmp_path/'nba-feedback-challenger.joblib').read_bytes()
+ joblib.dump(dict(candidate,selected='later search'),tmp_path/'research-challenger.joblib')
+ _,status=nba_feedback_trial(tmp_path,state,synthetic_rows(124),champion,champion_path,{'version':NBA_VERSION},2)
+ assert status is None and state['nba_feedback_trial']['confirmation']['n']>0
+ assert champion_path.read_bytes()==original
+ assert (tmp_path/'nba-feedback-challenger.joblib').read_bytes()==locked
+
+
+def test_nba_feedback_promotion_uses_independent_gate_and_archives_older_trial(tmp_path,monkeypatch):
+ from sportslab.lifecycle import nba_feedback_trial
+ from sportslab.research import NBA_VERSION
+ rows=synthetic_rows(120);champion={'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA','selected':'original'}
+ path=tmp_path/'champion.joblib';joblib.dump(champion,path);joblib.dump(dict(champion,selected='feedback'),tmp_path/'research-challenger.joblib')
+ state={'reviews':[],'trial':{'after':rows[-2]['date'],'selected':'older candidate'},'confirmation':None}
+ nba_feedback_trial(tmp_path,state,rows,champion,path,{'version':NBA_VERSION},1)
+ def future_probabilities(art,rows,after):
+  results={str(i):dict(event_id=str(i),date=(date.fromisoformat(after)+timedelta(days=i+1)).isoformat(),outcome='home' if i%2 else 'away') for i in range(200)}
+  confidence=.75 if art['selected']=='feedback' else .55
+  return {k:confidence if r['outcome']=='home' else 1-confidence for k,r in results.items()},results
+ monkeypatch.setattr('sportslab.lifecycle.probabilities',future_probabilities)
+ promoted,status=nba_feedback_trial(tmp_path,state,rows,champion,path,{'version':NBA_VERSION},1)
+ assert promoted['selected']=='feedback' and 'promoted' in status
+ assert state['nba_feedback_trial']['confirmation']['n']==200
+ assert state['nba_feedback_trial']['confirmation']['weeks']>=8
+ assert state['trial'] is None and state['superseded_trials'][0]['trial']['selected']=='older candidate'
+ assert joblib.load(tmp_path/'previous-champion.joblib')['selected']=='original'
+ assert joblib.load(path)['selected']=='feedback'
+
+
+def test_nba_trial_uses_recent_candidate_only_after_confirmation_passes(tmp_path):
+ from sportslab.lifecycle import nba_feedback_trial
+ from sportslab.research import NBA_VERSION
+ from sportslab.nba import RECENT_VERSION
+ rows=synthetic_rows(120)
+ for i,r in enumerate(rows):r['date']=(date(2024,1,1)+timedelta(days=i//4)).isoformat()
+ champ={'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA','selected':'original'}
+ path=tmp_path/'champion.joblib';joblib.dump(champ,path);joblib.dump(dict(champ,selected='older research'),tmp_path/'research-challenger.joblib');joblib.dump(dict(champ,selected='recent feedback',history_from='2022-01-01',research_spec={'kind':'logistic','variant':'context_baseline','window':20,'c':.1}),tmp_path/'nba-recent-challenger.joblib')
+ state={'reviews':[]};review={'version':NBA_VERSION};recent={'version':RECENT_VERSION,'confirmation':{'passed':True}}
+ nba_feedback_trial(tmp_path,state,rows,champ,path,review,1,recent)
+ assert state['nba_feedback_trial']['selected']=='recent feedback'
+ state={'reviews':[]};nba_feedback_trial(tmp_path,state,rows,champ,path,review,1,dict(recent,confirmation={'passed':False}))
+ assert state['nba_feedback_trial']['selected']=='older research'
