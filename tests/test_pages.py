@@ -32,6 +32,9 @@ def test_public_export_excludes_private_data_and_does_not_touch_history(public_s
  snapshot=export_snapshot(root,artifacts,now);text=json.dumps(snapshot)
  assert 'PRIVATE_' not in text
  assert len(snapshot['leagues'])==7
+ assert snapshot['refresh_schedule']=={'utc_hours':[5,11,17,23],'minute':17}
+ cron="17 "+','.join(map(str,snapshot['refresh_schedule']['utc_hours']))+" * * *"
+ assert cron in (Path.cwd()/'.github/workflows/pages.yml').read_text()
  nfl=next(x for x in snapshot['leagues'] if x['name']=='NFL')
  assert nfl['result_count']==120 and len(nfl['predictions'])==1
  p=nfl['predictions'][0];assert p['home_probability']+p['away_probability']==pytest.approx(1)

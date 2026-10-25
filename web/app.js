@@ -32,11 +32,33 @@ function chooseDay(day){dateFilter=day||localDay();followToday=dateFilter===loca
 function current(){return snapshot.leagues.find(l=>l.name===league)||snapshot.leagues[0];}
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?esc(u.href):'#';}catch(_){return '#';}}
 function empty(title,body){return `<div class="empty"><strong>${esc(title)}</strong><p>${esc(body)}</p></div>`;}
+const WORKFLOW_URL='https://github.com/cbegalla111/sportsMLmodel/actions/workflows/pages.yml';
+const WORKFLOW_API='https://api.github.com/repos/cbegalla111/sportsMLmodel/actions/workflows/pages.yml/runs?branch=main&per_page=1';
+let runStatusLoading=false,lastRun=null;
+function nextUpdate(now=new Date()){
+ const schedule=snapshot?.refresh_schedule||{utc_hours:[11],minute:17};
+ const slots=[0,1].flatMap(offset=>schedule.utc_hours.map(hour=>new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+offset,hour,schedule.minute))));
+ return slots.filter(d=>d>now).sort((a,b)=>a-b)[0];
+}
+async function loadRunStatus(){
+ if(runStatusLoading)return;runStatusLoading=true;
+ const status=$('pipeline-status');
+ try{
+  const response=await fetch(WORKFLOW_API,{headers:{Accept:'application/vnd.github+json'},cache:'no-store',signal:AbortSignal.timeout(12000)});
+  if(!response.ok)throw Error('GitHub status unavailable');
+  const run=(await response.json()).workflow_runs?.[0];if(!run)throw Error('No update runs');
+  status.href=/^https:\/\/github\.com\/cbegalla111\/sportsMLmodel\/actions\/runs\/\d+$/.test(run.html_url)?run.html_url:WORKFLOW_URL;
+  status.textContent=run.status==='completed'?(run.conclusion==='success'?'Latest data update completed ↗':'Latest update needs attention ↗'):run.status==='in_progress'?'Data update running… ↗':'Data update queued… ↗';
+  if(run.status==='completed'&&run.conclusion==='success'&&lastRun&&(lastRun.id!==run.id||lastRun.status!=='completed'))await load();
+  lastRun={id:run.id,status:run.status};
+ }catch(_){status.href=WORKFLOW_URL;status.textContent='View update status on GitHub ↗';}
+ finally{runStatusLoading=false;}
+}
 function render(){
  if(followToday)dateFilter=localDay();
  const playing=daySports();if(!allSports&&playing.length&&!playing.some(s=>s.name===league))league=playing[0].name;
  const l=current();league=l.name;const info=SPORT_INFO[league],report=l.benchmark,forecasts=active(l).filter(p=>eventDay(p)===dateFilter),overdue=Date.now()>=Date.parse(snapshot.valid_until);
- $('dashboard').hidden=false;$('loading').hidden=true;$('updated').textContent=time(snapshot.generated_at);$('refresh-detail').textContent='Next scheduled run: daily 11:17 UTC';
+ $('dashboard').hidden=false;$('loading').hidden=true;$('updated').textContent='Updated '+time(snapshot.generated_at);$('refresh-detail').textContent='Next scheduled update: '+time(nextUpdate().toISOString());
  $('day-summary').textContent=view==='history'?`Past 7 days · ${playing.length} sports with saved predictions · Times in ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`:`${dayLabel(dateFilter)} · ${playing.length} scheduled sports · Times in ${Intl.DateTimeFormat().resolvedOptions().timeZone}. Future schedules appear as feeds publish them.`;
  $('forecast-title').textContent=dateFilter<localDay()?'Saved predictions for selected day':'Predictions for selected day';$('yesterday').classList.toggle('selected',dateFilter===shiftDay(localDay(),-1));
  $('today').classList.toggle('selected',dateFilter===localDay());$('tomorrow').classList.toggle('selected',dateFilter===shiftDay(localDay(),1));
@@ -128,5 +150,8 @@ $('date-filter').onchange=()=>chooseDay($('date-filter').value);
 $('previous-day').onclick=()=>chooseDay(shiftDay(dateFilter,-1));$('next-day').onclick=()=>chooseDay(shiftDay(dateFilter,1));
 $('yesterday').onclick=()=>chooseDay(shiftDay(localDay(),-1));$('today').onclick=()=>chooseDay(localDay());$('tomorrow').onclick=()=>chooseDay(shiftDay(localDay(),1));
 $('day-options').onclick=e=>{const b=e.target.closest('[data-day]');if(b)chooseDay(b.dataset.day);};
-$('all-sports').onchange=()=>{allSports=$('all-sports').checked;render();};$('refresh').onclick=load;
-load();setInterval(()=>{if(snapshot&&!document.hidden)render();},30000);setInterval(()=>{if(!document.hidden)load();},60000);
+$('all-sports').onchange=()=>{allSports=$('all-sports').checked;render();};$('refresh').onclick=()=>{load();loadRunStatus();};
+load();loadRunStatus();setInterval(()=>{if(snapshot&&!document.hidden)render();},30000);setInterval(()=>{if(!document.hidden)load();},60000);
+
+setInterval(()=>{if(!document.hidden)loadRunStatus();},120000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();loadRunStatus();}});

@@ -1,4 +1,4 @@
-# Public dashboard and daily model updates
+# Public dashboard and automatic model updates
 
 The user explicitly approved a public GitHub Pages dashboard on October 21, 2026. This is separate from the original private Python workbench.
 
@@ -21,11 +21,21 @@ The **Past 7 days** tab recalls the first public pre-game prediction saved for e
 
 The public-only lifecycle ledger is retained in the daily workflow cache. Predictions are never recreated using known results. Older ledger entries lack exact start timestamps and show source dates; new picks retain source-verified start times for local date display. Days before recording began can be empty. The data update timestamp, daily schedule and refresh button sit in a compact top row, followed by a horizontally scrollable row of league feed statuses.
 
-## Daily operations
+## Refreshing data
+
+Normally, just open Courtside: collection runs automatically every six hours, and the page checks for newly published results every minute. The top row shows the publication time, next scheduled update and latest GitHub run status.
+
+- **Reload results** reloads the latest published dashboard. It does not start collection.
+- **Update data ↗** opens this repository’s workflow directly. While signed into GitHub with repository access, choose **Run workflow**, keep **main**, and confirm. Return to Courtside to see queued/running/completed status; results reload when completion is detected.
+- The status link opens the specific latest run for progress or errors. If GitHub’s public status API is unavailable/rate-limited, its normal workflow link remains available and automatic collection continues.
+
+GitHub Pages serves static files, so manual collection uses GitHub’s authenticated workflow control. The website does not store a GitHub token or expose a public dispatch endpoint. **Settings → Pages** is not needed for routine updates.
+
+## Automatic operations
 
 `.github/workflows/pages.yml` runs:
 
-- Daily at **11:17 UTC** (7:17 AM in New York during daylight saving, 6:17 AM during standard time).
+- Every six hours at **05:17, 11:17, 17:17 and 23:17 UTC**. The dashboard shows the next scheduled run in your local timezone. GitHub may delay scheduled runs.
 - On every push to main, or manually via **Actions → Daily model dashboard → Run workflow**.
 
 The job installs exact dependencies, runs tests, restores its public-data cache, downloads available results and schedules, reviews losses and prospective challengers, generates forecasts, and deploys ONLY the public `_site` bundle to GitHub Pages. Data/model counts and source status are written into the run summary. Historical backtest scores stay sealed and are never tuned repeatedly by the daily job. Champion weights are retained until the independent promotion gate passes. No sportsbook-derived features are ingested.

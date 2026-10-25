@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '17 11 * * *'
+    - cron: '17 5,11,17,23 * * *'
 permissions:
   contents: read
   pages: write
