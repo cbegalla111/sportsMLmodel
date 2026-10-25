@@ -181,3 +181,9 @@ The new model reduced probability errors slightly but made seven fewer correct w
 The optional source updater preserves cached observations on failure. Tests cover source identity and UTC dates, score arithmetic, earlier-date isolation, missing-data cohort retention, blend input parity/serialization, an explicit isolated research catalog, historical caching despite new current-season data, and displaying the retained model's target score after a failed experiment.
 
 All **146 tests passed** locally and the GitHub deployment completed successfully. Desktop/mobile checks verified the retained score, failed experiment, 70% target, 22-pick gap, complete 18-model catalog and no overflow or JavaScript errors. The live source matched 6,114 games. Both locked trials, production champion and all 14 previously settled picks were verified unchanged; deployed HTML/JavaScript/CSS matched the source. The committed snapshot was refreshed from this verified public deployment.
+
+## Streamlined update controls
+
+The public collection schedule is now every six hours (05:17, 11:17, 17:17, 23:17 UTC). Snapshot metadata and the workflow cron are checked together. Eleven public-export tests passed. Desktop/mobile browser checks covered local-time/DST scheduling, direct manual-run navigation, queued/running/success status, one-time automatic reload after completion, a public-API failure fallback, date/sport preservation and no viewport overflow or JavaScript errors. Manual collection still uses GitHub’s authenticated Run workflow control; the public page reads status only.
+
+The full GitHub check and deployment passed. Live HTML/JavaScript/CSS matched the source, the public snapshot advertised the four six-hour UTC slots, and the unauthenticated GitHub status API returned a successful run with the required public CORS header. The checked-in fallback snapshot was refreshed from the verified deployment.
