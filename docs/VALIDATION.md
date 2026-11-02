@@ -211,3 +211,9 @@ Every team forecast now carries injury context and a baseline probability label;
 Added a plain-language Why [team]? section using available fitted log-odds contributions and descriptive team context, plus expandable reported-player tables. A compact correct/incorrect/pending/observed-accuracy panel links to Right / wrong. Seven-calendar-day history includes today, while retaining actual first-published picks and separate policy records.
 
 Validation: full suite passed 157 tests (135.74 seconds) before adding the final chronological-research and injury/export integration cases. The final focused suite passed all 24 injury/public-export/prop tests, including the missing-start guard; seven Node finder tests passed. Browser checks at 1440px/390px verified real injury tables, actual factor explanations, injury-filtered candidates, no overflow/exceptions, and today's correct/incorrect/pending/50% denominator with browser-only synthetic fixtures (never published). Retention is bounded to 180 days for raw injury archives; frozen research observations are retained separately.
+
+### Hourly automation
+
+Changed Pages collection/publication to cron `17 * * * *` and renamed the workflow Hourly model dashboard. Exported UTC slots now contain all 24 hours, with the same :17 minute; dashboard next-run calculation, workflow controls, runtime step summary and current operating docs agree. Existing public model outputs were synchronized from the verified deployment before changing schedule metadata. Model selection, sealed tests, injury guards and loss-triggered promotion policies remain unchanged.
+
+Validation: 12 public-export tests and seven finder tests passed. Schedule checks covered before/exactly-at :17 and midnight rollover. A browser check confirmed the displayed next update is within one hour with no JavaScript errors. GitHub scheduled runs can be delayed; browser snapshot polling remains every minute.

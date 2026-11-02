@@ -1,10 +1,10 @@
-name: Daily model dashboard
+name: Hourly model dashboard
 on:
   push:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '17 5,11,17,23 * * *'
+    - cron: '17 * * * *'
 permissions:
   contents: read
   pages: write

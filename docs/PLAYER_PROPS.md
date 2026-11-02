@@ -2,7 +2,7 @@
 
 Open **Player props** on the public dashboard. Choose NBA, WNBA, MLB, NFL or NHL, search a player, choose a statistic, enter the exact line offered by your platform, and select Over or Under. The comparison table finds players with consistent results at that same custom threshold. Save candidates to the browser-local shortlist; remove them individually.
 
-This release collects real, completed ESPN public box scores automatically during the existing six-hour Pages job. It does **not** collect live bookmaker player lines or prices, place bets, or estimate a parlay win probability. Custom lines are clearly labeled. Live player markets would require a separate licensed feed and server-side credentials; no secret belongs in Pages JavaScript. The Odds API documents player markets, but its documentation is not a source of free live quotes.
+This release collects real, completed ESPN public box scores automatically during the existing hourly Pages job. It does **not** collect live bookmaker player lines or prices, place bets, or estimate a parlay win probability. Custom lines are clearly labeled. Live player markets would require a separate licensed feed and server-side credentials; no secret belongs in Pages JavaScript. The Odds API documents player markets, but its documentation is not a source of free live quotes.
 
 ## Interpreting the statistics
 

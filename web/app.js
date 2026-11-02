@@ -36,7 +36,7 @@ const WORKFLOW_URL='https://github.com/cbegalla111/sportsMLmodel/actions/workflo
 const WORKFLOW_API='https://api.github.com/repos/cbegalla111/sportsMLmodel/actions/workflows/pages.yml/runs?branch=main&per_page=1';
 let runStatusLoading=false,lastRun=null;
 function nextUpdate(now=new Date()){
- const schedule=snapshot?.refresh_schedule||{utc_hours:[11],minute:17};
+ const schedule=snapshot?.refresh_schedule||{utc_hours:Array.from({length:24},(_,i)=>i),minute:17};
  const slots=[0,1].flatMap(offset=>schedule.utc_hours.map(hour=>new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+offset,hour,schedule.minute))));
  return slots.filter(d=>d>now).sort((a,b)=>a-b)[0];
 }
@@ -92,7 +92,7 @@ function historyTable(picks,l){
 }
 function renderHistory(l){
  const picks=history(l).filter(p=>!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase()));
- $('history-content').innerHTML='<h3>Prediction record · '+esc(l.name)+'</h3><p class="muted">'+esc(dayLabel(shiftDay(localDay(),-6)))+' – '+esc(dayLabel(localDay()))+' · saved pre-game predictions and imported final results. Pending results settle with daily data updates.</p>'+historyTable(picks,l);
+ $('history-content').innerHTML='<h3>Prediction record · '+esc(l.name)+'</h3><p class="muted">'+esc(dayLabel(shiftDay(localDay(),-6)))+' – '+esc(dayLabel(localDay()))+' · saved pre-game predictions and imported final results. Pending results settle with hourly data updates.</p>'+historyTable(picks,l);
  $('day-history').hidden=dateFilter>=localDay();
  $('day-history').innerHTML='<h3>Saved predictions · '+esc(dayLabel(dateFilter))+'</h3>'+historyTable(picks.filter(p=>eventDay(p)===dateFilter),l);
 }

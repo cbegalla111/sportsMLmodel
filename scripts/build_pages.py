@@ -40,7 +40,7 @@ print('Built public dashboard:',[(s['name'],s['result_count'],len(s['predictions
 summary=os.environ.get('GITHUB_STEP_SUMMARY')
 if summary:
  with open(summary,'a') as f:
-  f.write('## Daily public data and model outputs\n\n| Sport | Results | Active forecasts at export | Feed |\n|---|---:|---:|---|\n')
+  f.write('## Hourly public data and model outputs\n\n| Sport | Results | Active forecasts at export | Feed |\n|---|---:|---:|---|\n')
   for item in snapshot['leagues']:
    f.write(f"| {item['name']} | {item['result_count']} | {len(item['predictions'])} | {item['feed_status']} |\n")
   f.write('\nHistorical test scores remain sealed. Losses trigger prospective challenger review; weights change only if every improvement check passes. Missing/stale inputs withhold forecasts.\n')

@@ -2,7 +2,7 @@
 
 ## What affects the dashboard now
 
-The six-hour public update collects ESPN injury listings for NBA, WNBA, NFL, MLB, NHL and CFB. Each report carries its source timestamp, observed timestamp, player identity, reported status, position, team and source URL. Source timestamps must be within eight hours; malformed/future records and entries older than 180 days are rejected. Missing names never imply a healthy or starting player. Reported team mismatches are flagged rather than reassigned silently.
+The hourly public update collects ESPN injury listings for NBA, WNBA, NFL, MLB, NHL and CFB. Each report carries its source timestamp, observed timestamp, player identity, reported status, position, team and source URL. Source timestamps must be within eight hours; malformed/future records and entries older than 180 days are rejected. Missing names never imply a healthy or starting player. Reported team mismatches are flagged rather than reassigned silently.
 
 Prop Finder requires a fresh valid injury feed. Reported out/injured-reserve/injured-list/inactive/suspended players are excluded. Doubtful, day-to-day, questionable, probable and unknown statuses are treated as uncertain and excluded too. A listed Active player or a player absent from the injury list can qualify statistically, but is not a confirmed starter; role, minutes and active roster still require checking. An absent injury name is not proof of availability. Historical custom-line research remains viewable with an availability notice.
 

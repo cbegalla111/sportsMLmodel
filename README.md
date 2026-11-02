@@ -8,7 +8,7 @@ A detailed statistics-only sports dashboard, with a separate password-protected 
 
 Seven sport views: **NBA, NFL, NHL, CFB, WNBA, MLB, UFC**. Each has Forecasts, Model Lab, and Data & Sources sections. Browse ranked source-backed matchups, conditional win probabilities, model factors, calibration plots, chronological comparisons, season scores, team statistics, recent results, freshness and missing inputs.
 
-**Every six hours (05:17, 11:17, 17:17 and 23:17 UTC)**, GitHub Actions refreshes public history/schedules, reviews losses and locked challengers, exports current forecasts, and publishes the static dashboard. Main-branch pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Daily update and privacy details](docs/PAGES.md).
+**Every hour at 17 minutes past the hour**, GitHub Actions refreshes public history/schedules, reviews losses and locked challengers, exports current forecasts, and publishes the static dashboard. Main-branch pushes and manual workflow runs also rebuild it. Historical test scores remain sealed. Forecasts expire at verified event start or the conservative date-only cutoff, and are hidden when updates become overdue. [Hourly update and privacy details](docs/PAGES.md).
 
 | League | Historical decisive results | Held-out n | Selected specification | Log loss | Brier |
 |---|---:|---:|---|---:|---:|
@@ -36,7 +36,7 @@ The shell scripts resolve the checkout location and honor SPORTSLAB_HOME/SPORTSL
 
 For an editable private development environment, [open GitHub Codespaces](https://codespaces.new/cbegalla111/sportsMLmodel?quickstart=1). [Preview instructions](docs/PREVIEW.md) cover private forwarding, sign-in and browser refresh. The public website above requires no Codespaces session.
 
-- [Public Pages dashboard and daily updates](docs/PAGES.md)
+- [Public Pages dashboard and hourly updates](docs/PAGES.md)
 - [Setup, refresh, backup, recovery and private hosting](docs/OPERATIONS.md)
 - [Data schema and outcome rules](docs/DATA_SCHEMA.md)
 - [Methods, primary sources and limitations](docs/METHODS.md)
@@ -56,7 +56,7 @@ The October 22 [quality review](docs/MODEL_REVIEW.md) tests 40 team-sport / 32 U
 
 ## Player-prop research
 
-The public dashboard’s **Player props** tab supports NBA/WNBA, MLB, NFL and NHL game-log research, custom thresholds, last-5/10/20 hit rates, observed streaks and a browser-local parlay shortlist. Collection runs with the six-hour data job. These are descriptive statistics, not live bookmaker quotes or validated prop forecasts. [How to use it and interpret coverage](docs/PLAYER_PROPS.md).
+The public dashboard’s **Player props** tab supports NBA/WNBA, MLB, NFL and NHL game-log research, custom thresholds, last-5/10/20 hit rates, observed streaks and a browser-local parlay shortlist. Collection runs with the hourly data job. These are descriptive statistics, not live bookmaker quotes or validated prop forecasts. [How to use it and interpret coverage](docs/PLAYER_PROPS.md).
 
 **[Open automatic Prop Finder](https://cbegalla111.github.io/sportsMLmodel/?view=finder)** to select a game and request any number of available candidates. It automatically screens both teams’ player logs and fixed alternate thresholds, with selectable consistency/sample requirements and Show all. Estimates are exploratory historical consistency scores, not validated next-game probabilities or live bookmaker offers.
 

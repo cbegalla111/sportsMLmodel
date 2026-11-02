@@ -23,7 +23,7 @@ The public-only lifecycle ledger is retained in the daily workflow cache. Predic
 
 ## Refreshing data
 
-Normally, just open Courtside: collection runs automatically every six hours, and the page checks for newly published results every minute. The top row shows the publication time, next scheduled update and latest GitHub run status.
+Normally, just open Courtside: collection runs automatically every hour, and the page checks for newly published results every minute. The top row shows the publication time, next scheduled update and latest GitHub run status.
 
 - **Reload results** reloads the latest published dashboard. It does not start collection.
 - **Update data ↗** opens this repository’s workflow directly. While signed into GitHub with repository access, choose **Run workflow**, keep **main**, and confirm. Return to Courtside to see queued/running/completed status; results reload when completion is detected.
@@ -35,8 +35,8 @@ GitHub Pages serves static files, so manual collection uses GitHub’s authentic
 
 `.github/workflows/pages.yml` runs:
 
-- Every six hours at **05:17, 11:17, 17:17 and 23:17 UTC**. The dashboard shows the next scheduled run in your local timezone. GitHub may delay scheduled runs.
-- On every push to main, or manually via **Actions → Daily model dashboard → Run workflow**.
+- Every hour at **17 minutes past the hour**. The dashboard shows the next scheduled run in your local timezone. GitHub may delay scheduled runs.
+- On every push to main, or manually via **Actions → Hourly model dashboard → Run workflow**.
 
 The job installs exact dependencies, runs tests, restores its public-data cache, downloads available results and schedules, reviews losses and prospective challengers, generates forecasts, and deploys ONLY the public `_site` bundle to GitHub Pages. Data/model counts and source status are written into the run summary. Historical backtest scores stay sealed and are never tuned repeatedly by the daily job. Champion weights are retained until the independent promotion gate passes. No sportsbook-derived features are ingested.
 
@@ -63,7 +63,7 @@ python -m scripts.build_pages --runtime /workspace/.sportsml-private --output _s
 python -m scripts.build_pages --runtime .pages-runtime --output _site --refresh
 ```
 
-The existing repository uses main/root Pages publishing. The custom GitHub Actions deployment was verified successfully with those existing settings; no settings change is required to use the daily job. Selecting **Settings → Pages → Build and deployment → Source: GitHub Actions** is an optional owner action to avoid redundant legacy builds. This integration cannot change that administrative setting. Every main-branch push also runs the custom publisher so a legacy build cannot remain the final outdated snapshot after a successful refresh. The scheduled custom workflow is the supported path for daily updates; it deploys generated data without committing data changes with a personal token. No API keys or paid data service is required for the currently verified public feeds. GitHub's runner supplies its own scoped deployment token.
+The existing repository uses main/root Pages publishing. The custom GitHub Actions deployment was verified successfully with those existing settings; no settings change is required to use the hourly job. Selecting **Settings → Pages → Build and deployment → Source: GitHub Actions** is an optional owner action to avoid redundant legacy builds. This integration cannot change that administrative setting. Every main-branch push also runs the custom publisher so a legacy build cannot remain the final outdated snapshot after a successful refresh. The scheduled custom workflow is the supported path for hourly updates; it deploys generated data without committing data changes with a personal token. No API keys or paid data service is required for the currently verified public feeds. GitHub's runner supplies its own scoped deployment token.
 
 Source code and the first public snapshot are committed. Daily later snapshots are built/deployed by Actions and need not produce source commits. The private runtime and personal ledger need separate backups; neither a public Pages deployment nor an Actions data cache backs those up.
 
