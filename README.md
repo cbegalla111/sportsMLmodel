@@ -57,3 +57,5 @@ The October 22 [quality review](docs/MODEL_REVIEW.md) tests 40 team-sport / 32 U
 ## Player-prop research
 
 The public dashboard’s **Player props** tab supports NBA/WNBA, MLB, NFL and NHL game-log research, custom thresholds, last-5/10/20 hit rates, observed streaks and a browser-local parlay shortlist. Collection runs with the six-hour data job. These are descriptive statistics, not live bookmaker quotes or validated prop forecasts. [How to use it and interpret coverage](docs/PLAYER_PROPS.md).
+
+**[Open automatic Prop Finder](https://cbegalla111.github.io/sportsMLmodel/?view=finder)** to select a game and request any number of available candidates. It automatically screens both teams’ player logs and fixed alternate thresholds, with selectable consistency/sample requirements and Show all. Estimates are exploratory historical consistency scores, not validated next-game probabilities or live bookmaker offers.

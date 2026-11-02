@@ -15,3 +15,6 @@ jobs:
           OMP_NUM_THREADS: '1'
           OPENBLAS_NUM_THREADS: '1'
       - run: node --check static/app.js
+      - run: node --check web/app.js
+      - run: node --check web/prop-finder.js
+      - run: node --test tests/prop-finder.test.cjs

@@ -28,6 +28,8 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python -m pytest -q
       - run: node --check web/app.js
+      - run: node --check web/prop-finder.js
+      - run: node --test tests/prop-finder.test.cjs
       - uses: actions/configure-pages@v5
       - name: Restore public-source history
         uses: actions/cache/restore@v4

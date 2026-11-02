@@ -181,7 +181,7 @@ def export_snapshot(source_root,artifacts,asof=None):
 def write_site(snapshot,destination,project):
  destination=Path(destination);project=Path(project)
  if destination.exists() and destination.resolve()!=project.resolve():
-  allowed={'index.html','.nojekyll','web','web/app.js','web/style.css','web/icon.svg','web/data','web/data/snapshot.json'}
+  allowed={'index.html','.nojekyll','web','web/app.js','web/prop-finder.js','web/style.css','web/icon.svg','web/data','web/data/snapshot.json'}
   for existing in destination.rglob('*'):
    if existing.is_symlink() or str(existing.relative_to(destination)) not in allowed:
     raise ValueError('Output contains unexpected files; use a clean public build directory')
@@ -189,7 +189,7 @@ def write_site(snapshot,destination,project):
  if destination.resolve()!=project.resolve():
   shutil.copy2(project/'index.html',destination/'index.html')
   assets=destination/'web';assets.mkdir(exist_ok=True)
-  for name in ('app.js','style.css','icon.svg'):shutil.copy2(project/'web'/name,assets/name)
+  for name in ('app.js','prop-finder.js','style.css','icon.svg'):shutil.copy2(project/'web'/name,assets/name)
  (destination/'.nojekyll').write_text('')
  data=destination/'web'/'data';data.mkdir(parents=True,exist_ok=True)
  (data/'snapshot.json').write_text(json.dumps(snapshot,allow_nan=False,separators=(',',':'))+'\n')

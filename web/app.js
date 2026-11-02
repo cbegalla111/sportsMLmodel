@@ -18,7 +18,7 @@ const SPORT_INFO={
 const localDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const shiftDay=(day,n)=>{const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);return localDay(d);};
 const dayLabel=day=>new Date(day+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
-let snapshot=null,league='NFL',view='forecasts',selected=null,dateFilter=localDay(),teamFilter='',allSports=false,followToday=true;
+let snapshot=null,league='NFL',view=new URLSearchParams(location.search).get('view')==='finder'?'finder':'forecasts',selected=null,dateFilter=localDay(),teamFilter='',allSports=false,followToday=true;
 try{league=localStorage.getItem('courtside_public_league')||'NFL';}catch(_){}
 const expired=p=>Date.now()>=Date.parse(p.valid_until)||Date.now()>=Date.parse(snapshot.valid_until);
 const active=l=>(l.predictions||[]).filter(p=>!expired(p));
@@ -70,7 +70,7 @@ function render(){
  $('freshness-alert').textContent=overdue?'Update overdue. Current probabilities are withheld until a successful refresh publishes a new snapshot. Historical results remain available.':l.limitation;$('freshness-alert').className='status-banner'+(!forecasts.length||overdue?' warn':'');
  $('result-count').textContent=l.result_count.toLocaleString();$('coverage').textContent=l.data_from?`${l.data_from} → ${l.data_through}`:'No verified public history loaded';
  $('forecast-count').textContent=forecasts.length;$('brier').textContent=report?percent(report.test.accuracy):'—';$('test-sample').textContent=report?`${report.test.n.toLocaleString()} held-out events · historical`:'No evaluation available';$('data-through').textContent=l.data_through||'No data';$('feed-note').textContent=l.feed_checked?`Feed ${freshFeed(l)?'updated':'update pending'} · ${time(l.feed_checked)}`:'No verified current feed';
- for(const name of ['forecasts','history','models','data','props'])$('view-'+name).hidden=view!==name;
+ for(const name of ['forecasts','history','models','data','props','finder'])$('view-'+name).hidden=view!==name;
  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('selected',b.dataset.view===view));
  $('outcome-rules').textContent=snapshot.rules;$('date-filter').value=dateFilter;
  const filtered=forecasts.filter(p=>(!dateFilter||eventDay(p)===dateFilter)&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase())));
@@ -82,7 +82,7 @@ function render(){
  const withheld=[...(l.withheld||[]),...(l.predictions||[]).filter(expired).map(p=>({...p,reason:'Forecast expired; current probability withheld.'}))].filter(p=>{const fixture=(l.schedule||[]).find(f=>f.home===p.home&&f.away===p.away&&f.date===p.date);return eventDay(fixture||p)===dateFilter&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase()));});
  $('withheld-details').hidden=!withheld.length;$('withheld-summary').textContent=withheld.length+' fixtures with forecasts withheld — see reasons';$('withheld-list').innerHTML=table(['Date','Matchup','Reason'],withheld.map(w=>[w.date,w.home+' / '+w.away,w.reason]));
  document.querySelector('.forecast-grid').hidden=dateFilter<localDay();
- renderHistory(l);if(view==='props')renderProps();if(view==='models')renderModels(l);if(view==='data')renderData(l);renderStatus(l);
+ renderHistory(l);if(view==='finder')renderFinder();if(view==='props')renderProps();if(view==='models')renderModels(l);if(view==='data')renderData(l);renderStatus(l);
 }
 function historyTable(picks,l){
  if(!picks.length)return empty('No saved pre-game predictions for this period','History builds from predictions actually published before a game. Earlier games are not assigned predictions after their results are known.');
@@ -191,5 +191,33 @@ function renderPropShortlist(){
 }
 for(const id of ['prop-sport','prop-player','prop-market','prop-side'])$(id).onchange=()=>{if(id==='prop-sport')$('prop-player').innerHTML='';renderProps();};
 for(const id of ['prop-search','prop-line'])$(id).oninput=renderProps;
-$('prop-add').onclick=()=>{const sport=$('prop-sport').value,player=snapshot.player_props?.leagues?.[sport]?.players.find(p=>p.id===$('prop-player').value);if(!player)return;const item={sport,player:player.name,player_id:player.id,market:$('prop-market').value,line:Number($('prop-line').value),side:$('prop-side').value,saved:new Date().toISOString()};if(!Number.isFinite(item.line)||item.line<0||!$('prop-line').value)return;if(!propSaved.some(p=>p.sport===sport&&p.player_id===item.player_id&&p.market===item.market&&p.line===item.line&&p.side===item.side))propSaved.push(item);propSaved=propSaved.slice(-20);try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderPropShortlist();};
+$('prop-add').onclick=()=>{const sport=$('prop-sport').value,player=snapshot.player_props?.leagues?.[sport]?.players.find(p=>p.id===$('prop-player').value);if(!player)return;const item={sport,player:player.name,player_id:player.id,market:$('prop-market').value,line:Number($('prop-line').value),side:$('prop-side').value,saved:new Date().toISOString()};if(!Number.isFinite(item.line)||item.line<0||!$('prop-line').value)return;if(!propSaved.some(p=>p.sport===sport&&p.player_id===item.player_id&&p.market===item.market&&p.line===item.line&&p.side===item.side))propSaved.push(item);try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderPropShortlist();};
 $('prop-shortlist').onclick=e=>{const b=e.target.closest('[data-remove-prop]');if(!b)return;propSaved.splice(Number(b.dataset.removeProp),1);try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderPropShortlist();};
+
+let finderCandidates=[];
+function renderFinder(){
+ const sport=$('finder-sport').value,l=snapshot.leagues.find(s=>s.name===sport),data=snapshot.player_props?.leagues?.[sport],previous=$('finder-game').value;
+ const games=l&&freshFeed(l)?(l.schedule||[]).filter(f=>eventDay(f)===dateFilter&&Date.parse(f.start_time)>Date.now()):[];
+ $('finder-game').innerHTML=games.map(f=>`<option value="${esc(f.id)}">${esc(f.away)} at ${esc(f.home)} · ${esc(time(f.start_time))}</option>`).join('');
+ if(games.some(g=>g.id===previous))$('finder-game').value=previous;
+ const before=$('finder-market').value,markets=[...new Set((data?.players||[]).flatMap(p=>p.games.flatMap(g=>Object.keys(g.values))))].filter(m=>PROP_LINES[m]).sort();
+ $('finder-market').innerHTML='<option value="all">All statistics</option>'+markets.map(m=>`<option>${esc(m)}</option>`).join('');if(markets.includes(before))$('finder-market').value=before;
+ const fixture=games.find(g=>g.id===$('finder-game').value);
+ const shortlist=()=>{$('finder-shortlist').innerHTML=propSaved.length?propSaved.map((p,i)=>`<div class="prop-saved"><span>${esc(p.sport)} · ${esc(p.player)} · ${esc(p.side)} ${esc(p.line)} ${esc(p.market)}</span><button type="button" data-finder-remove="${i}">Remove</button></div>`).join(''):empty('No saved suggestions','Save candidates from the list above.');};
+ if(!fixture){finderCandidates=[];$('finder-summary').textContent='No verified upcoming '+sport+' game on '+dayLabel(dateFilter)+'. Choose another date above or another sport.';$('finder-results').innerHTML='';shortlist();return;}
+ const age=Date.now()-Date.parse(data?.checked),sourceFresh=age>=0&&age<=86400000;
+ if(!sourceFresh){finderCandidates=[];$('finder-summary').textContent='Player data needs a fresh collection before suggestions can be generated. Use Update data above.';$('finder-results').innerHTML='';shortlist();return;}
+ const requested=$('finder-count').value.trim(),count=Number(requested);
+ if(requested!=='all'&&(!Number.isSafeInteger(count)||count<1)){$('finder-summary').textContent='Enter a positive whole number, or choose Show all available.';$('finder-results').innerHTML='';shortlist();return;}
+ finderCandidates=findPlayerProps(data.players,fixture,{minimum:Number($('finder-min').value),minGames:Number($('finder-sample').value),side:$('finder-side').value,market:$('finder-market').value});
+ const shown=requested==='all'?finderCandidates:finderCandidates.slice(0,count);
+ $('finder-summary').textContent=`${shown.length} shown · ${finderCandidates.length} qualifying candidates for ${fixture.away} at ${fixture.home}. ${requested!=='all'&&count>finderCandidates.length?'Fewer candidates qualify than requested. ':''}Collection checked ${time(data.checked)}. ${data.error||''}`;
+ $('finder-results').innerHTML=shown.length?'<p class="muted">Automatically suggested alternate lines · verify availability and active players. Estimates below describe historical consistency, not a validated chance of winning this game.</p><div class="finder-cards">'+shown.map((p,i)=>`<article class="panel finder-card"><div class="card-foot"><span>#${i+1} · ${esc(p.team)}</span><strong>${percent(p.score)} consistency estimate</strong></div><h4>${esc(p.player)}</h4><p class="finder-pick">${esc(pretty(p.side))} ${p.line} ${esc(p.market)}</p><p>${p.hits}/${p.n} collected hits · last 5: ${p.recentHits}/${p.recentN} · streak: ${p.streak}</p><p class="muted">Evidence lower bound: ${percent(p.lower)} · ${p.n<10?'Small sample · ':''}latest appearance ${esc(time(p.latest))}</p><button type="button" data-finder-save="${finderCandidates.indexOf(p)}">Save suggestion</button><details><summary>Inspect supporting results</summary>${table(['Game time','Value','Result'],p.observations.map(g=>[time(g.start_time),g.values[p.market],(p.side==='over'?g.values[p.market]>p.line:g.values[p.market]<p.line)?'Hit':'Miss']))}<a href="${esc(p.observations[0].source)}" target="_blank" rel="noopener">Latest source box score ↗</a></details></article>`).join('')+'</div>':empty('No candidates meet these settings','Try a lower minimum estimate, fewer required observations, Both sides, or another game. No extra suggestions are invented to reach the requested count.');
+ shortlist();
+}
+for(const id of ['finder-sport','finder-game','finder-min','finder-sample','finder-side','finder-market'])$(id).onchange=renderFinder;
+$('finder-count').oninput=renderFinder;$('finder-run').onclick=renderFinder;
+$('finder-all').onclick=()=>{$('finder-count').type='text';$('finder-count').value='all';renderFinder();};
+$('finder-count').onfocus=()=>{if($('finder-count').value==='all'){$('finder-count').type='number';$('finder-count').value='10';}};
+$('finder-results').onclick=e=>{const button=e.target.closest('[data-finder-save]');if(!button)return;const p=finderCandidates[Number(button.dataset.finderSave)];if(!p)return;const sport=$('finder-sport').value;if(!propSaved.some(s=>s.sport===sport&&s.player_id===p.player_id&&s.market===p.market&&s.side===p.side&&s.line===p.line))propSaved.push({sport,player:p.player,player_id:p.player_id,market:p.market,line:p.line,side:p.side,event_id:p.event_id,saved:new Date().toISOString()});try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderFinder();};
+$('finder-shortlist').onclick=e=>{const b=e.target.closest('[data-finder-remove]');if(!b)return;propSaved.splice(Number(b.dataset.finderRemove),1);try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderFinder();};
