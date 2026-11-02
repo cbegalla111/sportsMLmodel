@@ -70,8 +70,10 @@ def export_snapshot(source_root,artifacts,asof=None):
  asof=asof or datetime.now(timezone.utc)
  if asof.tzinfo is None:raise ValueError('Export time must be timezone-aware')
  asof=asof.astimezone(timezone.utc);today=asof.date();artifacts=Path(artifacts)
+ from .injuries import load_public as load_injuries, record_research
+ injuries=load_injuries(source_root)
  source=sqlite3.connect('file:'+quote(str((Path(source_root)/'lab.sqlite3').resolve()))+'?mode=ro',uri=True)
- snapshot={'schema_version':1,'generated_at':asof.isoformat(),'valid_until':(asof+timedelta(hours=24)).isoformat(),'rules':RULES,'mode':'public read-only model outputs','update_schedule':'Every six hours at 05:17, 11:17, 17:17 and 23:17 UTC via GitHub Actions; runs can be delayed.','refresh_schedule':{'utc_hours':[5,11,17,23],'minute':17},'leagues':[],'notes':['Original final tests stay sealed. Champion weights change only after a loss-triggered prospective improvement check.','Injuries, starters, pitchers, goalies, weather and lineups are unconfirmed.','Scores and rolling result history only. No sportsbook-derived model features.','Forecasts expire at a source-verified event start time, or at the start of the event date when only a date is available.']}
+ snapshot={'schema_version':1,'generated_at':asof.isoformat(),'valid_until':(asof+timedelta(hours=24)).isoformat(),'rules':RULES,'mode':'public read-only model outputs','update_schedule':'Every six hours at 05:17, 11:17, 17:17 and 23:17 UTC via GitHub Actions; runs can be delayed.','refresh_schedule':{'utc_hours':[5,11,17,23],'minute':17},'injuries':injuries,'leagues':[],'notes':['Original final tests stay sealed. Champion weights change only after a loss-triggered prospective improvement check.','Reported injuries are shown separately; starters, pitchers, goalies, weather and lineups remain unconfirmed. Numerical injury effects await prospective validation.','Scores and rolling result history only. No sportsbook-derived model features.','Forecasts expire at a source-verified event start time, or at the start of the event date when only a date is available.']}
  with tempfile.TemporaryDirectory(prefix='sportsml-public-') as temporary:
   isolated=connect(temporary)
   for league in LEAGUES:
@@ -82,7 +84,7 @@ def export_snapshot(source_root,artifacts,asof=None):
    feed_fresh=False
    try:feed_fresh=feed.get('status')=='ok' and timedelta(0)<=asof-parse_time(feed['checked'])<=timedelta(hours=24)
    except (KeyError,TypeError,ValueError):pass
-   item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'Initial model validation pending.','candidate_features':FEATURES[league],'teams':[]}
+   item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'Initial model validation pending.','candidate_features':FEATURES[league],'teams':[],'injuries':injuries['leagues'].get(league,{'status':'unavailable','teams':{}})}
    reports=[p for p in sorted(artifacts.glob(league+'-*.json')) if not p.name.endswith('-heldout.json')]
    from collections import defaultdict
    teams=defaultdict(list)
@@ -135,6 +137,7 @@ def export_snapshot(source_root,artifacts,asof=None):
       elif (today-date.fromisoformat(rows[-1]['date'])).days>30:item['limitation']='Results are over 30 days old; current forecasts withheld.'
       else:
        context=prediction_context(isolated,temporary,league,allow_updated_history=True)
+       context['injury_report']=item['injuries'];context['asof']=asof
        inputs=fixture_inputs(context['rows'],feed.get('upcoming',[]),champion['window'],champion['extra'],champion.get('variant','baseline'))
        seen=set()
        for fixture in feed.get('upcoming',[]):
@@ -156,7 +159,7 @@ def export_snapshot(source_root,artifacts,asof=None):
          if not fixture.get('confirmed_source') or urlparse(url).hostname not in {urlparse(FEEDS[league]['url']).hostname,*(['site.api.espn.com'] if league in ESPN_PATHS else []),*(['raw.githubusercontent.com'] if league in ('NBA','CFB') else [])}:
           item['withheld'].append(dict(safe,reason='Fixture source could not be verified.'));continue
          result=estimate(isolated,temporary,league,fixture['home'],fixture['away'],fixture['date'],allow_updated_history=True,neutral=fixture.get('neutral')=='1',prepared_inputs=inputs,context=context)
-         result.update(id=str(fixture.get('id','-'.join(identity))),mode='limited pre-event model forecast',generated_at=asof.isoformat(),valid_until=min(parse_time(feed['checked'])+timedelta(hours=24),event_start or datetime.combine(scheduled,datetime.min.time(),timezone.utc),asof+timedelta(hours=24)).isoformat(),event_start_utc=event_start.isoformat() if event_start else None,schedule_source=url,schedule_checked=feed['checked'],availability='Schedule date from public source; injuries, starters, pitchers, goalies and lineups unconfirmed.')
+         result.update(id=str(fixture.get('id','-'.join(identity))),mode='limited pre-event model forecast',generated_at=asof.isoformat(),valid_until=min(parse_time(feed['checked'])+timedelta(hours=24),event_start or datetime.combine(scheduled,datetime.min.time(),timezone.utc),asof+timedelta(hours=24)).isoformat(),event_start_utc=event_start.isoformat() if event_start else None,schedule_source=url,schedule_checked=feed['checked'],availability='Schedule verified. Reported injuries are shown separately; the numerical result-history baseline is not injury-adjusted. Starters and lineups remain unconfirmed.')
          item['predictions'].append(result)
         except (ValueError,KeyError,TypeError) as e:
          item['withheld'].append(dict(safe,reason=str(e)))
@@ -169,6 +172,7 @@ def export_snapshot(source_root,artifacts,asof=None):
     item['lifecycle']['live_record']=record(lifecycle_root,item['predictions'])
     item['lifecycle']['feedback_policy']=REST_POLICY_VERSION if (lifecycle_root/'state.json').exists() and REST_POLICY_VERSION in json.loads((lifecycle_root/'state.json').read_text()).get('policy_ledgers',{}) else 'legacy'
    item['prediction_history']=prediction_history(lifecycle_root,rows,asof)
+   item['injury_research']=record_research(source_root,league,item['predictions'],rows,asof) if league in injuries['leagues'] else {'status':'injury source not configured','production_adjustment':False}
    snapshot['leagues'].append(item)
   # Estimating public forecasts must never write to either prediction ledger.
   assert isolated.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]==0

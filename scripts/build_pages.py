@@ -30,6 +30,9 @@ if args.refresh:
 if args.refresh:
  from sportslab.props import refresh as refresh_props
  print('Player prop game logs:',refresh_props(root),flush=True)
+if args.refresh:
+ from sportslab.injuries import refresh as refresh_injuries
+ print('Player injury reports:',refresh_injuries(root),flush=True)
 snapshot=export_snapshot(root,Path('artifacts'))
 write_site(snapshot,Path(args.output),Path.cwd())
 print('Built public dashboard:',[(s['name'],s['result_count'],len(s['predictions'])) for s in snapshot['leagues']],flush=True)

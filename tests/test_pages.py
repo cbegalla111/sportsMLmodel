@@ -163,3 +163,18 @@ def test_history_preserves_original_and_corrected_pre_event_picks(tmp_path):
  history=prediction_history(tmp_path,results,datetime(2026,10,22,tzinfo=timezone.utc))
  assert len(history)==2
  assert {p['prediction_policy']:p['correct'] for p in history}=={'legacy rest policy':True,VERSION:False}
+
+def test_injury_context_is_public_and_does_not_invent_probability_penalties(public_source):
+ from sportslab.injuries import parse
+ root,artifacts,db,feed,asof=public_source
+ baseline=export_snapshot(root,artifacts,asof)
+ previous=next(l for l in baseline['leagues'] if l['name']=='NFL')['predictions'][0]['home_probability']
+ payload={'timestamp':asof.isoformat(),'injuries':[{'displayName':'Synthetic A','injuries':[{'status':'Out','date':asof.isoformat(),'athlete':{'id':'test-player','displayName':'Test player','position':{'abbreviation':'QB'}}}]}]}
+ report=parse(payload,'NFL',asof)
+ directory=root/'public-injuries';directory.mkdir(exist_ok=True);(directory/'snapshot.json').write_text(json.dumps({'version':'injury-context-v1','leagues':{'NFL':report}}))
+ snapshot=export_snapshot(root,artifacts,asof);league=next(l for l in snapshot['leagues'] if l['name']=='NFL');p=league['predictions'][0]
+ assert p['home_probability']==previous
+ assert p['injury_context']['status']=='review_required'
+ assert p['injury_context']['teams']['Synthetic A'][0]['status']=='Out'
+ assert p['injury_context']['model_adjusted'] is False
+ assert snapshot['injuries']['leagues']['NFL']['status']=='ok'
