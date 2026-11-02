@@ -40,7 +40,7 @@ def parse_box(payload,league,event):
      if raw is None:continue
      try:
       value=float(str(raw).split('-')[0]) if label=='Threes made' else float(raw)
-      if math.isfinite(value) and value>=0:values[label]=value
+      if math.isfinite(value) and (value>=0 or (league=='NFL' and label in ('Passing yards','Rushing yards','Receiving yards'))):values[label]=value
      except (ValueError,TypeError):continue
     if league in ('NBA','WNBA') and all(k in values for k in ('Points','Rebounds','Assists')):
      values['Points + rebounds + assists']=sum(values[k] for k in ('Points','Rebounds','Assists'))
@@ -53,7 +53,7 @@ def refresh(root,asof=None,fetcher=fetch,cap=160):
  asof=asof or datetime.now(timezone.utc);directory=Path(root)/'public-props';directory.mkdir(parents=True,exist_ok=True)
  result={'checked':asof.isoformat(),'kind':'Historical game-log research; custom lines only. No live sportsbook feed.','leagues':{}}
  for league,path in PATHS.items():
-  file=directory/(league+'.json')
+  file=directory/(league+('-v2' if league=='NFL' else '')+'.json')
   try:cache=json.loads(file.read_text()) if file.exists() else {}
   except (ValueError,OSError):cache={}
   error=None;pending=0

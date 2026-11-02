@@ -47,3 +47,7 @@ def test_refresh_reuses_verified_games_preserves_on_failure_and_excludes_future(
 def test_corrupt_optional_snapshot_does_not_break_team_dashboard(tmp_path):
  directory=tmp_path/'public-props';directory.mkdir();(directory/'snapshot.json').write_text('broken')
  assert load_public(tmp_path)['leagues']=={}
+
+def test_negative_football_yardage_is_a_valid_observation():
+ rows=parse_box(box(['rushingYards','receptions'],['-3','-1'],'rushing'),'NFL',EVENT)
+ assert rows[0]['values']=={'Rushing yards':-3}
