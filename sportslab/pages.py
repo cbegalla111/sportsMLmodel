@@ -174,6 +174,8 @@ def export_snapshot(source_root,artifacts,asof=None):
   assert isolated.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]==0
   isolated.close()
  source.close()
+ from .props import load_public
+ snapshot['player_props']=load_public(source_root)
  return snapshot
 
 def write_site(snapshot,destination,project):

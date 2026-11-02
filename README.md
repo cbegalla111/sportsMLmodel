@@ -53,3 +53,7 @@ Production weights are now guarded: a settled forecast loss triggers a locked ch
 [Latest seven-sport backtest review](docs/MODEL_REVIEW.md): 20 challengers per sport, shared chronological folds, richer prior-result features, recency weighting and unchanged independent promotion requirements. Full comparisons are displayed in Model Lab; development gains do not rewrite the archived final test.
 
 The October 22 [quality review](docs/MODEL_REVIEW.md) tests 40 team-sport / 32 UFC candidates, including chronological calibration, fixed Elo blends and scoring profiles. The UFC calibration candidate reduced development probability error at unchanged accuracy; team-sport selections were retained. Independent promotion requirements still apply.
+
+## Player-prop research
+
+The public dashboard’s **Player props** tab supports NBA/WNBA, MLB, NFL and NHL game-log research, custom thresholds, last-5/10/20 hit rates, observed streaks and a browser-local parlay shortlist. Collection runs with the six-hour data job. These are descriptive statistics, not live bookmaker quotes or validated prop forecasts. [How to use it and interpret coverage](docs/PLAYER_PROPS.md).

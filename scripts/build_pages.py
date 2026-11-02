@@ -27,6 +27,9 @@ if args.refresh:
  from sportslab.pages import public_rows
  with connect(root) as db:nba_rows=public_rows(db,'NBA')
  print('NBA box-score research source:',refresh_history(root,nba_rows),flush=True)
+if args.refresh:
+ from sportslab.props import refresh as refresh_props
+ print('Player prop game logs:',refresh_props(root),flush=True)
 snapshot=export_snapshot(root,Path('artifacts'))
 write_site(snapshot,Path(args.output),Path.cwd())
 print('Built public dashboard:',[(s['name'],s['result_count'],len(s['predictions'])) for s in snapshot['leagues']],flush=True)

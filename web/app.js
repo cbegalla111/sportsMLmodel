@@ -70,7 +70,7 @@ function render(){
  $('freshness-alert').textContent=overdue?'Update overdue. Current probabilities are withheld until a successful refresh publishes a new snapshot. Historical results remain available.':l.limitation;$('freshness-alert').className='status-banner'+(!forecasts.length||overdue?' warn':'');
  $('result-count').textContent=l.result_count.toLocaleString();$('coverage').textContent=l.data_from?`${l.data_from} → ${l.data_through}`:'No verified public history loaded';
  $('forecast-count').textContent=forecasts.length;$('brier').textContent=report?percent(report.test.accuracy):'—';$('test-sample').textContent=report?`${report.test.n.toLocaleString()} held-out events · historical`:'No evaluation available';$('data-through').textContent=l.data_through||'No data';$('feed-note').textContent=l.feed_checked?`Feed ${freshFeed(l)?'updated':'update pending'} · ${time(l.feed_checked)}`:'No verified current feed';
- for(const name of ['forecasts','history','models','data'])$('view-'+name).hidden=view!==name;
+ for(const name of ['forecasts','history','models','data','props'])$('view-'+name).hidden=view!==name;
  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('selected',b.dataset.view===view));
  $('outcome-rules').textContent=snapshot.rules;$('date-filter').value=dateFilter;
  const filtered=forecasts.filter(p=>(!dateFilter||eventDay(p)===dateFilter)&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase())));
@@ -82,7 +82,7 @@ function render(){
  const withheld=[...(l.withheld||[]),...(l.predictions||[]).filter(expired).map(p=>({...p,reason:'Forecast expired; current probability withheld.'}))].filter(p=>{const fixture=(l.schedule||[]).find(f=>f.home===p.home&&f.away===p.away&&f.date===p.date);return eventDay(fixture||p)===dateFilter&&(!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase()));});
  $('withheld-details').hidden=!withheld.length;$('withheld-summary').textContent=withheld.length+' fixtures with forecasts withheld — see reasons';$('withheld-list').innerHTML=table(['Date','Matchup','Reason'],withheld.map(w=>[w.date,w.home+' / '+w.away,w.reason]));
  document.querySelector('.forecast-grid').hidden=dateFilter<localDay();
- renderHistory(l);if(view==='models')renderModels(l);if(view==='data')renderData(l);renderStatus(l);
+ renderHistory(l);if(view==='props')renderProps();if(view==='models')renderModels(l);if(view==='data')renderData(l);renderStatus(l);
 }
 function historyTable(picks,l){
  if(!picks.length)return empty('No saved pre-game predictions for this period','History builds from predictions actually published before a game. Earlier games are not assigned predictions after their results are known.');
@@ -155,3 +155,41 @@ load();loadRunStatus();setInterval(()=>{if(snapshot&&!document.hidden)render();}
 
 setInterval(()=>{if(!document.hidden)loadRunStatus();},120000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();loadRunStatus();}});
+
+function propSummary(games,market,line,side){
+ const rows=games.filter(g=>Number.isFinite(g.values[market])).map(g=>({...g,value:g.values[market],grade:g.values[market]===line?'Push':((side==='over'?g.values[market]>line:g.values[market]<line)?'Hit':'Miss')}));
+ const stats=n=>{const recent=rows.slice(0,n),graded=recent.filter(g=>g.grade!=='Push'),hits=graded.filter(g=>g.grade==='Hit').length;return {n:recent.length,hits,graded:graded.length,pushes:recent.length-graded.length,rate:graded.length?hits/graded.length:null};};
+ const all=stats(20);let streak=0;for(const row of rows){if(row.grade!=='Hit')break;streak++;}
+ let interval=null;
+ if(all.graded){const n=all.graded,p=all.rate,z=1.96,den=1+z*z/n,center=(p+z*z/(2*n))/den,half=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/den;interval=[center-half,center+half];}
+ return {rows,stats,streak,interval};
+}
+let propSaved=[];
+try{propSaved=JSON.parse(localStorage.getItem('courtside_prop_shortlist')||'[]');if(!Array.isArray(propSaved))propSaved=[];}catch(_){}
+function renderProps(){
+ const sport=$('prop-sport').value,data=snapshot.player_props?.leagues?.[sport],query=$('prop-search').value.toLowerCase();
+ const players=(data?.players||[]).filter(p=>(p.name+' '+p.team).toLowerCase().includes(query)),previous=$('prop-player').value;
+ $('prop-player').innerHTML=players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${esc(p.team)}</option>`).join('');
+ if(players.some(p=>p.id===previous))$('prop-player').value=previous;
+ const player=players.find(p=>p.id===$('prop-player').value),marketBefore=$('prop-market').value;
+ const markets=[...new Set((player?.games||[]).flatMap(g=>Object.keys(g.values)))].sort();
+ $('prop-market').innerHTML=markets.map(m=>`<option>${esc(m)}</option>`).join('');if(markets.includes(marketBefore))$('prop-market').value=marketBefore;else{const preferred={NBA:'Points',WNBA:'Points',MLB:'Hits',NFL:'Passing yards',NHL:'Shots on goal'}[sport];if(markets.includes(preferred))$('prop-market').value=preferred;}
+ const market=$('prop-market').value,line=Number($('prop-line').value),side=$('prop-side').value;
+ $('prop-add').disabled=!player||!Number.isFinite(line)||line<0||!$('prop-line').value;
+ const checked=data?.checked?`Collection checked ${time(data.checked)} · ${data.games} games collected${data.pending_games?' · older games queued for later updates':''}. `:'';
+ const status=`<p class="muted">${esc(checked)}${esc(data?.error||'')} Collection is bounded and may not contain every appearance. Latest team comes from the latest observed game, not a verified current roster.</p>`;
+ if(!player){$('prop-results').innerHTML=status+empty('No matching player game logs','Try another sport or search. Offseason sports can have fewer recent observations.');renderPropShortlist();return;}
+ if(!Number.isFinite(line)||line<0||!$('prop-line').value){$('prop-results').innerHTML=status+empty('Enter a valid line','Use the exact threshold offered by your platform.');renderPropShortlist();return;}
+ const summary=propSummary(player.games,market,line,side),samples=[5,10,20].map(n=>{const v=summary.stats(n);return ['Last '+n,v.n,v.hits+' / '+v.graded,v.pushes,v.rate===null?'—':percent(v.rate)];});
+ const upcoming=(snapshot.leagues.find(l=>l.name===sport)?.schedule||[]).filter(f=>(f.home===player.team||f.away===player.team)&&eventDay(f)===dateFilter);
+ const context=upcoming.length?upcoming.map(f=>`${f.away} at ${f.home} · ${f.start_time?time(f.start_time):f.date}`).join('; '):'No collected fixture for the selected date and last observed team. This is historical research, not confirmation the player is playing.';
+ $('prop-results').innerHTML=status+`<p class="muted">Latest collected appearance: ${esc(time(player.games[0]?.start_time))}. Check the date before using offseason or older history.</p><h3>${esc(player.name)} · ${esc(side)} ${esc(line)} ${esc(market)}</h3><p>${esc(context)}</p><p><strong>${summary.streak} consecutive hits</strong> in the collected appearances, newest first. ${summary.interval?'Last-20 Wilson 95% interval: '+percent(summary.interval[0])+'–'+percent(summary.interval[1])+'.':''} This describes sampling uncertainty under a binomial assumption, not next-game confidence.</p>`+table(['Window','Observations','Hits / non-pushes','Pushes','Historical hit rate'],samples)+`<details><summary>Inspect collected game logs (${summary.rows.length})</summary>`+table(['Game time','Team','Value','Grade'],summary.rows.map(g=>[time(g.start_time),g.team,g.value,g.grade]))+`<p><a href="${esc(summary.rows[0]?.source||data.source)}" target="_blank" rel="noopener">Latest observed box score ↗</a></p></details><h4>Compare players at this same custom line</h4><p class="muted">Exploratory ranking, minimum 5 collected observations. Searching many thresholds can create misleading streaks; this ranking has no prospective validation.</p>`+table(['Player','Team','Last 10 hits / graded','Consecutive hits'],players.map(p=>({p,s:propSummary(p.games,market,line,side)})).filter(x=>x.s.stats(10).graded>=5).sort((a,b)=>(b.s.stats(10).rate-a.s.stats(10).rate)||b.s.streak-a.s.streak).slice(0,15).map(({p,s})=>[p.name,p.team,s.stats(10).hits+' / '+s.stats(10).graded,s.streak]));
+ renderPropShortlist();
+}
+function renderPropShortlist(){
+ $('prop-shortlist').innerHTML=propSaved.length?propSaved.map((p,i)=>`<div class="prop-saved"><span>${esc(p.sport)} · ${esc(p.player)} · ${esc(p.side)} ${esc(p.line)} ${esc(p.market)}<small>Saved ${esc(time(p.saved))} · custom line; recheck before use</small></span><button type="button" data-remove-prop="${i}" aria-label="Remove ${esc(p.player)}">Remove</button></div>`).join(''):empty('Shortlist is empty','Choose a player, statistic and custom line, then save it here.');
+}
+for(const id of ['prop-sport','prop-player','prop-market','prop-side'])$(id).onchange=()=>{if(id==='prop-sport')$('prop-player').innerHTML='';renderProps();};
+for(const id of ['prop-search','prop-line'])$(id).oninput=renderProps;
+$('prop-add').onclick=()=>{const sport=$('prop-sport').value,player=snapshot.player_props?.leagues?.[sport]?.players.find(p=>p.id===$('prop-player').value);if(!player)return;const item={sport,player:player.name,player_id:player.id,market:$('prop-market').value,line:Number($('prop-line').value),side:$('prop-side').value,saved:new Date().toISOString()};if(!Number.isFinite(item.line)||item.line<0||!$('prop-line').value)return;if(!propSaved.some(p=>p.sport===sport&&p.player_id===item.player_id&&p.market===item.market&&p.line===item.line&&p.side===item.side))propSaved.push(item);propSaved=propSaved.slice(-20);try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderPropShortlist();};
+$('prop-shortlist').onclick=e=>{const b=e.target.closest('[data-remove-prop]');if(!b)return;propSaved.splice(Number(b.dataset.removeProp),1);try{localStorage.setItem('courtside_prop_shortlist',JSON.stringify(propSaved));}catch(_){}renderPropShortlist();};
