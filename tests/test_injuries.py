@@ -65,3 +65,35 @@ def test_chronological_research_cannot_promote_weights():
  assert r['status']=='chronological research comparison only'
  assert r['baseline']['n']==60 and r['injury_challenger']['n']==60
  assert r['production_adjustment'] is False
+
+def test_nba_production_is_pregame_team_matched_and_missing_is_flagged(tmp_path):
+ from sportslab.injuries import nba_production_context,FEATURES,NBA_FEATURES,NBA_SCHEMA
+ p=prediction(parse(payload(),'NBA',NOW))
+ player={'id':'123','games':[{'event_id':'past','team':'A','start_time':(NOW-timedelta(days=2)).isoformat(),'values':{'Points':25.,'Rebounds':8.,'Assists':6.}}, {'event_id':'future','team':'A','start_time':(NOW+timedelta(hours=1)).isoformat(),'values':{'Points':100.,'Rebounds':50.,'Assists':50.}}, {'event_id':'wrong-team','team':'C','start_time':(NOW-timedelta(days=1)).isoformat(),'values':{'Points':100.,'Rebounds':50.,'Assists':50.}}]}
+ context=nba_production_context(p,[player],NOW);team=context['teams']['A'];assert team['totals']['absent_points']==25
+ assert team['players'][0]['sample_games']==1 and team['players'][0]['game_ids']==['past']
+ record_research(tmp_path,'NBA',[p],[],NOW,players=[player]);path=tmp_path/'public-injuries/research/NBA.json';row=json.loads(path.read_text())['events']['123']
+ assert row['feature_schema']==NBA_SCHEMA and len(row['features'])==len(NBA_FEATURES)
+ assert row['features'][len(FEATURES)]==-25 and row['injury_players']['A'][0]['status']=='Out'
+ first=path.read_text();player['games'][0]['values']['Points']=80
+ record_research(tmp_path,'NBA',[p],[],NOW+timedelta(minutes=1),players=[player]);assert path.read_text()==first
+ missing=nba_production_context(p,[],NOW);assert missing['teams']['A']['totals']['unknown_production']==1
+
+def test_injury_schema_mixing_is_not_silently_imputed_and_corrupt_ledger_preserved(tmp_path):
+ from sportslab.injuries import NBA_SCHEMA
+ rows=[{'id':'old','date':'2026-11-01','outcome':1,'features':[0.]*5},{'id':'new','date':'2026-11-02','outcome':None,'features':[0.]*11,'feature_schema':NBA_SCHEMA}]
+ r=review(rows);assert r['recorded']==2 and r['settled_all']==1 and r['settled']==0 and r['pending']==1
+ assert r['training_recorded']==1 and r['excluded_legacy_schema']==1
+ directory=tmp_path/'public-injuries/research';directory.mkdir(parents=True);path=directory/'NBA.json';path.write_text('damaged history')
+ p=prediction(parse(payload(),'NBA',NOW));report=record_research(tmp_path,'NBA',[p],[],NOW)
+ assert report['status']=='injury ledger needs recovery' and path.read_text()=='damaged history'
+
+def test_compressed_injury_archives_retain_timestamp_and_payload_hash(tmp_path):
+ import gzip,hashlib
+ refresh(tmp_path,NOW,lambda url:payload())
+ files=list((tmp_path/'public-injuries/archives/NBA').glob('*.json.gz'));assert len(files)==1
+ with gzip.open(files[0],'rt',encoding='utf-8') as f:archived=json.load(f)
+ assert archived['observed_at']==NOW.isoformat()
+ assert archived['sha256']==hashlib.sha256(json.dumps(archived['payload'],sort_keys=True).encode()).hexdigest()
+ p=prediction(parse(payload(),'NBA',NOW));report=record_research(tmp_path,'NBA',[p],[],NOW)
+ assert report['archive_reports']==1 and report['recorded']==1 and report['pending']==1

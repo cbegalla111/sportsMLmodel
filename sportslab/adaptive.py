@@ -90,7 +90,8 @@ def trial(root,state,rows,report,champion,champion_path,research,losses):
    state['trial']=None;state['confirmation']=None;state['consumed_losses']=losses
    return challenger,'Error-adaptive model promoted after all independent improvement checks.'
   return champion,None
- modern=(research or {}).get('recent_data_research')
+ focus=(research or {}).get('nba_focus_research')
+ modern=focus if focus and focus.get('new_method_selected') and (focus.get('confirmation') or {}).get('passed') else (research or {}).get('recent_data_research')
  research=modern if modern and modern.get('new_method_selected') and (modern.get('confirmation') or {}).get('passed') else research
  if not research or not research.get('new_method_selected') or losses<=state.get('adaptive_consumed_losses',0):return champion,None
  # Refit only the specification fixed by development selection. No future result selects its weights.
@@ -101,7 +102,7 @@ def trial(root,state,rows,report,champion,champion_path,research,losses):
  candidate,refit=review(training,trial_report,reference,[research['best']['specification']])
  if candidate is not None and history_from:candidate['history_from']=history_from
  state['adaptive_consumed_losses']=losses
- if candidate is None or candidate['variant']!='context_feedback':return champion,None
+ if candidate is None or candidate['variant'] not in ('context_feedback','context_nba_context','context_nba_feedback'):return champion,None
  if active:state.setdefault('adaptive_trial_history',[]).append(active)
  joblib.dump(candidate,root/'adaptive-trial-model.joblib');joblib.dump(champion,root/'adaptive-trial-reference.joblib')
  created=now()

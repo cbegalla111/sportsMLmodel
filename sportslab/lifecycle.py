@@ -98,6 +98,9 @@ def prepare(root,rows,report,original_path,outcomes=None):
    if adaptive_review is not None:
     try:adaptive_review['recent_data_research']=adaptive_recent_review(root,rows,recent_review)
     except ValueError as error:adaptive_review['recent_data_research']={'status':'research pending','error':str(error),'new_method_selected':False}
+    from .nba_context import saved_review as nba_context_review
+    try:adaptive_review['nba_focus_research']=nba_context_review(root,rows,recent_review)
+    except ValueError as error:adaptive_review['nba_focus_research']={'status':'research pending','error':str(error),'new_method_selected':False}
  final_rows=outcomes if outcomes is not None else rows
  by_id={r['event_id']:r for r in final_rows};by_match={}
  for r in final_rows:by_match.setdefault((r['date'],r['home'],r['away']),[]).append(r)

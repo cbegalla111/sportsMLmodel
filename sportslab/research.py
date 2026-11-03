@@ -132,6 +132,9 @@ def build(rows,window=20,variant='baseline'):
  if variant=='nba_hybrid':
   from .nba import hybrid_features
   return hybrid_features(rows,window)
+ if variant=='nba_context':
+  from .nba_context import features as nba_context_features
+  return nba_context_features(rows,window)
  if variant=='nba_feedback':
   from .nba import feedback_features
   return feedback_features(rows,window)
@@ -299,7 +302,15 @@ def uncertainty(y,incumbent,challenger,days):
  return {'log_loss_delta_95':np.quantile(loss[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'accuracy_gain_95':np.quantile(acc[draws].sum(axis=1)/sizes,[.025,.975]).tolist(),'calendar_weeks':len(unique),'note':'Descriptive weekly block intervals after candidate selection; selection uncertainty is not included. These are not independent promotion evidence.'}
 
 def label(spec):
- return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+(f"_feedback{spec['feedback_weight']}" if spec['kind']=='nba_blend' else '')+(f"_box{spec['box_weight']}" if spec['kind']=='nba_box_blend' else '')+(f"_adaptive{spec['adaptive_weight']}" if spec['kind']=='adaptive_blend' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+ return f"{spec['kind']}_{spec['variant']}_w{spec['window']}"+(f"_C{spec.get('c')}" if spec['kind']=='logistic' else f"_leaves{spec['leaves']}" if spec['kind']=='boost' else '')+(f"_depth{spec['depth']}" if spec['kind']=='extra_trees' else f"_gamma{spec['gamma']}" if spec['kind']=='kernel' else '')+('_recent'+str(spec.get('half_life_scale','')) if spec.get('decay') else '')+('_'+spec['calibrate'] if spec.get('calibrate') else '')+(f"_elo{spec['elo_weight']}" if spec.get('elo_weight') else '')+(f"_alpha{spec['alpha']}" if spec['kind']=='neural' else f"_depth{spec['depth']}" if spec['kind']=='forest' else '')+(f"_train{spec['training_years']}y" if spec.get('training_years') else '')+(f"_ridge{spec['ridge_alpha']}" if spec['kind']=='margin' else f"_scorealpha{spec['score_alpha']}" if spec['kind']=='poisson' else '')+('_refit' if spec.get('calibration_refit') else '')+(f"_feedback{spec['feedback_weight']}" if spec['kind']=='nba_blend' else '')+(f"_box{spec['box_weight']}" if spec['kind']=='nba_box_blend' else '')+(f"_adaptive{spec['adaptive_weight']}" if spec['kind']=='adaptive_blend' else '')+(f"_context{spec['context_weight']}" if spec['kind']=='nba_context_blend' else '')+('_legacy_rest_reference' if spec.get('diagnostic_only') else '')
+
+class NBAContextBlend:
+ def __init__(self,base,context,weight):self.base=base;self.context=context;self.weight=weight
+ @staticmethod
+ def base_inputs(X):return np.column_stack((X[:,:-12],X[:,-2:]))
+ def predict_proba(self,X):
+  p=(1-self.weight)*predict(self.base,self.base_inputs(X))+self.weight*predict(self.context,X)
+  return np.column_stack((1-p,p))
 
 class AdaptiveBlend:
  def __init__(self,base,adaptive,weight):self.base=base;self.adaptive=adaptive;self.weight=weight
@@ -310,6 +321,10 @@ class AdaptiveBlend:
   return np.column_stack((1-p,p))
 
 def fit(spec,X,y,days,league,score_targets=None):
+ if spec['kind']=='nba_context_blend':
+  if league!='NBA':raise ValueError('NBA context blending is NBA-specific')
+  base={'kind':'logistic','c':spec.get('c',.03),'decay':False}
+  return NBAContextBlend(fit(base,NBAContextBlend.base_inputs(X),y,days,league),fit(base,X,y,days,league),spec['context_weight'])
  if spec['kind']=='adaptive_blend':
   base={'kind':'logistic','c':spec.get('c',.3),'decay':False}
   return AdaptiveBlend(fit(base,AdaptiveBlend.base_inputs(X),y,days,league),fit(base,X,y,days,league),spec['adaptive_weight'])

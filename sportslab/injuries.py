@@ -3,7 +3,9 @@ Reported absences are evidence, not invented player-value coefficients.
 """
 from datetime import datetime,timedelta,timezone
 import hashlib
+import gzip
 import json
+import math
 from pathlib import Path
 import re
 import urllib.request
@@ -65,9 +67,9 @@ def refresh(root,asof=None,fetcher=fetch):
    report=parse(payload,league,asof)
    archive=directory/'archives'/league;archive.mkdir(parents=True,exist_ok=True)
    digest=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
-   (archive/(asof.strftime('%Y%m%dT%H%M%S')+'-'+digest[:12]+'.json')).write_text(json.dumps({'observed_at':asof.isoformat(),'sha256':digest,'payload':payload}))
+   with gzip.open(archive/(asof.strftime('%Y%m%dT%H%M%S')+'-'+digest[:12]+'.json.gz'),'wt',encoding='utf-8') as compressed:json.dump({'observed_at':asof.isoformat(),'sha256':digest,'payload':payload},compressed)
    cutoff=(asof-timedelta(days=180)).strftime('%Y%m%d')
-   for old in archive.glob('*.json'):
+   for old in archive.glob('*.json*'):
     if old.name[:8]<cutoff:old.unlink()
   except Exception as exc:
    report=dict(previous,league=league,status='unavailable',attempted_at=asof.isoformat(),error='Injury source unavailable or invalid ('+str(exc)[:140]+'). Active status is unverified.')
@@ -95,11 +97,46 @@ def injury_features(p,context):
  h,a=counts(p['home']),counts(p['away']);prob=max(1e-6,min(1-1e-6,p['home_probability']))
  return [math.log(prob/(1-prob))]+[float(y-x) for x,y in zip(h,a)]
 
-def record_research(root,league,predictions,results,asof=None):
+
+NBA_SCHEMA='nba-production-v2'
+NBA_FEATURES=FEATURES+['away_minus_home_absent_points','away_minus_home_absent_rebounds','away_minus_home_absent_assists','away_minus_home_uncertain_points','away_minus_home_unknown_production','away_minus_home_production_sample_games']
+
+def nba_production_context(p,players,asof):
+ """Prior observed production proxies, never a guessed injury point penalty."""
+ index={str(player['id']):player for player in players};teams={}
+ for team,injuries in p['injury_context']['teams'].items():
+  totals={'absent_points':0.,'absent_rebounds':0.,'absent_assists':0.,'uncertain_points':0.,'unknown_production':0.,'production_sample_games':0.};profiles=[]
+  for injury in injuries:
+   if injury['category']=='listed_active':continue
+   player=index.get(str(injury['player_id']),{});games=[]
+   for game in player.get('games',[]):
+    try:played=stamp(game['start_time'])
+    except (KeyError,ValueError,TypeError):continue
+    if game.get('team')==team and timedelta(0)<asof-played<=timedelta(days=30) and all(isinstance(game.get('values',{}).get(k),(int,float)) and math.isfinite(game['values'][k]) and game['values'][k]>=0 for k in ('Points','Rebounds','Assists')):games.append(game)
+   games=sorted(games,key=lambda g:g['start_time'],reverse=True)[:10]
+   profile={k:injury.get(k) for k in ('player_id','player','team','status','category','reported_at')};profile['sample_games']=len(games)
+   if games:
+    means={k:sum(g['values'][k] for g in games)/len(games) for k in ('Points','Rebounds','Assists')};profile.update(recent_means=means,latest_game=games[0]['start_time'],game_ids=[g['event_id'] for g in games])
+    totals['production_sample_games']+=len(games)
+    if injury['category']=='unavailable':
+     for label,key in (('Points','absent_points'),('Rebounds','absent_rebounds'),('Assists','absent_assists')):totals[key]+=means[label]
+    else:totals['uncertain_points']+=means['Points']
+   else:totals['unknown_production']+=1
+   profiles.append(profile)
+  teams[team]={'totals':totals,'players':profiles}
+ return {'schema':NBA_SCHEMA,'teams':teams,'note':'Recent observed production of listed players, not a projected point deduction. Missing production is flagged; starters, replacements and causal player value are unknown. Long-standing absences may already be reflected in team form.'}
+
+def record_research(root,league,predictions,results,asof=None,players=None):
  """Freeze first *observed* pregame injury features; never recreate yesterday's report."""
  asof=asof or datetime.now(timezone.utc);directory=Path(root)/'public-injuries'/'research';directory.mkdir(parents=True,exist_ok=True);path=directory/(league+'.json')
  try:state=json.loads(path.read_text()) if path.exists() else {'events':{}}
- except (OSError,ValueError):state={'events':{}}
+ except (OSError,ValueError):
+  return {'status':'injury ledger needs recovery','recorded':None,'pending':None,'settled':0,'minimum_settled':200,'production_adjustment':False,'note':'Existing injury history could not be read. It was preserved rather than reset; restore a verified runtime backup.'}
+ if league=='NBA' and players is None:
+  from .props import load_public as load_props
+  props=load_props(root).get('leagues',{}).get('NBA',{})
+  try:players=props.get('players',[]) if timedelta(0)<=asof-stamp(props.get('checked'))<=timedelta(hours=24) else []
+  except (ValueError,TypeError):players=[]
  by_id={str(r['event_id']):r for r in results}
  for row in state['events'].values():
   if stamp(row['event_start_utc'])>asof:continue
@@ -112,16 +149,25 @@ def record_research(root,league,predictions,results,asof=None):
    if context.get('status')=='unverified' or not context.get('checked') or not stamp(context['checked'])<=asof<stamp(p['event_start_utc'])<=asof+timedelta(hours=24):continue
    key=str(p['id'])
    if key not in state['events']:
-    state['events'][key]={'id':key,'date':p['date'],'home':p['home'],'away':p['away'],'observed_at':asof.isoformat(),'event_start_utc':p['event_start_utc'],'injury_checked':context['checked'],'baseline_probability':p['home_probability'],'baseline_model':p['model'],'baseline_training_sha256':p['dataset_sha256'],'features':injury_features(p,context),'outcome':None}
+    row={'id':key,'date':p['date'],'home':p['home'],'away':p['away'],'observed_at':asof.isoformat(),'event_start_utc':p['event_start_utc'],'injury_checked':context['checked'],'baseline_probability':p['home_probability'],'baseline_model':p['model'],'baseline_training_sha256':p['dataset_sha256'],'features':injury_features(p,context),'outcome':None,'feature_schema':'injury-counts-v1','injury_players':context['teams']}
+    if league=='NBA':
+     production=nba_production_context(p,players or [],asof);row['production_context']=production;row['feature_schema']=NBA_SCHEMA
+     h,a=[production['teams'][p[side]]['totals'] for side in ('home','away')]
+     row['features'] += [a[k]-h[k] for k in ('absent_points','absent_rebounds','absent_assists','uncertain_points','unknown_production','production_sample_games')]
+    state['events'][key]=row
   except (KeyError,ValueError,TypeError):continue
- path.write_text(json.dumps(state,allow_nan=False,separators=(',',':')))
+ temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(state,allow_nan=False,separators=(',',':')));temporary.replace(path)
  report=review(state['events'].values())
+ captures=list(state['events'].values());times=[r['observed_at'] for r in captures]
+ report.update(archive_reports=len(list((Path(root)/'public-injuries'/'archives'/league).glob('*.json*'))),first_capture_at=min(times) if times else None,last_capture_at=max(times) if times else None,records_with_player_production=sum(r.get('feature_schema')==NBA_SCHEMA for r in captures),recent_captures=[{k:r.get(k) for k in ('id','date','home','away','observed_at','event_start_utc','feature_schema','outcome')} for r in sorted(captures,key=lambda r:r['observed_at'],reverse=True)[:8]])
  return report
 
 def review(events):
  """Research only. Original winner-model promotion gates remain in force."""
- rows=sorted([r for r in events if r.get('outcome') in (0,1)],key=lambda r:(r['date'],r['id']))
- report={'status':'collecting prospective injury observations','settled':len(rows),'minimum_settled':200,'feature_names':FEATURES,'production_adjustment':False,'note':'No injury probability adjustment is approved. A historical research comparison cannot replace the required future promotion checks.'}
+ events=list(events);schema=NBA_SCHEMA if any(r.get('feature_schema')==NBA_SCHEMA for r in events) else 'injury-counts-v1'
+ eligible=[r for r in events if r.get('feature_schema','injury-counts-v1')==schema]
+ rows=sorted([r for r in eligible if r.get('outcome') in (0,1)],key=lambda r:(r['date'],r['id']))
+ report={'status':'collecting prospective injury observations','settled':len(rows),'minimum_settled':200,'recorded':len(events),'pending':sum(r.get('outcome') is None for r in events),'settled_all':sum(r.get('outcome') in (0,1) for r in events),'training_recorded':len(eligible),'excluded_legacy_schema':len(events)-len(eligible),'feature_schema':schema,'feature_names':NBA_FEATURES if schema==NBA_SCHEMA else FEATURES,'production_adjustment':False,'note':'No injury probability adjustment is approved. A historical research comparison cannot replace the required future promotion checks.'}
  if len(rows)<200:return report
  import numpy as np
  from sklearn.linear_model import LogisticRegression

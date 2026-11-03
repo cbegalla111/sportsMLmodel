@@ -90,3 +90,21 @@ def test_trial_cutoff_excludes_backfilled_prelock_dates():
  artifact={'model':None,'window':20,'extra':False,'variant':'baseline','league':'NBA','digest':version(rows),'last_date':rows[100]['date']}
  assert probabilities(artifact,rows,confirmation_after(state))==({},{})
  assert confirmation_after({'after':'2020-01-01'})=='2020-01-01'
+
+def test_locked_adaptive_challenger_runs_through_production_inference(tmp_path):
+ from sportslab.lifecycle import probabilities
+ rows=synthetic_rows(800);spec={'kind':'logistic','window':20,'variant':'context_feedback','c':.03,'decay':False}
+ built,names=build(rows,20,spec['variant']);X=np.array([x for _,x,_ in built]);y=np.array([r['outcome']=='home' for r,_,_ in built]);days=[r['date'] for r,_,_ in built]
+ m=fit(spec,X,y,days,'NBA');artifact={'model':m,'window':20,'extra':False,'variant':spec['variant'],'league':'NBA','research_spec':spec}
+ path=tmp_path/'challenger.joblib';joblib.dump(artifact,path);restored=joblib.load(path)
+ p,results=probabilities(restored,rows,rows[700]['date'])
+ assert p and len(p)==len(results)
+ assert all(0<=value<=1 for value in p.values())
+ assert all(r['date']>rows[700]['date'] for r in results.values())
+
+def test_failed_nba_historical_confirmation_cannot_open_a_trial(tmp_path):
+ path=tmp_path/'champion.joblib';champion={'selected':'old'};joblib.dump(champion,path);before=path.read_bytes();state={'reviews':[]}
+ research={'new_method_selected':False,'nba_focus_research':{'new_method_selected':True,'confirmation':{'passed':False}}}
+ result,status=trial(tmp_path,state,synthetic_rows(120),{},champion,path,research,5)
+ assert result==champion and status is None and not state.get('adaptive_trial')
+ assert path.read_bytes()==before and not (tmp_path/'adaptive-trial-model.joblib').exists()
