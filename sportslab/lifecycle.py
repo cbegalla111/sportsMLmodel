@@ -25,6 +25,11 @@ def gate(y,incumbent,challenger,days):
  promote=(old['log_loss']-new['log_loss']>=POLICY['minimum_log_loss_gain'] and new['brier']<=old['brier'] and new['accuracy']>=old['accuracy'] and interval[1]<0)
  return {'status':'promoted' if promote else 'retained champion','n':len(y),'weeks':len(unique),'promote':bool(promote),'champion':old,'challenger':new,'paired_log_loss_delta_95':interval,'from':days[0],'through':days[-1]}
 
+def confirmation_after(trial):
+ # Date-grouped inference cannot establish ordering within the lock date.
+ # Late imports of already-played games must not become future confirmation.
+ return max(trial['after'],trial.get('created',trial['after'])[:10])
+
 def candidate(rows,report,champion=None):
  from .research import review
  return review(rows,report,champion)
@@ -79,13 +84,20 @@ def prepare(root,rows,report,original_path,outcomes=None):
  if 'benchmark_event_ids' not in state:
   benchmark_rows=[r for r in rows if r['date']<=report['last_date']]
   if version(benchmark_rows)==report['dataset_sha256']:state['benchmark_event_ids']=[r['event_id'] for r in benchmark_rows]
- backtest_review=None;recent_review=None
+ backtest_review=None;recent_review=None;adaptive_review=None
  if len(rows)>=700 and 'final_test_start' in report:
   from .research import saved_review
   backtest_review=saved_review(root,rows,report,champion)
+  from .adaptive import saved_review as saved_adaptive_review
+  try:adaptive_review=saved_adaptive_review(root,rows,report,champion,backtest_review)
+  except ValueError as error:adaptive_review={'status':'research pending','error':str(error),'new_method_selected':False}
   if report['league']=='NBA':
    from .nba import saved_recent_review
    recent_review=saved_recent_review(root,rows,backtest_review)
+   from .adaptive import saved_recent_review as adaptive_recent_review
+   if adaptive_review is not None:
+    try:adaptive_review['recent_data_research']=adaptive_recent_review(root,rows,recent_review)
+    except ValueError as error:adaptive_review['recent_data_research']={'status':'research pending','error':str(error),'new_method_selected':False}
  final_rows=outcomes if outcomes is not None else rows
  by_id={r['event_id']:r for r in final_rows};by_match={}
  for r in final_rows:by_match.setdefault((r['date'],r['home'],r['away']),[]).append(r)
@@ -113,7 +125,7 @@ def prepare(root,rows,report,original_path,outcomes=None):
   trial.update(after=rows[-1]['date'],prediction_policy=rest_version);state['confirmation']=None
  status='Champion retained; waiting for settled forecast losses before opening a review.'
  if trial:
-  challenger=joblib.load(root/'challenger.joblib');old,rr=probabilities(champion,rows,trial['after']);new,_=probabilities(challenger,rows,trial['after']);ids=sorted(set(old)&set(new),key=lambda k:(rr[k]['date'],k))
+  challenger=joblib.load(root/'challenger.joblib');old,rr=probabilities(champion,rows,confirmation_after(trial));new,_=probabilities(challenger,rows,confirmation_after(trial));ids=sorted(set(old)&set(new),key=lambda k:(rr[k]['date'],k))
   decision=gate(np.array([int(rr[k]['outcome']=='home') for k in ids]),np.array([old[k] for k in ids]),np.array([new[k] for k in ids]),[rr[k]['date'] for k in ids]);state['confirmation']=decision
   status=f"Challenger locked; {decision['n']}/{POLICY['minimum_results']} new results across {decision['weeks']}/{POLICY['minimum_weeks']} weeks."
   if decision['status']!='collecting evidence':
@@ -130,10 +142,13 @@ def prepare(root,rows,report,original_path,outcomes=None):
   if challenger is not None:
    state['consumed_losses']=losses
    joblib.dump(challenger,root/'challenger.joblib');state['trial']={'after':rows[-1]['date'],'created':now(),'selected':research['selected'],'prediction_policy':rest_version};status='Loss review opened; challenger locked. Waiting for new results to backtest both models fairly.'
-  else:status='Challenger fitting pending; daily checks will retry when enough calibration data are available.'
+  else:status='Challenger fitting pending; hourly checks will retry when enough calibration data are available.'
  champion,feedback_status=nba_feedback_trial(root,state,rows,champion,champion_path,backtest_review,losses,recent_review)
  if feedback_status:status=feedback_status
- summary={'status':status,'prediction_policy':rest_version,'feedback_policy':feedback_policy,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in feedback.values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review,'feedback_report':feedback_report(feedback),'nba_feedback_trial':state.get('nba_feedback_trial'),'nba_recent_review':recent_review}
+ from .adaptive import trial as adaptive_trial
+ champion,adaptive_status=adaptive_trial(root,state,rows,report,champion,champion_path,adaptive_review,losses)
+ if adaptive_status:status=adaptive_status
+ summary={'status':status,'prediction_policy':rest_version,'feedback_policy':feedback_policy,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in feedback.values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review,'feedback_report':feedback_report(feedback),'nba_feedback_trial':state.get('nba_feedback_trial'),'nba_recent_review':recent_review,'adaptive_review':adaptive_review,'adaptive_trial':state.get('adaptive_trial')}
  write_json(state_path,state)
  return champion,summary
 
@@ -158,6 +173,7 @@ def record(root,predictions):
 
 def feedback_report(entries):
  """Score immutable pregame picks; never rebuild forecasts from known results."""
+ from .diagnostics import analyze
  settled=[e for e in entries.values() if e.get('settled') and e.get('outcome') in ('home','away')]
  if not settled:return {'n':0,'metrics':None,'accuracy_95':None,'confidence_bands':[],'largest_misses':[]}
  y=np.array([int(e['outcome']=='home') for e in settled]);p=np.array([e['home_probability'] for e in settled]);metrics=scores(y,p);n=len(y);rate=metrics['accuracy'];z=1.96;den=1+z*z/n;center=(rate+z*z/(2*n))/den;radius=z*np.sqrt(rate*(1-rate)/n+z*z/(4*n*n))/den
@@ -170,7 +186,7 @@ def feedback_report(entries):
   if (e['home_probability']>=.5)==(e['outcome']=='home'):continue
   misses.append({k:e[k] for k in ('id','date','home','away','home_probability','generated_at','outcome','model') if k in e})
  misses.sort(key=lambda e:(max(e['home_probability'],1-e['home_probability']),e['date']),reverse=True)
- return {'n':n,'metrics':metrics,'accuracy_95':[max(0.,float(center-radius)),min(1.,float(center+radius))],'confidence_bands':bands,'largest_misses':misses[:8],'note':'Original saved pregame forecasts under the current prediction policy. Small samples are noisy; the Wilson accuracy interval is descriptive and assumes independent picks. Wins and losses both inform training; no result rewrites a saved pick.'}
+ return {'n':n,'metrics':metrics,'accuracy_95':[max(0.,float(center-radius)),min(1.,float(center+radius))],'confidence_bands':bands,'largest_misses':misses[:8],'diagnostics':analyze(settled),'note':'Original saved pregame forecasts under the current prediction policy. Small samples are noisy; the Wilson accuracy interval is descriptive and assumes independent picks. Wins and losses both inform training; no result rewrites a saved pick.'}
 
 
 def nba_feedback_trial(root,state,rows,champion,champion_path,review,losses,recent_review=None):
@@ -196,7 +212,7 @@ def nba_feedback_trial(root,state,rows,champion,champion_path,review,losses,rece
  if not trial or trial['status']!='collecting evidence':return champion,None
  if hashlib.sha256(champion_path.read_bytes()).hexdigest()!=trial['champion_sha256']:
   trial['status']='superseded by champion change';return champion,None
- challenger=joblib.load(Path(root)/'nba-feedback-challenger.joblib');reference=joblib.load(Path(root)/'nba-feedback-reference.joblib');old,rr=probabilities(reference,rows,trial['after']);new,_=probabilities(challenger,rows,trial['after']);ids=sorted(set(old)&set(new),key=lambda k:(rr[k]['date'],k))
+ challenger=joblib.load(Path(root)/'nba-feedback-challenger.joblib');reference=joblib.load(Path(root)/'nba-feedback-reference.joblib');old,rr=probabilities(reference,rows,confirmation_after(trial));new,_=probabilities(challenger,rows,confirmation_after(trial));ids=sorted(set(old)&set(new),key=lambda k:(rr[k]['date'],k))
  decision=gate(np.array([int(rr[k]['outcome']=='home') for k in ids]),np.array([old[k] for k in ids]),np.array([new[k] for k in ids]),[rr[k]['date'] for k in ids]);trial['confirmation']=decision
  if decision['status']=='collecting evidence':return champion,None
  trial['status']=decision['status'];state['reviews'].append(dict(decision,reviewed=now(),trial_after=trial['after'],source='NBA feedback candidate'))

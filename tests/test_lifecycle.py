@@ -109,12 +109,14 @@ def test_loss_feedback_uses_corrected_policy_without_rewriting_original(tmp_path
  assert state['policy_ledgers'][VERSION][p['id']]['home_probability']==1-p['home_probability']
 
 
-def test_nba_feedback_trial_locks_weights_and_preserves_existing_trial(tmp_path):
+def test_nba_feedback_trial_locks_weights_and_preserves_existing_trial(tmp_path,monkeypatch):
  from sportslab.lifecycle import nba_feedback_trial
  from sportslab.research import NBA_VERSION
  rows=synthetic_rows(120);champion={'model':None,'window':20,'extra':False,'digest':version(rows),'last_date':rows[-1]['date'],'league':'NBA','selected':'original'}
  champion_path=tmp_path/'champion.joblib';joblib.dump(champion,champion_path)
  candidate=dict(champion,selected='feedback');joblib.dump(candidate,tmp_path/'research-challenger.joblib')
+ # The fixture's lock clock must precede its synthetic future games.
+ monkeypatch.setattr('sportslab.lifecycle.now',lambda:rows[-1]['date']+'T12:00:00+00:00')
  state={'reviews':[],'trial':{'after':rows[-2]['date'],'selected':'older candidate'}};original=champion_path.read_bytes()
  _,status=nba_feedback_trial(tmp_path,state,rows,champion,champion_path,{'version':NBA_VERSION},1)
  assert status is None and state['trial']['selected']=='older candidate'
