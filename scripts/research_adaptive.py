@@ -19,8 +19,12 @@ with connect(root) as db:
    live=next((l for l in public['leagues'] if l['name']==league),None)
    report=live.get('benchmark') if live else None
    if not report:print(league,'no verified baseline',flush=True);continue
+  live=next((l for l in public['leagues'] if l['name']==league),None)
+  public_report=(live or {}).get('benchmark')
+  use_public_boundary=public_report is not None and report['final_test_start']!=public_report['final_test_start']
+  if use_public_boundary:report=public_report
   if len(rows)<700:print(league,'insufficient verified public history',flush=True);continue
-  if (directory/'champion.joblib').exists():
+  if (directory/'champion.joblib').exists() and not use_public_boundary:
    champion=joblib.load(directory/'champion.joblib');previous=json.loads((directory/'research-review.json').read_text()) if (directory/'research-review.json').exists() else None
   else:
    from sportslab.research import incumbent_spec
@@ -31,6 +35,7 @@ with connect(root) as db:
   if league=='NBA' and (directory/'nba-recent-review.json').exists():
    from sportslab.adaptive import saved_recent_review
    result['recent_data_research']=saved_recent_review(directory,rows,json.loads((directory/'nba-recent-review.json').read_text()))
+  if use_public_boundary:result['source_cohort_note']='Used the deployed sealed-test boundary and prior specification. Local public history differs from deployment; this is a within-cohort offline comparison, not a deployed score change.'
   reports[league]=result
   print(league,json.dumps({'selected':result['selected'],'new_method_selected':result['new_method_selected'],'incumbent':result['incumbent']['validation'],'best':result['best']['validation']}),flush=True)
 Path(args.output).parent.mkdir(parents=True,exist_ok=True);Path(args.output).write_text(json.dumps({'version':'adaptive-error-review-v1','leagues':reports},allow_nan=False))

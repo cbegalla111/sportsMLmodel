@@ -38,11 +38,11 @@ The dashboard shows these in Model lab and the Right / wrong area, alongside sou
 
 ## Actual research evidence
 
-Initial offline studies tested 21 new candidates for each sport plus 21 on modern NBA development: **168 candidate evaluations**, each with chronological folds. This counts specifications tested, not independent hypothesis tests or new games.
+The verified deployed study reports contain 21 new candidates for each sport plus 21 on modern NBA development: **168 candidate evaluations**, each with chronological folds. This counts specifications tested, not independent hypothesis tests or new games.
 
 WNBA improved on the same 638 development games: **69.2789969% → 69.7492163%** (442 → 445 correct), log loss **.6085960 → .6060434**, Brier **.2096427 → .2088873**. The selected specification is `logistic_context_feedback_w10_C0.03_recent`. Its binned calibration error worsened (.0480 → .0586), so improved proper scores must not be described as proof of improved calibration. This small development-selection gain is optimistic and is not live performance. It qualifies only for a prospective trial; the next WNBA season may be needed to collect results.
 
-The retained specifications won the strict comparison for NBA, NFL, NHL, MLB, UFC and the local CFB cohort. Modern NBA also retained the prior feedback choice; no new 70% claim is justified. The historical NBA confirmation was already reused by prior research and is explicitly not fresh independent evidence. Local CFB runtime history/baseline differs from the deployed runtime; its offline comparison is valid within its own cohort but not directly comparable to deployed metrics. The hourly job recomputes against each deployed baseline. Full source hashes, dates, specifications and metrics are in `artifacts/research/adaptive-error-v1.json`.
+The retained specifications won the strict comparison for NBA, NFL, NHL, MLB, UFC and the local CFB cohort. Modern NBA also retained the prior feedback choice; no new 70% claim is justified. The historical NBA confirmation was already reused by prior research and is explicitly not fresh independent evidence. An initial offline CFB run used the local environment’s different, later test boundary. That result was discarded. The CLI now adopts the deployed sealed boundary when local metadata differs; the corrected local subset still differs from deployment, so no local score change is claimed. The canonical published artifact was replaced with the actual verified hourly deployment’s reports for all seven sports, including CFB’s original deployed boundary. No live weights were changed by the offline run. Full source hashes, dates, specifications and metrics are in `artifacts/research/adaptive-error-v1.json`.
 
 ## Online references reviewed
 
