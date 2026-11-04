@@ -117,10 +117,12 @@ def prepare(root,rows,report,original_path,outcomes=None):
  from .rest import VERSION as rest_version
  feedback_policy=rest_version if rest_version in state.get('policy_ledgers',{}) else 'legacy'
  feedback=state.get('policy_ledgers',{}).get(rest_version,state['ledger'])
- if state.get('feedback_policy','legacy')!=feedback_policy:state['consumed_losses']=0
+ if state.get('feedback_policy','legacy')!=feedback_policy:
+  state['consumed_losses']=0;state['adaptive_consumed_results']=0
  state['feedback_policy']=feedback_policy
  losses=sum(e.get('correct') is False for e in feedback.values());wins=sum(e.get('correct') is True for e in feedback.values())
  state['consumed_losses']=min(state['consumed_losses'],losses)
+ state['adaptive_consumed_results']=min(state.get('adaptive_consumed_results',0),wins+losses)
  trial=state.get('trial')
  if trial and trial.get('prediction_policy')!=rest_version:
   state.setdefault('policy_changes',[]).append({'at':now(),'previous_trial_after':trial['after'],'prediction_policy':rest_version})
@@ -148,9 +150,9 @@ def prepare(root,rows,report,original_path,outcomes=None):
  champion,feedback_status=nba_feedback_trial(root,state,rows,champion,champion_path,backtest_review,losses,recent_review)
  if feedback_status:status=feedback_status
  from .adaptive import trial as adaptive_trial
- champion,adaptive_status=adaptive_trial(root,state,rows,report,champion,champion_path,adaptive_review,losses)
+ champion,adaptive_status=adaptive_trial(root,state,rows,report,champion,champion_path,adaptive_review,losses,observations=wins+losses)
  if adaptive_status:status=adaptive_status
- summary={'status':status,'prediction_policy':rest_version,'feedback_policy':feedback_policy,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in feedback.values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review,'feedback_report':feedback_report(feedback),'nba_feedback_trial':state.get('nba_feedback_trial'),'nba_recent_review':recent_review,'adaptive_review':adaptive_review,'adaptive_trial':state.get('adaptive_trial')}
+ summary={'status':status,'prediction_policy':rest_version,'feedback_policy':feedback_policy,'policy':POLICY,'checked':now(),'champion':champion.get('selected',report['selected']),'weights_trained_through':champion['last_date'],'outcome_learning':outcome_learning(feedback),'live_record':{'wins':wins,'losses':losses,'pending':sum(not e.get('settled') for e in feedback.values())},'trial':state.get('trial'),'confirmation':state.get('confirmation'),'last_decision':state['reviews'][-1] if state['reviews'] else None,'research':state.get('research'),'backtest_review':backtest_review,'feedback_report':feedback_report(feedback),'nba_feedback_trial':state.get('nba_feedback_trial'),'nba_recent_review':recent_review,'adaptive_review':adaptive_review,'adaptive_trial':state.get('adaptive_trial')}
  write_json(state_path,state)
  return champion,summary
 
@@ -167,7 +169,8 @@ def record(root,predictions):
  from .rest import VERSION
  feedback=state.get('policy_ledgers',{}).get(VERSION,state['ledger'])
  feedback_policy=VERSION if VERSION in state.get('policy_ledgers',{}) else 'legacy'
- if state.get('feedback_policy','legacy')!=feedback_policy:state['consumed_losses']=0
+ if state.get('feedback_policy','legacy')!=feedback_policy:
+  state['consumed_losses']=0;state['adaptive_consumed_results']=0
  state['feedback_policy']=feedback_policy
  write_json(path,state)
  return {'wins':sum(e.get('correct') is True for e in feedback.values()),'losses':sum(e.get('correct') is False for e in feedback.values()),'pending':sum(not e.get('settled') for e in feedback.values())}
@@ -223,3 +226,17 @@ def nba_feedback_trial(root,state,rows,champion,champion_path,review,losses,rece
  if state.get('trial'):state.setdefault('superseded_trials',[]).append({'trial':state['trial'],'confirmation':state.get('confirmation'),'at':now()})
  state['trial']=None;state['confirmation']=None;state['consumed_losses']=losses
  return challenger,'NBA feedback challenger promoted after independent improvement checks.'
+
+
+def outcome_learning(entries):
+ """Audit actual frozen forecasts; both upset directions contribute to learning."""
+ import math
+ observations=[]
+ for entry in entries.values():
+  if not entry.get('settled') or entry.get('grading_excluded') or entry.get('outcome') not in ('home','away'):continue
+  p=entry.get('home_probability')
+  if not isinstance(p,(int,float)) or not math.isfinite(p) or not 0<=p<=1:continue
+  y=int(entry['outcome']=='home');actual=p if y else 1-p;error=y-p
+  observations.append({'id':entry['id'],'date':entry['date'],'home':entry['home'],'away':entry['away'],'winner':entry['home'] if y else entry['away'],'winner_probability':actual,'prediction_error':error,'surprise':abs(error),'log_loss':-math.log(max(1e-12,actual)),'correct':(p>=.5)==bool(y)})
+ observations.sort(key=lambda e:(e['surprise'],e['date']),reverse=True)
+ return {'settled_results':len(observations),'correct':sum(e['correct'] for e in observations),'incorrect':sum(not e['correct'] for e in observations),'mean_surprise':sum(e['surprise'] for e in observations)/len(observations) if observations else None,'largest_surprises':observations[:12],'update_policy':'Every newly settled decisive result can trigger an eligible adaptive challenger refit. Both wins and losses update causal team/fighter feedback. Larger unexpected outcomes generate larger residuals; live promotion requires independent accuracy, log-loss and Brier checks.'}

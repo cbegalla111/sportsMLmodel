@@ -132,6 +132,9 @@ def build(rows,window=20,variant='baseline'):
  if variant=='nba_hybrid':
   from .nba import hybrid_features
   return hybrid_features(rows,window)
+ if variant=='nba_schedule':
+  from .nba_context import schedule_features
+  return schedule_features(rows,window)
  if variant=='nba_context':
   from .nba_context import features as nba_context_features
   return nba_context_features(rows,window)

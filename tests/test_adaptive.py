@@ -9,7 +9,7 @@ from test_model import synthetic_rows
 from sportslab.adaptive import feedback_features,definitions,saved_review,trial
 from sportslab.research import build,fit,label
 
-@pytest.mark.parametrize('league',['NBA','MLB','UFC'])
+@pytest.mark.parametrize('league',['NBA','WNBA','NFL','CFB','MLB','NHL','UFC'])
 def test_future_and_same_day_outcomes_cannot_change_inputs(league):
  rows=synthetic_rows(100)
  for r in rows:r['league']=league
@@ -108,3 +108,24 @@ def test_failed_nba_historical_confirmation_cannot_open_a_trial(tmp_path):
  result,status=trial(tmp_path,state,synthetic_rows(120),{},champion,path,research,5)
  assert result==champion and status is None and not state.get('adaptive_trial')
  assert path.read_bytes()==before and not (tmp_path/'adaptive-trial-model.joblib').exists()
+
+
+def test_new_correct_result_can_open_adaptive_trial(tmp_path,monkeypatch):
+ path=tmp_path/'champion.joblib';champion={'selected':'old','variant':'baseline'};joblib.dump(champion,path)
+ spec={'kind':'logistic','variant':'context_feedback','window':20,'c':.3};challenger={'selected':'adaptive','variant':'context_feedback','research_spec':spec}
+ monkeypatch.setattr('sportslab.research.review',lambda *a:(challenger,{}))
+ research={'new_method_selected':True,'fingerprint':'fixed-development','best':{'specification':spec}}
+ state={'reviews':[],'consumed_losses':0}
+ current,status=trial(tmp_path,state,synthetic_rows(120),{},champion,path,research,0,observations=1)
+ assert state['adaptive_trial']['status']=='collecting evidence'
+ assert state['adaptive_consumed_results']==1
+ assert joblib.load(path)['selected']=='old'
+
+
+def test_outcome_learning_scores_both_upset_directions_and_excludes_unscored():
+ from sportslab.lifecycle import outcome_learning
+ def entry(i,p,winner,excluded=False):return {'id':i,'date':'2026-11-01','home':'A','away':'B','settled':True,'home_probability':p,'outcome':winner,'grading_excluded':excluded}
+ result=outcome_learning({'a':entry('a',.9,'away'),'b':entry('b',.1,'home'),'c':entry('c',.6,'home'),'d':entry('d',.9,'away',True)})
+ assert result['settled_results']==3 and result['incorrect']==2 and result['correct']==1
+ assert [e['id'] for e in result['largest_surprises'][:2]]==['a','b']
+ assert all(abs(e['surprise']-.9)<1e-10 for e in result['largest_surprises'][:2])

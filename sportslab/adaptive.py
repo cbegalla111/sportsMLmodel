@@ -69,7 +69,7 @@ def saved_review(root,rows,report,champion,previous):
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(result,allow_nan=False));temporary.replace(path)
  return result
 
-def trial(root,state,rows,report,champion,champion_path,research,losses):
+def trial(root,state,rows,report,champion,champion_path,research,losses,observations=None):
  from .data import now
  from .research import review
  from .lifecycle import probabilities,gate,confirmation_after
@@ -93,7 +93,9 @@ def trial(root,state,rows,report,champion,champion_path,research,losses):
  focus=(research or {}).get('nba_focus_research')
  modern=focus if focus and focus.get('new_method_selected') and (focus.get('confirmation') or {}).get('passed') else (research or {}).get('recent_data_research')
  research=modern if modern and modern.get('new_method_selected') and (modern.get('confirmation') or {}).get('passed') else research
- if not research or not research.get('new_method_selected') or losses<=state.get('adaptive_consumed_losses',0):return champion,None
+ trigger=losses if observations is None else observations
+ consumed_key='adaptive_consumed_losses' if observations is None else 'adaptive_consumed_results'
+ if not research or not research.get('new_method_selected') or trigger<=state.get(consumed_key,0):return champion,None
  # Refit only the specification fixed by development selection. No future result selects its weights.
  history_from=research.get('history_from')
  training=[r for r in rows if r['date']>=history_from] if history_from else rows
@@ -101,13 +103,13 @@ def trial(root,state,rows,report,champion,champion_path,research,losses):
  reference={'research_spec':research['incumbent']['specification'],'selected':research['incumbent']['name']} if history_from else champion
  candidate,refit=review(training,trial_report,reference,[research['best']['specification']])
  if candidate is not None and history_from:candidate['history_from']=history_from
- state['adaptive_consumed_losses']=losses
- if candidate is None or candidate['variant'] not in ('context_feedback','context_nba_context','context_nba_feedback'):return champion,None
+ state[consumed_key]=trigger
+ if candidate is None or candidate['variant'] not in ('context_feedback','context_nba_context','context_nba_feedback','context_nba_schedule'):return champion,None
  if active:state.setdefault('adaptive_trial_history',[]).append(active)
  joblib.dump(candidate,root/'adaptive-trial-model.joblib');joblib.dump(champion,root/'adaptive-trial-reference.joblib')
  created=now()
  state['adaptive_trial']={'version':VERSION,'created':created,'after':max(rows[-1]['date'],created[:10]),'selected':candidate['selected'],'reference_sha256':digest,'status':'collecting evidence','development_fingerprint':research['fingerprint']}
- return champion,'Error-adaptive challenger locked after a saved loss; collecting independent evidence.'
+ return champion,'Error-adaptive challenger locked after a newly settled result; collecting independent evidence.'
 
 def saved_recent_review(root,rows,previous):
  """Fixed modern NBA development period; historical confirmation is never searched."""

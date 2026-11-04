@@ -7,7 +7,7 @@ from pathlib import Path
 import joblib
 import math
 
-VERSION='nba-context-review-v1'
+VERSION='nba-context-review-v2-schedule-form'
 
 def features(rows,window=20):
  from .nba import feedback_features
@@ -35,12 +35,42 @@ def features(rows,window=20):
    rate=1-.98**len(errors);global_error=(1-rate)*global_error+rate*sum(errors)/len(errors);global_loss=(1-rate)*global_loss+rate*sum(losses)/len(losses)
  return [(r,x+extra[r['event_id']],n) for r,x,n in base],names+added
 
+def schedule_features(rows,window=20):
+ """NBA scoring form and compressed schedules, always frozen before a date."""
+ from .nba import feedback_features
+ from collections import deque
+ rows=sorted(rows,key=lambda r:(r['date'],r['event_id']))
+ base,names=feedback_features(rows,window)
+ added=['recent_margin_difference','long_margin_difference','margin_trend_difference','venue_margin_difference','back_to_back_difference','three_in_four_difference','four_in_six_difference','fatigue_times_margin']
+ games=defaultdict(lambda:deque(maxlen=40));groups=defaultdict(list);extra={}
+ for r,x,n in base:groups[r['date']].append((r,x,n))
+ for day,group in sorted(groups.items()):
+  d=date.fromisoformat(day)
+  def summary(team,venue):
+   # Do not carry a previous roster's scoring form through the offseason.
+   h=[v for v in games[team] if (d-v[0]).days<=120]
+   margin=lambda seq:sum(v[1] for v in seq)/(len(seq)+5)
+   short=margin(h[-5:]);long=margin(h[-20:]);home=margin([v for v in h if v[2]==venue][-15:])
+   gaps=[(d-v[0]).days for v in h]
+   return [short,long,short-long,home,float(1 in gaps),float(sum(g<=3 for g in gaps)>=2),float(sum(g<=5 for g in gaps)>=3)]
+  for r,x,n in group:
+   a=summary(r['home'],'home');b=summary(r['away'],'away');values=[left-right for left,right in zip(a,b)]
+   if r['neutral']=='1':values[3]=0.
+   values.append(values[4]*values[1]);extra[r['event_id']]=values
+  for r,x,n in group:
+   if r['outcome'] not in ('home','away'):continue
+   margin=max(-30.,min(30.,float(r['home_score'])-float(r['away_score'])))
+   games[r['home']].append((d,margin,'home' if r['neutral']=='0' else None));games[r['away']].append((d,-margin,'away' if r['neutral']=='0' else None))
+ return [(r,x+extra[r['event_id']],n) for r,x,n in base],names+added
+
+
 def definitions():
  specs=[{'kind':'logistic','variant':'context_nba_context','window':w,'c':c,'decay':False} for w in (10,20,40) for c in (.01,.03,.1,.3)]
  specs += [{'kind':'logistic','variant':'context_nba_context','window':w,'c':.03,'decay':False,'calibrate':'temperature','calibration_refit':True} for w in (10,20,40)]
  specs += [{'kind':'nba_context_blend','variant':'context_nba_context','window':20,'c':.03,'decay':False,'context_weight':w} for w in (.25,.5,.75)]
  for method in ('temperature','sigmoid','decision'):
   for refit in (False,True):specs.append({'kind':'logistic','variant':'context_nba_feedback','window':20,'c':.03,'decay':False,'calibrate':method,'calibration_refit':refit})
+ specs += [{'kind':'logistic','variant':'context_nba_schedule','window':w,'c':c,'decay':decay} for w in (10,20) for c in (.01,.03,.1) for decay in (False,True)]
  return specs
 
 def saved_review(root,rows,previous):
@@ -58,7 +88,7 @@ def saved_review(root,rows,previous):
  report={'league':'NBA','selected':baseline['name'],'final_test_start':CONFIRM_FROM,'last_date':recent[-1]['date']}
  artifact,result=review(recent,report,{'research_spec':baseline['specification'],'selected':baseline['name']},catalog)
  result.update(version=VERSION,fingerprint=fingerprint,history_from=RECENT_FROM,new_method_selected=result['status']=='challenger identified',new_candidates=len(catalog),confirmation=recent_confirmation(recent,baseline['specification'],result['best']['specification']))
- result['note']='NBA season-maturity, shared uncertainty and calibration research. Selection uses 2022–June 2025 only. Reused 2025–26 historical confirmation is not fresh independent evidence. No historical injury state is invented; live weights require the independent future gate.'
+ result['note']='NBA season-maturity, shared uncertainty, scoring form, venue and compressed-schedule research. Selection uses 2022–June 2025 only. Reused 2025–26 historical confirmation is not fresh independent evidence. No historical injury state is invented; live weights require the independent future gate.'
  if artifact is not None:
   artifact['history_from']=RECENT_FROM;joblib.dump(artifact,root/'nba-context-research-model.joblib')
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(result,allow_nan=False));temporary.replace(path)
