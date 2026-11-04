@@ -58,4 +58,16 @@ function findPerfectProps(players,{sample=10,side='both',market='all',now=Date.n
  if(![5,10,20].includes(sample))return [];
  return findPlayerProps(players,null,{minimum:0,minGames:sample,lookback:sample,side,market,now,injuryReport,historicalOnly:true,allTeams:true,perfectOnly:true});
 }
-if(typeof module!=='undefined')module.exports={findPlayerProps,findPerfectProps,PROP_LINES,playerAvailability};
+function findDailyProps(sources,options={}){
+ const found=[],seen=new Set();
+ for(const source of sources){
+  for(const fixture of source.fixtures||[]){
+   for(const p of findPlayerProps(source.players||[],fixture,{...options,injuryReport:source.injuryReport,requireInjuryReport:true})){
+    const key=JSON.stringify([source.sport,fixture.id,p.player_id,p.market,p.side,p.line]);if(seen.has(key))continue;seen.add(key);
+    found.push({...p,sport:source.sport,matchup:fixture.away+' at '+fixture.home,start_time:fixture.start_time,checked:source.checked});
+   }
+  }
+ }
+ return found.sort((a,b)=>b.lower-a.lower||b.score-a.score||b.n-a.n||a.player.localeCompare(b.player)||a.market.localeCompare(b.market)||a.sport.localeCompare(b.sport)||String(a.event_id).localeCompare(String(b.event_id)));
+}
+if(typeof module!=='undefined')module.exports={findPlayerProps,findPerfectProps,findDailyProps,PROP_LINES,playerAvailability};
