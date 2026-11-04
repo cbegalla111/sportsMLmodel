@@ -1,6 +1,8 @@
 """Export only allowlisted public results + frozen models, never private app state."""
 from datetime import date, datetime, timedelta, timezone
 import json
+import hashlib
+import re
 from pathlib import Path
 import shutil
 import sqlite3
@@ -34,34 +36,39 @@ def public_rows(db,league):
   accepted.append({key:r[key] for key in BASE})
  return accepted
 
-def prediction_history(root,rows,asof):
- """Only first-published public picks; never reconstruct a pick after the result."""
+def prediction_history(root,rows,asof,statuses=None,schedule=None):
+ """First published picks only; final event IDs outrank timezone-dependent dates."""
+ from .grading import ResultIndex,identity,team
  path=Path(root)/'state.json'
  if not path.exists():return []
- state=json.loads(path.read_text());results={}
- for r in rows:results.setdefault((r['date'],r['home'],r['away']),[]).append(r)
+ state=json.loads(path.read_text());index=ResultIndex(rows)
+ all_entries=list(state.get('ledger',{}).values())+[e for ledger in state.get('policy_ledgers',{}).values() for e in ledger.values()]
  entries={(e['id'],e.get('prediction_policy','legacy rest policy')):e for e in state.get('ledger',{}).values()}
  for ledger in state.get('policy_ledgers',{}).values():
   for e in ledger.values():entries.setdefault((e['id'],e.get('prediction_policy','legacy rest policy')),e)
+ status_index={identity(r['event_id']):r for r in statuses or []}
+ start_key=lambda e:(identity(e['id']),team(e['home']),team(e['away']))
+ starts={start_key(e):e['event_start_utc'] for e in all_entries if e.get('event_start_utc')}
+ starts.update({start_key(f):f['start_time'] for f in schedule or [] if f.get('start_time')})
  archive=[]
  for entry in entries.values():
   try:
-   day=date.fromisoformat(entry['date']);generated=parse_time(entry['generated_at'])
-   start=parse_time(entry['event_start_utc']) if entry.get('event_start_utc') else None
-   if not asof.date()-timedelta(days=8)<=day<=asof.date():continue
-   if generated>asof or (start and (generated>=start or start>asof)):continue
-   # Legacy ledger entries omit start times, but were recorded only after
-   # the exporter verified they were pre-game. Preserve those same-day picks.
+   status=status_index.get(identity(entry['id']),{});result=index.find(entry);generated=parse_time(entry['generated_at'])
+   if entry.get('event_start_utc') and generated>=parse_time(entry['event_start_utc']):continue
+   start_value=status.get('start_time') or (result or {}).get('start_time') or entry.get('event_start_utc') or starts.get(start_key(entry))
+   start=parse_time(start_value) if start_value else None;day=start.date() if start else date.fromisoformat(entry['date'])
+   if not asof.date()-timedelta(days=8)<=day<=asof.date() or generated>asof:continue
+   if start and start>asof:continue
    if not start and generated.date()>day:continue
    p={k:entry[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256')}
-   p['prediction_policy']=entry.get('prediction_policy','legacy rest policy');p['event_start_utc']=start.isoformat() if start else None
-   p['away_probability']=1-p['home_probability']
-   matches=results.get((p['date'],p['home'],p['away']),[])
-   exact=[r for r in matches if r['event_id']==p['id'] or any(r['event_id']==prefix+p['id'] for prefix in ('mlb-','nhl-','nflverse-','nba-cdn-'))]
-   result=exact[0] if len(exact)==1 else matches[0] if len(matches)==1 else None
-   p['outcome']=result['outcome'] if result else None
-   p['correct']=((p['home_probability']>=.5)==(p['outcome']=='home')) if p['outcome'] in ('home','away') else None
-   p['home_score']=result['home_score'] if result else None;p['away_score']=result['away_score'] if result else None
+   p.update(prediction_policy=entry.get('prediction_policy','legacy rest policy'),event_start_utc=start.isoformat() if start else None,away_probability=1-p['home_probability'])
+   p['outcome']=result['outcome'] if result else entry.get('final_outcome',entry.get('outcome')) if entry.get('settled') else None
+   excluded=bool(entry.get('grading_excluded')) or bool(start and generated>=start)
+   p['correct']=((p['home_probability']>=.5)==(p['outcome']=='home')) if not excluded and p['outcome'] in ('home','away') else None
+   p['home_score']=result.get('home_score') if result else entry.get('home_score');p['away_score']=result.get('away_score') if result else entry.get('away_score')
+   p['result_source']=(result or status).get('source');p['result_checked']=status.get('checked')
+   p['result_status']='not_pregame' if excluded else 'graded' if isinstance(p['correct'],bool) else 'unscored' if p['outcome'] else status.get('state') if status.get('state') in ('canceled','postponed') else 'in_progress' if status.get('state')=='in_progress' else 'awaiting_result' if not start or asof-start>timedelta(hours=12) else 'pending'
+   p['grading_note']='Published after the source-verified start; excluded from accuracy.' if excluded else 'Verified event ID matched; saved probabilities unchanged.' if result else 'No verified final result yet.'
    archive.append(p)
   except (KeyError,TypeError,ValueError):continue
  return sorted(archive,key=lambda p:(p['date'],p['id']),reverse=True)
@@ -72,19 +79,23 @@ def export_snapshot(source_root,artifacts,asof=None):
  asof=asof.astimezone(timezone.utc);today=asof.date();artifacts=Path(artifacts)
  from .injuries import load_public as load_injuries, record_research
  injuries=load_injuries(source_root)
+ from .results import load as load_results,league_records
+ from .grading import combine
+ result_data=load_results(source_root)
  source=sqlite3.connect('file:'+quote(str((Path(source_root)/'lab.sqlite3').resolve()))+'?mode=ro',uri=True)
  snapshot={'schema_version':1,'generated_at':asof.isoformat(),'valid_until':(asof+timedelta(hours=24)).isoformat(),'rules':RULES,'mode':'public read-only model outputs','update_schedule':'Hourly at 17 minutes past the hour via GitHub Actions; runs can be delayed.','refresh_schedule':{'utc_hours':list(range(24)),'minute':17},'injuries':injuries,'leagues':[],'notes':['Original final tests stay sealed. Champion weights change only after a loss-triggered prospective improvement check.','Reported injuries are shown separately; starters, pitchers, goalies, weather and lineups remain unconfirmed. Numerical injury effects await prospective validation.','Scores and rolling result history only. No sportsbook-derived model features.','Forecasts expire at a source-verified event start time, or at the start of the event date when only a date is available.']}
  with tempfile.TemporaryDirectory(prefix='sportsml-public-') as temporary:
   isolated=connect(temporary)
   for league in LEAGUES:
    rows=public_rows(source,league)
+   grading_rows=combine(rows,league_records(result_data,league))
    if rows:ingest(isolated,rows)
    feed_record=source.execute('SELECT value FROM settings WHERE key=?',('feed_'+league,)).fetchone()
    feed=json.loads(feed_record[0]) if feed_record else {}
    feed_fresh=False
    try:feed_fresh=feed.get('status')=='ok' and timedelta(0)<=asof-parse_time(feed['checked'])<=timedelta(hours=24)
    except (KeyError,TypeError,ValueError):pass
-   item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'Initial model validation pending.','candidate_features':FEATURES[league],'teams':[],'injuries':injuries['leagues'].get(league,{'status':'unavailable','teams':{}})}
+   item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'future_schedule_error':feed.get('future_schedule_error'),'schedule_horizon_days':feed.get('schedule_horizon_days',14),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'Initial model validation pending.','candidate_features':FEATURES[league],'teams':[],'injuries':injuries['leagues'].get(league,{'status':'unavailable','teams':{}})}
    reports=[p for p in sorted(artifacts.glob(league+'-*.json')) if not p.name.endswith('-heldout.json')]
    from collections import defaultdict
    teams=defaultdict(list)
@@ -123,7 +134,7 @@ def export_snapshot(source_root,artifacts,asof=None):
      elif not artifact_path.exists():item['limitation']='Selected model artifact unavailable.'
      else:
       model_dir=Path(temporary)/'models';model_dir.mkdir(exist_ok=True)
-      champion,lifecycle=prepare(lifecycle_root,[r for r in rows if r['outcome'] in ('home','away')],report,artifact_path,outcomes=rows)
+      champion,lifecycle=prepare(lifecycle_root,[r for r in rows if r['outcome'] in ('home','away')],report,artifact_path,outcomes=grading_rows)
       import joblib
       joblib.dump(champion,model_dir/(report['id']+'.joblib'))
       item['lifecycle']=lifecycle
@@ -138,9 +149,10 @@ def export_snapshot(source_root,artifacts,asof=None):
       else:
        context=prediction_context(isolated,temporary,league,allow_updated_history=True)
        context['injury_report']=item['injuries'];context['asof']=asof
-       inputs=fixture_inputs(context['rows'],feed.get('upcoming',[]),champion['window'],champion['extra'],champion.get('variant','baseline'))
+       inputs=fixture_inputs(context['rows'],[f for f in feed.get('upcoming',[]) if f['date']<=(today+timedelta(days=14)).isoformat() and f.get('forecast_eligible',True)],champion['window'],champion['extra'],champion.get('variant','baseline'))
        seen=set()
        for fixture in feed.get('upcoming',[]):
+        if not fixture.get('forecast_eligible',True):continue
         safe={}
         try:
          identity=(fixture['date'],fixture['home'],fixture['away'])
@@ -171,8 +183,8 @@ def export_snapshot(source_root,artifacts,asof=None):
      except (ValueError,KeyError,TypeError) as e:item['lifecycle']['nba_box_research']={'status':'research unavailable','error':str(e)}
     item['lifecycle']['live_record']=record(lifecycle_root,item['predictions'])
     item['lifecycle']['feedback_policy']=REST_POLICY_VERSION if (lifecycle_root/'state.json').exists() and REST_POLICY_VERSION in json.loads((lifecycle_root/'state.json').read_text()).get('policy_ledgers',{}) else 'legacy'
-   item['prediction_history']=prediction_history(lifecycle_root,rows,asof)
-   item['injury_research']=record_research(source_root,league,item['predictions'],rows,asof) if league in injuries['leagues'] else {'status':'injury source not configured','production_adjustment':False}
+   item['prediction_history']=prediction_history(lifecycle_root,grading_rows,asof,[r for r in result_data.get('events',{}).values() if r.get('league')==league],feed.get('upcoming',[]))
+   item['injury_research']=record_research(source_root,league,item['predictions'],grading_rows,asof) if league in injuries['leagues'] else {'status':'injury source not configured','production_adjustment':False}
    snapshot['leagues'].append(item)
   # Estimating public forecasts must never write to either prediction ledger.
   assert isolated.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]==0
@@ -185,15 +197,19 @@ def export_snapshot(source_root,artifacts,asof=None):
 def write_site(snapshot,destination,project):
  destination=Path(destination);project=Path(project)
  if destination.exists() and destination.resolve()!=project.resolve():
-  allowed={'index.html','.nojekyll','web','web/app.js','web/prop-finder.js','web/style.css','web/icon.svg','web/data','web/data/snapshot.json'}
+  allowed={'index.html','.nojekyll','web','web/app.js','web/prop-finder.js','web/record.js','web/style.css','web/icon.svg','web/data','web/data/snapshot.json'}
   for existing in destination.rglob('*'):
    if existing.is_symlink() or str(existing.relative_to(destination)) not in allowed:
     raise ValueError('Output contains unexpected files; use a clean public build directory')
  destination.mkdir(parents=True,exist_ok=True)
  if destination.resolve()!=project.resolve():
-  shutil.copy2(project/'index.html',destination/'index.html')
+  html=(project/'index.html').read_text()
+  for asset in ('app.js','record.js','prop-finder.js','style.css'):
+   digest=hashlib.sha256((project/'web'/asset).read_bytes()).hexdigest()[:12]
+   html=re.sub(r'\./web/'+re.escape(asset)+r'(?:\?v=[^"\s]*)?',lambda match:'./web/'+asset+'?v='+digest,html)
+  (destination/'index.html').write_text(html)
   assets=destination/'web';assets.mkdir(exist_ok=True)
-  for name in ('app.js','prop-finder.js','style.css','icon.svg'):shutil.copy2(project/'web'/name,assets/name)
+  for name in ('app.js','prop-finder.js','record.js','style.css','icon.svg'):shutil.copy2(project/'web'/name,assets/name)
  (destination/'.nojekyll').write_text('')
  data=destination/'web'/'data';data.mkdir(parents=True,exist_ok=True)
  (data/'snapshot.json').write_text(json.dumps(snapshot,allow_nan=False,separators=(',',':'))+'\n')

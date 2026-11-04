@@ -7,6 +7,7 @@ import io
 import json
 from pathlib import Path
 import urllib.request
+import urllib.error
 from .data import connect, ingest, now
 
 FEEDS={
@@ -15,6 +16,8 @@ FEEDS={
  'NBA':{'url':'https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json','description':'NBA public CDN season schedule; only final result fields are ingested'},
  'NHL':{'url':'https://api-web.nhle.com/v1/schedule/','description':'NHL public schedule API, rolling 21-day window; CSV required for initial long history'},
 }
+
+SCHEDULE_DAYS=365
 
 ESPN_PATHS={'NBA':'basketball/nba','WNBA':'basketball/wnba','CFB':'football/college-football','UFC':'mma/ufc'}
 ESPN_SOURCES={league:'ESPN public scoreboard; completed results and scheduled events only' for league in ESPN_PATHS}
@@ -28,7 +31,7 @@ def espn_events(payload,league,source_url,today):
  """Use explicit final/winner fields; never ingest odds or current career statistics."""
  records=[];upcoming=[]
  for event in payload.get('events',[]):
-  if league in ('NBA','WNBA') and event.get('season',{}).get('type') not in (None,2,3,5):continue
+  eligible=league not in ('NBA','WNBA') or event.get('season',{}).get('type') in (None,2,3,5)
   # UFC's competitions are individual bouts, not the whole fight card.
   for bout in event.get('competitions',[]):
    competitors=bout.get('competitors',[])
@@ -47,7 +50,7 @@ def espn_events(payload,league,source_url,today):
    if not day:continue
    identity='espn-'+league.lower()+'-'+str(bout['id'])
    status=bout.get('status',event.get('status',{})).get('type',{})
-   if status.get('completed') and day<=today.isoformat():
+   if status.get('completed') and day<=today.isoformat() and eligible:
     if league=='UFC':
      # Winner flags represent outcomes; 1–0 is an encoding, never a fight score.
      if h.get('winner') is True:hs,aws,outcome=1,0,'home'
@@ -60,8 +63,8 @@ def espn_events(payload,league,source_url,today):
      if outcome=='draw' and league in ('NBA','WNBA'):continue
     row=game(identity,league,day,hn,an,hs,aws,ESPN_SOURCES[league],'1' if league=='UFC' or bout.get('neutralSite') else '0')
     row['outcome']=outcome;records.append(row)
-   elif status.get('state')=='pre' and today.isoformat()<=day<=(today+timedelta(days=14)).isoformat():
-    upcoming.append({'id':identity,'start_time':start,'date':day,'home':hn,'away':an,'neutral':'1' if league=='UFC' or bout.get('neutralSite') else '0','confirmed_source':True,'source':source_url})
+   elif status.get('state')=='pre' and today.isoformat()<=day<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat():
+    upcoming.append({'id':identity,'start_time':start,'date':day,'home':hn,'away':an,'neutral':'1' if league=='UFC' or bout.get('neutralSite') else '0','confirmed_source':True,'source':source_url,'forecast_eligible':eligible})
  return records,upcoming
 
 def refresh_espn(root,league,db,today):
@@ -83,6 +86,13 @@ def refresh_espn(root,league,db,today):
    records.extend(found);upcoming.extend(fixtures);manifests.append(manifest)
    if year<today.year:
     with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',(key,now()))
+  if league in ('WNBA',):
+   url=espn_url(league)+f'?dates={today.year+1}&limit=1000'
+   try:
+    raw,manifest=fetch(root,url,league);payload=json.loads(raw)
+    if len(payload.get('events',[]))>=1000:raise ValueError('Future season may be truncated')
+    _,fixtures=espn_events(payload,league,url,today);upcoming.extend(fixtures);manifests.append(manifest)
+   except (urllib.error.URLError,ValueError):pass
  else:
   # UFC supports date ranges and nests individual bouts in each fight card.
   import calendar
@@ -100,7 +110,7 @@ def refresh_espn(root,league,db,today):
     records.extend(found);manifests.append(manifest)
     if end<today-timedelta(days=35):
      with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',(key,now()))
-  url=espn_url(league)+f'?dates={today:%Y%m%d}-{today+timedelta(days=14):%Y%m%d}&limit=1000'
+  url=espn_url(league)+f'?dates={today:%Y%m%d}-{today+timedelta(days=SCHEDULE_DAYS):%Y%m%d}&limit=1000'
   raw,manifest=fetch(root,url,league);found,upcoming=espn_events(json.loads(raw),league,url,today);records.extend(found);manifests.append(manifest)
 
  return records,upcoming,manifests
@@ -121,14 +131,19 @@ def refresh_cfb_mirror(root,today):
    if day>today.isoformat() or r['status'] not in ('STATUS_FINAL','STATUS_FINAL_OVERTIME'):continue
    if r['home_score'] is None or r['away_score'] is None:continue
    records.append(game('espn-cfb-'+str(r['game_id']),'CFB',day,r['home_team'],r['away_team'],float(r['home_score']),float(r['away_score']),ESPN_SOURCES['CFB'],'1' if r['neutral_site'] else '0'))
- raw,m=fetch(root,CFB_FIXTURES.format(year=today.year),'CFB');manifests.append(m)
- for r in csv.DictReader(io.StringIO(raw.decode())):
-  if r.get('completed')=='TRUE':continue
-  start=r.get('start_date','');day=start[:10]
-  if not today.isoformat()<=day<=(today+timedelta(days=14)).isoformat():continue
-  h,a=teams.get(r['home_id']),teams.get(r['away_id'])
-  if not h or not a:continue
-  fixtures.append({'id':'espn-cfb-'+r['game_id'],'date':day,'start_time':start if r.get('start_time_tbd')=='FALSE' else None,'home':h,'away':a,'neutral':'1' if r.get('neutral_site')=='TRUE' else '0','confirmed_source':True,'source':m['url']})
+ for year in (today.year,today.year+1):
+  try:raw,m=fetch(root,CFB_FIXTURES.format(year=year),'CFB')
+  except urllib.error.URLError:
+   if year>today.year:continue
+   raise
+  manifests.append(m)
+  for r in csv.DictReader(io.StringIO(raw.decode())):
+   if r.get('completed')=='TRUE':continue
+   start=r.get('start_date','');day=start[:10]
+   if not today.isoformat()<=day<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat():continue
+   h,a=teams.get(r['home_id']) or r.get('home_team'),teams.get(r['away_id']) or r.get('away_team')
+   if not h or not a:continue
+   fixtures.append({'id':'espn-cfb-'+r['game_id'],'date':day,'start_time':start if r.get('start_time_tbd')=='FALSE' else None,'home':h,'away':a,'neutral':'1' if r.get('neutral_site')=='TRUE' else '0','confirmed_source':True,'source':m['url']})
  return records,fixtures,manifests
 
 NBA_MIRROR='https://raw.githubusercontent.com/sportsdataverse/hoopR-nba-data/main/nba/schedules/nba_schedule_master.csv'
@@ -137,17 +152,18 @@ def refresh_nba_mirror(root,today):
  raw,manifest=fetch(root,NBA_MIRROR,'NBA');records=[];fixtures=[]
  for r in csv.DictReader(io.StringIO(raw.decode())):
   day=r.get('date','')[:10]
-  if day<'2022-01-01' or r.get('season_type') not in ('2','3','5'):continue
+  if day<'2022-01-01':continue
+  eligible=r.get('season_type') in ('2','3','5')
   h,a=r.get('home_display_name'),r.get('away_display_name')
   if not h or not a or h==a:continue
   eid='espn-nba-'+r['id'];neutral='1' if r.get('neutral_site')=='true' else '0'
-  if r.get('status_type_completed')=='true' and day<=today.isoformat():
+  if r.get('status_type_completed')=='true' and day<=today.isoformat() and eligible:
    try:hs,aws=float(r['home_score']),float(r['away_score'])
    except (ValueError,KeyError):continue
    if hs==aws:continue
    records.append(game(eid,'NBA',day,h,a,hs,aws,ESPN_SOURCES['NBA'],neutral))
-  elif r.get('status_type_state')=='pre' and today.isoformat()<=day<=(today+timedelta(days=14)).isoformat():
-   fixtures.append({'id':eid,'start_time':r['date'] if r.get('time_valid')=='true' else None,'date':day,'home':h,'away':a,'neutral':neutral,'confirmed_source':True,'source':NBA_MIRROR})
+  elif r.get('status_type_state')=='pre' and today.isoformat()<=day<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat():
+   fixtures.append({'id':eid,'start_time':r['date'] if r.get('time_valid')=='true' else None,'date':day,'home':h,'away':a,'neutral':neutral,'confirmed_source':True,'source':NBA_MIRROR,'forecast_eligible':eligible})
  return records,fixtures,[manifest]
 
 def fetch(root,url,league):
@@ -166,8 +182,25 @@ def nfl_start(row):
 def game(eid,league,day,home,away,hs,aws,source,neutral='0'):
  return dict(event_id=eid,league=league,date=day,home=home,away=away,home_score=str(hs),away_score=str(aws),outcome='draw' if float(hs)==float(aws) else ('home' if float(hs)>float(aws) else 'away'),source=source,neutral=neutral)
 
+
+def nhl_full_schedule(root,today):
+ """One full-season request per club; deduplicate by the official game ID."""
+ from concurrent.futures import ThreadPoolExecutor
+ from .grading import NHL
+ start=today.year if today.month>=7 else today.year-1;season=f'{start}{start+1}'
+ fixtures={};manifests=[]
+ def get(team):return fetch(root,f'https://api-web.nhle.com/v1/club-schedule-season/{team}/{season}','NHL')
+ with ThreadPoolExecutor(max_workers=6) as pool:
+  for raw,manifest in pool.map(get,sorted(set(NHL.values()))):
+   manifests.append(manifest)
+   for r in json.loads(raw).get('games',[]):
+    day=r['gameDate']
+    if r.get('gameState') not in ('FUT','PRE') or r.get('gameScheduleState')=='PPD' or not today.isoformat()<=day<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat():continue
+    fixtures[str(r['id'])]={'id':str(r['id']),'start_time':r.get('startTimeUTC'),'date':day,'home':r.get('homeTeam',{}).get('abbrev','TBD'),'away':r.get('awayTeam',{}).get('abbrev','TBD'),'confirmed_source':True,'source':manifest['url'],'forecast_eligible':r.get('gameType') in (2,3)}
+ return list(fixtures.values()),manifests
+
 def refresh_one(root,league):
- db=connect(root); records=[]; upcoming=[]; manifests=[]; src=FEEDS[league]['description']; today=date.today()
+ db=connect(root); records=[]; upcoming=[]; manifests=[];future_schedule_error=None; src=FEEDS[league]['description']; today=date.today()
  if league in ESPN_PATHS:
   records,upcoming,manifests=refresh_espn(root,league,db,today)
  elif league=='NFL':
@@ -175,22 +208,23 @@ def refresh_one(root,league):
   for r in csv.DictReader(io.StringIO(raw.decode())):
    if int(r['season'])<2005: continue
    if not r['home_score'] or not r['away_score'] or r['gameday']>today.isoformat():
-    if today.isoformat()<=r['gameday']<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':r['game_id'],'start_time':nfl_start(r),'date':r['gameday'],'home':r['home_team'],'away':r['away_team'],'confirmed_source':True,'source':m['url']})
+    if today.isoformat()<=r['gameday']<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat(): upcoming.append({'id':r['game_id'],'start_time':nfl_start(r),'date':r['gameday'],'home':r['home_team'] or 'TBD','away':r['away_team'] or 'TBD','forecast_eligible':bool(r['home_team'] and r['away_team']),'confirmed_source':True,'source':m['url']})
     continue
    records.append(game('nflverse-'+r['game_id'],league,r['gameday'],r['home_team'],r['away_team'],r['home_score'],r['away_score'],src,'1' if r['location']=='Neutral' else '0'))
  elif league=='MLB':
   # Three calendar seasons; idempotent refresh. Never import incomplete or suspended games.
   first_year=2024 if db.execute("SELECT COUNT(*) FROM games WHERE league='MLB'").fetchone()[0]==0 else today.year
-  for year in range(first_year,today.year+1):
-   url=FEEDS[league]['url']+f'?sportId=1&startDate={year}-01-01&endDate={min(today+timedelta(days=14),date(year,12,31)).isoformat()}'
+  for year in range(first_year,(today+timedelta(days=SCHEDULE_DAYS)).year+1):
+   url=FEEDS[league]['url']+f'?sportId=1&startDate={year}-01-01&endDate={min(today+timedelta(days=SCHEDULE_DAYS),date(year,12,31)).isoformat()}'
    raw,m=fetch(root,url,league); manifests.append(m)
    for day in json.loads(raw).get('dates',[]):
     for r in day['games']:
-     if r.get('gameType') not in ('R','F','D','L','W'): continue
+     eligible=r.get('gameType') in ('R','F','D','L','W')
+     if not eligible and r['status']['abstractGameState']!='Preview':continue
      h,a=r['teams']['home'],r['teams']['away']; d=r.get('officialDate',day['date'])
-     if r['status']['abstractGameState']=='Final' and 'score' in h and 'score' in a:
+     if eligible and r['status']['abstractGameState']=='Final' and d<=today.isoformat() and 'score' in h and 'score' in a:
       records.append(game('mlb-'+str(r['gamePk']),league,d,h['team']['name'],a['team']['name'],h['score'],a['score'],src))
-     elif r['status']['abstractGameState']=='Preview' and today.isoformat()<=d<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':str(r['gamePk']),'start_time':r.get('gameDate'),'date':d,'home':h['team']['name'],'away':a['team']['name'],'confirmed_source':True,'source':m['url']})
+     elif r['status']['abstractGameState']=='Preview' and today.isoformat()<=d<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat(): upcoming.append({'id':str(r['gamePk']),'start_time':None if r.get('status',{}).get('startTimeTBD') else r.get('gameDate'),'date':d,'home':h['team']['name'],'away':a['team']['name'],'confirmed_source':True,'source':m['url'],'forecast_eligible':eligible and 'necessary' not in r['status'].get('detailedState','').lower(),'schedule_note':'Conditional game' if 'necessary' in r['status'].get('detailedState','').lower() else 'Exhibition' if not eligible else ''})
  elif league=='NBA':
   raw,m=fetch(root,FEEDS[league]['url'],league); manifests.append(m)
   for day in json.loads(raw)['leagueSchedule']['gameDates']:
@@ -200,7 +234,7 @@ def refresh_one(root,league):
     h,a=r['homeTeam'],r['awayTeam']; d=r['gameDateTimeUTC'][:10]
     if r['gameStatus']==3:
      records.append(game('nba-cdn-'+r['gameId'],league,d,h['teamTricode'],a['teamTricode'],h['score'],a['score'],src))
-    elif r['gameStatus']==1 and today.isoformat()<=d<=(today+timedelta(days=14)).isoformat(): upcoming.append({'id':r['gameId'],'start_time':r.get('gameDateTimeUTC'),'date':d,'home':h['teamTricode'],'away':a['teamTricode'],'confirmed_source':True,'source':m['url']})
+    elif r['gameStatus']==1 and today.isoformat()<=d<=(today+timedelta(days=SCHEDULE_DAYS)).isoformat(): upcoming.append({'id':r['gameId'],'start_time':r.get('gameDateTimeUTC'),'date':d,'home':h['teamTricode'],'away':a['teamTricode'],'confirmed_source':True,'source':m['url']})
  elif league=='NHL':
   for offset in (-14,-7,0,7):
    raw,m=fetch(root,FEEDS[league]['url']+(today+timedelta(days=offset)).isoformat(),league); manifests.append(m)
@@ -210,9 +244,14 @@ def refresh_one(root,league):
      h,a=r['homeTeam'],r['awayTeam']; d=day['date']
      if r['gameState'] in ('OFF','FINAL'): records.append(game('nhl-'+str(r['id']),league,d,h['abbrev'],a['abbrev'],h['score'],a['score'],src))
      elif r['gameState']=='FUT' and today.isoformat()<=d: upcoming.append({'id':str(r['id']),'start_time':r.get('startTimeUTC'),'date':d,'home':h['abbrev'],'away':a['abbrev'],'confirmed_source':True,'source':m['url']})
+ if league=='NHL':
+  try:
+   extra,more_manifests=nhl_full_schedule(root,today);upcoming=extra+upcoming;manifests.extend(more_manifests)
+  except (OSError,ValueError,KeyError,TypeError) as error:future_schedule_error=type(error).__name__
+ upcoming=list({f['id']:f for f in upcoming}.values())
  records=list({r['event_id']:r for r in records}.values())
  accepted=ingest(db,records) if records else 0
- status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':NBA_MIRROR if league=='NBA' else CFB_MIRROR.format(year=today.year) if league=='CFB' else espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'feed_type':'Daily final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
+ status={'league':league,'status':'ok','checked':now(),'accepted_rows':accepted,'upcoming':upcoming,'manifests':manifests,'latest_result':db.execute('SELECT MAX(date) FROM games WHERE league=?',(league,)).fetchone()[0],'provider_url':NBA_MIRROR if league=='NBA' else CFB_MIRROR.format(year=today.year) if league=='CFB' else espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url'],'last_success':now(),'schedule_horizon_days':SCHEDULE_DAYS,'future_schedule_error':future_schedule_error,'feed_type':'Hourly final results and upcoming schedules; not a live play-by-play stream','notes':'Final results only. Lineups, injury reports and sport-specific advanced inputs remain unconfirmed. Source revisions with conflicting immutable IDs require review.'}
  with db: db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('feed_'+league,json.dumps(status)))
  db.close(); return status
 

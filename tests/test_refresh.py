@@ -33,3 +33,41 @@ def test_nfl_eastern_kickoff_converts_to_utc_with_daylight_saving():
  assert refresh.nfl_start({'gameday':'2026-10-22','gametime':'20:15'})=='2026-10-23T00:15:00+00:00'
  assert refresh.nfl_start({'gameday':'2026-12-20','gametime':'20:15'})=='2026-12-21T01:15:00+00:00'
  assert refresh.nfl_start({'gameday':'2026-10-22','gametime':''}) is None
+
+def test_nba_schedule_includes_far_future_and_preseason_without_training_it(monkeypatch,tmp_path):
+ from sportslab.refresh import refresh_nba_mirror
+ from datetime import date
+ raw=b'id,date,season_type,home_display_name,away_display_name,status_type_completed,status_type_state,home_score,away_score,neutral_site,time_valid\n1,2027-03-01T00:00Z,2,A,B,false,pre,,,false,true\n2,2026-12-01T00:00Z,1,A,B,false,pre,,,false,true\n3,2026-10-01T00:00Z,1,A,B,true,post,100,90,false,true\n'
+ monkeypatch.setattr('sportslab.refresh.fetch',lambda *a:(raw,{'url':'https://raw.githubusercontent.com/source'}))
+ rows,fixtures,_=refresh_nba_mirror(tmp_path,date(2026,11,4))
+ assert not rows and len(fixtures)==2
+ assert fixtures[0]['forecast_eligible'] and not fixtures[1]['forecast_eligible']
+
+def test_nhl_full_season_is_deduplicated_and_keeps_far_future(monkeypatch,tmp_path):
+ from sportslab.refresh import nhl_full_schedule
+ from datetime import date
+ import json
+ game={'id':2026021000,'gameDate':'2027-03-01','startTimeUTC':'2027-03-01T00:00Z','gameState':'FUT','gameType':2,'homeTeam':{'abbrev':'SEA'},'awayTeam':{'abbrev':'CGY'}}
+ calls=[]
+ def source(root,url,league):calls.append(url);return json.dumps({'games':[game]}).encode(),{'url':url}
+ monkeypatch.setattr('sportslab.refresh.fetch',source)
+ fixtures,_=nhl_full_schedule(tmp_path,date(2026,11,4))
+ assert len(calls)==32 and len(fixtures)==1 and fixtures[0]['date']=='2027-03-01'
+
+def test_mlb_published_schedule_crosses_into_next_year(monkeypatch,tmp_path):
+ from sportslab.refresh import refresh_one
+ from datetime import date
+ import json
+ class FixedDate(date):
+  @classmethod
+  def today(cls):return cls(2026,11,4)
+ monkeypatch.setattr('sportslab.refresh.date',FixedDate);calls=[]
+ def source(root,url,league):
+  calls.append(url)
+  games=[] if 'startDate=2027-' not in url else [{'date':'2027-03-01','games':[{'gamePk':123,'gameType':'R','officialDate':'2027-03-01','gameDate':'2027-03-01T23:00Z','status':{'abstractGameState':'Preview','detailedState':'Scheduled'},'teams':{'home':{'team':{'name':'Synthetic A'}},'away':{'team':{'name':'Synthetic B'}}}}]}]
+  return json.dumps({'dates':games}).encode(),{'url':url,'sha256':'test-only'}
+ monkeypatch.setattr('sportslab.refresh.fetch',source)
+ status=refresh_one(tmp_path,'MLB')
+ assert any('startDate=2027-01-01' in url for url in calls)
+ assert len(status['upcoming'])==1 and status['upcoming'][0]['date']=='2027-03-01'
+ assert status['schedule_horizon_days']==365 and status['accepted_rows']==0

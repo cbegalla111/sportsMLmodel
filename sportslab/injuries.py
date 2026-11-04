@@ -141,8 +141,13 @@ def record_research(root,league,predictions,results,asof=None,players=None):
  for row in state['events'].values():
   if stamp(row['event_start_utc'])>asof:continue
   identity=row['id'];matches=[r for key,r in by_id.items() if key==identity or key.endswith('-'+identity.removeprefix('espn-'+league.lower()+'-'))]
-  if len(matches)==1 and matches[0]['outcome'] in ('home','away'):
-   row['outcome']=int(matches[0]['outcome']=='home')
+  if len(matches)==1:
+   final=matches[0];invalid=False
+   if final.get('start_time'):invalid=not timedelta(0)<stamp(final['start_time'])-stamp(row['observed_at'])<=timedelta(hours=24)
+   if invalid or final.get('state') in ('canceled','postponed') or final.get('outcome') in ('draw','no_contest'):
+    row.update(outcome=None,grading_excluded=True,settled_no_decision=True,grading_status='unscored')
+   elif final.get('outcome') in ('home','away'):
+    row.update(outcome=int(final['outcome']=='home'),grading_excluded=False,settled_no_decision=False,grading_status='graded')
  for p in predictions:
   context=p.get('injury_context',{})
   try:
@@ -159,15 +164,15 @@ def record_research(root,league,predictions,results,asof=None,players=None):
  temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(state,allow_nan=False,separators=(',',':')));temporary.replace(path)
  report=review(state['events'].values())
  captures=list(state['events'].values());times=[r['observed_at'] for r in captures]
- report.update(archive_reports=len(list((Path(root)/'public-injuries'/'archives'/league).glob('*.json*'))),first_capture_at=min(times) if times else None,last_capture_at=max(times) if times else None,records_with_player_production=sum(r.get('feature_schema')==NBA_SCHEMA for r in captures),recent_captures=[{k:r.get(k) for k in ('id','date','home','away','observed_at','event_start_utc','feature_schema','outcome')} for r in sorted(captures,key=lambda r:r['observed_at'],reverse=True)[:8]])
+ report.update(archive_reports=len(list((Path(root)/'public-injuries'/'archives'/league).glob('*.json*'))),first_capture_at=min(times) if times else None,last_capture_at=max(times) if times else None,records_with_player_production=sum(r.get('feature_schema')==NBA_SCHEMA for r in captures),recent_captures=[{k:r.get(k) for k in ('id','date','home','away','observed_at','event_start_utc','feature_schema','outcome','grading_status')} for r in sorted(captures,key=lambda r:r['observed_at'],reverse=True)[:8]])
  return report
 
 def review(events):
  """Research only. Original winner-model promotion gates remain in force."""
  events=list(events);schema=NBA_SCHEMA if any(r.get('feature_schema')==NBA_SCHEMA for r in events) else 'injury-counts-v1'
  eligible=[r for r in events if r.get('feature_schema','injury-counts-v1')==schema]
- rows=sorted([r for r in eligible if r.get('outcome') in (0,1)],key=lambda r:(r['date'],r['id']))
- report={'status':'collecting prospective injury observations','settled':len(rows),'minimum_settled':200,'recorded':len(events),'pending':sum(r.get('outcome') is None for r in events),'settled_all':sum(r.get('outcome') in (0,1) for r in events),'training_recorded':len(eligible),'excluded_legacy_schema':len(events)-len(eligible),'feature_schema':schema,'feature_names':NBA_FEATURES if schema==NBA_SCHEMA else FEATURES,'production_adjustment':False,'note':'No injury probability adjustment is approved. A historical research comparison cannot replace the required future promotion checks.'}
+ rows=sorted([r for r in eligible if r.get('outcome') in (0,1) and not r.get('grading_excluded')],key=lambda r:(r['date'],r['id']))
+ report={'status':'collecting prospective injury observations','settled':len(rows),'minimum_settled':200,'recorded':len(events),'pending':sum(r.get('outcome') is None and not r.get('settled_no_decision') for r in events),'unscored':sum(bool(r.get('settled_no_decision')) for r in events),'settled_all':sum(r.get('outcome') in (0,1) for r in events),'training_recorded':len(eligible),'excluded_legacy_schema':len(events)-len(eligible),'feature_schema':schema,'feature_names':NBA_FEATURES if schema==NBA_SCHEMA else FEATURES,'production_adjustment':False,'note':'No injury probability adjustment is approved. A historical research comparison cannot replace the required future promotion checks.'}
  if len(rows)<200:return report
  import numpy as np
  from sklearn.linear_model import LogisticRegression

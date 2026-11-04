@@ -179,3 +179,13 @@ def test_injury_context_is_public_and_does_not_invent_probability_penalties(publ
  assert p['injury_context']['teams']['Synthetic A'][0]['status']=='Out'
  assert p['injury_context']['model_adjusted'] is False
  assert snapshot['injuries']['leagues']['NFL']['status']=='ok'
+
+def test_far_future_fixtures_remain_visible_without_fabricated_forecasts(public_source):
+ root,artifacts,db,feed,asof=public_source
+ far=dict(feed['upcoming'][0],id='far',date=(asof.date()+timedelta(days=90)).isoformat())
+ exhibition=dict(feed['upcoming'][0],id='exhibition',forecast_eligible=False)
+ feed['upcoming']=[far,exhibition];feed['schedule_horizon_days']=365
+ with db:db.execute('UPDATE settings SET value=? WHERE key=?',(json.dumps(feed),'feed_NFL'))
+ league=next(l for l in export_snapshot(root,artifacts,asof)['leagues'] if l['name']=='NFL')
+ assert len(league['schedule'])==2 and league['schedule_horizon_days']==365
+ assert not league['predictions']

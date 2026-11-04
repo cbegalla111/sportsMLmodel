@@ -29,7 +29,7 @@ jobs:
       - run: python -m pytest -q
       - run: node --check web/app.js
       - run: node --check web/prop-finder.js
-      - run: node --test tests/prop-finder.test.cjs
+      - run: node --test tests/prop-finder.test.cjs tests/record.test.cjs
       - uses: actions/configure-pages@v5
       - name: Restore public-source history
         uses: actions/cache/restore@v4

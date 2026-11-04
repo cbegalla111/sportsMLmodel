@@ -19,8 +19,8 @@ function playerAvailability(player,report,now=Date.now()){
  return {eligible:match.category==='listed_active',status:match.status,category:match.category,reported_at:match.reported_at};
 }
 
-function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',market='all',now=Date.now(),maxAgeDays=30,injuryReport=null,requireInjuryReport=false}={}){
- if(!fixture||!Number.isFinite(Date.parse(fixture.start_time))||Date.parse(fixture.start_time)<=now)return [];
+function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',market='all',now=Date.now(),maxAgeDays=30,maxForecastDays=14,injuryReport=null,requireInjuryReport=false}={}){
+ if(!fixture||!Number.isFinite(Date.parse(fixture.start_time))||Date.parse(fixture.start_time)<=now||Date.parse(fixture.start_time)-now>maxForecastDays*86400000)return [];
  const start=Date.parse(fixture.start_time),candidates=[];
  for(const player of players){
   if(![fixture.home,fixture.away].includes(player.team))continue;

@@ -102,26 +102,25 @@ def prepare(root,rows,report,original_path,outcomes=None):
     try:adaptive_review['nba_focus_research']=nba_context_review(root,rows,recent_review)
     except ValueError as error:adaptive_review['nba_focus_research']={'status':'research pending','error':str(error),'new_method_selected':False}
  final_rows=outcomes if outcomes is not None else rows
- by_id={r['event_id']:r for r in final_rows};by_match={}
- for r in final_rows:by_match.setdefault((r['date'],r['home'],r['away']),[]).append(r)
+ from .grading import ResultIndex
+ index=ResultIndex(final_rows)
  all_entries=list(state['ledger'].values())+[e for ledger in state.get('policy_ledgers',{}).values() for e in ledger.values()]
  for entry in all_entries:
-  if entry.get('settled'):continue
-  identity=(entry['date'],entry['home'],entry['away']);result=None
-  for eid in (entry['id'],*[(prefix+entry['id']) for prefix in ('mlb-','nhl-','nflverse-','nba-cdn-')]):
-   found=by_id.get(eid)
-   if found and (found['date'],found['home'],found['away'])==identity:
-    result=found;break
-  if result is None and len(by_match.get(identity,[]))==1:result=by_match[identity][0]
+  result=index.find(entry)
   if result:
-   entry.update(settled=True,outcome=result['outcome'])
-   if result['outcome'] in ('home','away'):entry['correct']=(entry['home_probability']>=.5)==(result['outcome']=='home')
+   excluded=bool(entry.get('grading_excluded'))
+   if result.get('start_time') and entry.get('generated_at'):
+    from .pages import parse_time
+    excluded=parse_time(entry['generated_at'])>=parse_time(result['start_time'])
+   entry.update(settled=True,outcome=None if excluded else result['outcome'],final_outcome=result['outcome'],grading_excluded=excluded,home_score=result.get('home_score'),away_score=result.get('away_score'))
+   entry['correct']=((entry['home_probability']>=.5)==(result['outcome']=='home')) if not excluded and result['outcome'] in ('home','away') else None
  from .rest import VERSION as rest_version
  feedback_policy=rest_version if rest_version in state.get('policy_ledgers',{}) else 'legacy'
  feedback=state.get('policy_ledgers',{}).get(rest_version,state['ledger'])
  if state.get('feedback_policy','legacy')!=feedback_policy:state['consumed_losses']=0
  state['feedback_policy']=feedback_policy
  losses=sum(e.get('correct') is False for e in feedback.values());wins=sum(e.get('correct') is True for e in feedback.values())
+ state['consumed_losses']=min(state['consumed_losses'],losses)
  trial=state.get('trial')
  if trial and trial.get('prediction_policy')!=rest_version:
   state.setdefault('policy_changes',[]).append({'at':now(),'previous_trial_after':trial['after'],'prediction_policy':rest_version})

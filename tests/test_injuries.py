@@ -97,3 +97,9 @@ def test_compressed_injury_archives_retain_timestamp_and_payload_hash(tmp_path):
  assert archived['sha256']==hashlib.sha256(json.dumps(archived['payload'],sort_keys=True).encode()).hexdigest()
  p=prediction(parse(payload(),'NBA',NOW));report=record_research(tmp_path,'NBA',[p],[],NOW)
  assert report['archive_reports']==1 and report['recorded']==1 and report['pending']==1
+
+def test_corrected_official_start_cannot_label_postgame_injury_data(tmp_path):
+ p=prediction(parse(payload(),'NBA',NOW));record_research(tmp_path,'NBA',[p],[],NOW)
+ final={'event_id':'espn-nba-123','outcome':'home','start_time':(NOW-timedelta(hours=1)).isoformat()}
+ r=record_research(tmp_path,'NBA',[],[final],NOW+timedelta(hours=5))
+ assert r['pending']==0 and r['unscored']==1 and r['settled']==0
