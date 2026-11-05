@@ -19,7 +19,7 @@ function playerAvailability(player,report,now=Date.now()){
  return {eligible:match.category==='listed_active',status:match.status,category:match.category,reported_at:match.reported_at};
 }
 
-function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',market='all',now=Date.now(),maxAgeDays=30,maxForecastDays=14,injuryReport=null,requireInjuryReport=false,historicalOnly=false,allTeams=false,perfectOnly=false,lookback=20}={}){
+function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',market='all',now=Date.now(),maxAgeDays=30,maxForecastDays=14,injuryReport=null,requireInjuryReport=false,historicalOnly=false,allTeams=false,perfectOnly=false,lookback=20,mode='line'}={}){
  if(!historicalOnly&&(!fixture||!Number.isFinite(Date.parse(fixture.start_time))||Date.parse(fixture.start_time)<=now||Date.parse(fixture.start_time)-now>maxForecastDays*86400000))return [];
  const start=historicalOnly?now:Date.parse(fixture.start_time),candidates=[];
  for(const player of players){
@@ -28,10 +28,17 @@ function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',mar
   if(requireInjuryReport&&!availability.eligible)continue;
   const games=player.games.filter(g=>Date.parse(g.start_time)<Math.min(start,now)).sort((a,b)=>Date.parse(b.start_time)-Date.parse(a.start_time));
   if(!games.length||now-Date.parse(games[0].start_time)>maxAgeDays*86400000)continue;
-  for(const [stat,lines] of Object.entries(PROP_LINES)){
+  const statistics=mode==='target'?[...new Set(games.flatMap(g=>Object.keys(g.values||{})))].map(stat=>[stat,[]]):Object.entries(PROP_LINES);
+  for(const [stat,lines] of statistics){
    if(market!=='all'&&market!==stat)continue;
    const observations=games.filter(g=>Number.isFinite(g.values[stat])).slice(0,lookback);
    if(observations.length<minGames)continue;
+   if(mode==='target'){
+    const target=historicalStatTarget(observations,stat,perfectOnly?1:minimum);if(!target)continue;
+    const recent=observations.slice(0,5);let streak=0;for(const g of observations){if(g.values[stat]<target.line)break;streak++;}
+    candidates.push({...target,player:player.name,player_id:player.id,team:player.team,market:stat,side:'at least',mode:'target',streak,recentHits:recent.filter(g=>g.values[stat]>=target.line).length,recentN:recent.length,observations,latest:observations[0].start_time,event_id:fixture?.id||null,availability});
+    continue;
+   }
    let best=null;
    for(const direction of side==='both'?['over','under']:[side]){
     // Strongest threshold that still meets the user's minimum, rather than many redundant lines.
@@ -54,6 +61,13 @@ function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',mar
  }
  return candidates.sort((a,b)=>b.lower-a.lower||b.score-a.score||b.n-a.n||a.player.localeCompare(b.player)||a.market.localeCompare(b.market));
 }
+function historicalStatTarget(observations,stat,rate=.9){
+ if(!Number.isFinite(rate)||rate<=0||rate>1)return null;
+ const values=observations.map(g=>g.values?.[stat]).filter(Number.isFinite).sort((a,b)=>b-a),n=values.length;if(!n)return null;
+ const required=Math.ceil(rate*n-1e-12),line=values[required-1],hits=values.filter(v=>v>=line).length,p=hits/n,z=1.96,den=1+z*z/n;
+ const lower=(p+z*z/(2*n)-z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n)))/den;
+ return {line,hits,n,required,requestedRate:rate,observedRate:p,score:(hits+2)/(n+4),lower};
+}
 function findPerfectProps(players,{sample=10,side='both',market='all',now=Date.now(),injuryReport=null}={}){
  if(![5,10,20].includes(sample))return [];
  return findPlayerProps(players,null,{minimum:0,minGames:sample,lookback:sample,side,market,now,injuryReport,historicalOnly:true,allTeams:true,perfectOnly:true});
@@ -70,4 +84,4 @@ function findDailyProps(sources,options={}){
  }
  return found.sort((a,b)=>b.lower-a.lower||b.score-a.score||b.n-a.n||a.player.localeCompare(b.player)||a.market.localeCompare(b.market)||a.sport.localeCompare(b.sport)||String(a.event_id).localeCompare(String(b.event_id)));
 }
-if(typeof module!=='undefined')module.exports={findPlayerProps,findPerfectProps,findDailyProps,PROP_LINES,playerAvailability};
+if(typeof module!=='undefined')module.exports={findPlayerProps,findPerfectProps,findDailyProps,historicalStatTarget,PROP_LINES,playerAvailability};
