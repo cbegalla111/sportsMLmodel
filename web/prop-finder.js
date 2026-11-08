@@ -19,8 +19,8 @@ function playerAvailability(player,report,now=Date.now()){
  return {eligible:match.category==='listed_active',status:match.status,category:match.category,reported_at:match.reported_at};
 }
 
-function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',market='all',now=Date.now(),maxAgeDays=30,maxForecastDays=14,injuryReport=null,requireInjuryReport=false,historicalOnly=false,allTeams=false,perfectOnly=false,lookback=20,mode='line'}={}){
- if(!historicalOnly&&(!fixture||!Number.isFinite(Date.parse(fixture.start_time))||Date.parse(fixture.start_time)<=now||Date.parse(fixture.start_time)-now>maxForecastDays*86400000))return [];
+function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',market='all',now=Date.now(),maxAgeDays=30,maxForecastDays=14,injuryReport=null,requireInjuryReport=false,historicalOnly=false,allTeams=false,perfectOnly=false,lookback=20,mode='line',allowStarted=false}={}){
+ if(!historicalOnly&&(!fixture||!Number.isFinite(Date.parse(fixture.start_time))||(!allowStarted&&Date.parse(fixture.start_time)<=now)||Date.parse(fixture.start_time)-now>maxForecastDays*86400000))return [];
  const start=historicalOnly?now:Date.parse(fixture.start_time),candidates=[];
  for(const player of players){
   if(!allTeams&&![fixture.home,fixture.away].includes(player.team))continue;
@@ -34,7 +34,7 @@ function findPlayerProps(players,fixture,{minimum=.7,minGames=10,side='over',mar
    const observations=games.filter(g=>Number.isFinite(g.values[stat])).slice(0,lookback);
    if(observations.length<minGames)continue;
    if(mode==='target'){
-    const target=historicalStatTarget(observations,stat,perfectOnly?1:minimum);if(!target)continue;
+    const target=historicalStatTarget(observations,stat,perfectOnly?1:minimum);if(!target||target.line<=0)continue;
     const recent=observations.slice(0,5);let streak=0;for(const g of observations){if(g.values[stat]<target.line)break;streak++;}
     candidates.push({...target,player:player.name,player_id:player.id,team:player.team,market:stat,side:'at least',mode:'target',streak,recentHits:recent.filter(g=>g.values[stat]>=target.line).length,recentN:recent.length,observations,latest:observations[0].start_time,event_id:fixture?.id||null,availability});
     continue;

@@ -88,6 +88,7 @@ def refresh_espn(root,league,db,today):
     with db:db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',(key,now()))
   if league in ('WNBA',):
    url=espn_url(league)+f'?dates={today.year+1}&limit=1000'
+   if league=='CFB':url+='&groups=80'
    try:
     raw,manifest=fetch(root,url,league);payload=json.loads(raw)
     if len(payload.get('events',[]))>=1000:raise ValueError('Future season may be truncated')
@@ -266,3 +267,46 @@ def run(root):
    with db: db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('feed_'+league,json.dumps(status)))
    db.close(); results.append(status)
  return results
+
+
+def daily_events(payload,league,day):
+ """All published events on an Eastern calendar day, regardless of game state."""
+ events={};zone=ZoneInfo('America/New_York')
+ for event in payload.get('events',[]):
+  for competition in event.get('competitions',[]):
+   competitors=competition.get('competitors',[])
+   if len(competitors)!=2:continue
+   if league=='UFC':h,a=sorted(competitors,key=lambda c:str(c.get('id','')))
+   else:
+    sides={c.get('homeAway'):c for c in competitors}
+    if not all(k in sides for k in ('home','away')):continue
+    h,a=sides['home'],sides['away']
+   kind='athlete' if league=='UFC' else 'team';home=h.get(kind,{}).get('displayName');away=a.get(kind,{}).get('displayName')
+   start=competition.get('date') or event.get('date')
+   try:local=datetime.fromisoformat(start.replace('Z','+00:00')).astimezone(zone).date()
+   except (ValueError,TypeError,AttributeError):continue
+   if local!=day or not home or not away:continue
+   status=competition.get('status',event.get('status',{})).get('type',{});identity='espn-'+league.lower()+'-'+str(competition['id'])
+   events[identity]={'id':identity,'date':day.isoformat(),'start_time':start,'home':home,'away':away,'state':status.get('state','unknown'),'completed':bool(status.get('completed')),'status_label':status.get('description') or status.get('detail') or status.get('name','Status unavailable'),'confirmed_source':True}
+ return sorted(events.values(),key=lambda e:(e['start_time'],e['id']))
+
+
+def refresh_daily_schedules(root,asof=None):
+ """Independent all-state daily calendar; never added to training or forecasts."""
+ asof=asof or datetime.now(timezone.utc);day=asof.astimezone(ZoneInfo('America/New_York')).date();reports=[]
+ paths=dict(ESPN_PATHS,NFL='football/nfl',MLB='baseball/mlb',NHL='hockey/nhl')
+ with connect(root) as db:
+  for league,path in paths.items():
+   base=f'https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard'
+   try:
+    events={}
+    for query_day in (day,day+timedelta(days=1)):
+     url=f'{base}?dates={query_day:%Y%m%d}&limit=1000'+('&groups=80' if league=='CFB' else '')
+     raw,manifest=fetch(root,url,league);payload=json.loads(raw)
+     if not isinstance(payload.get('events'),list):raise ValueError('Missing event list')
+     for event in daily_events(payload,league,day):event['source']=url;events[event['id']]=event
+    report={'status':'ok','day':day.isoformat(),'checked':asof.isoformat(),'events':sorted(events.values(),key=lambda e:(e['start_time'],e['id'])),'source':base}
+   except (OSError,ValueError,KeyError,TypeError) as error:
+    report={'status':'error','day':day.isoformat(),'checked':asof.isoformat(),'events':[],'error':type(error).__name__}
+   db.execute('INSERT OR REPLACE INTO settings VALUES(?,?)',('daily_schedule_'+league,json.dumps(report)));reports.append({'league':league,'status':report['status'],'events':len(report['events'])})
+ return reports

@@ -36,6 +36,9 @@ if args.refresh:
 if args.refresh:
  from sportslab.results import refresh as refresh_results
  print('Saved prediction result checks:',refresh_results(root),flush=True)
+if args.refresh:
+ from sportslab.refresh import refresh_daily_schedules
+ print('All-state daily calendars:',refresh_daily_schedules(root),flush=True)
 snapshot=export_snapshot(root,Path('artifacts'))
 write_site(snapshot,Path(args.output),Path.cwd())
 print('Built public dashboard:',[(s['name'],s['result_count'],len(s['predictions'])) for s in snapshot['leagues']],flush=True)

@@ -96,6 +96,8 @@ def export_snapshot(source_root,artifacts,asof=None):
    try:feed_fresh=feed.get('status')=='ok' and timedelta(0)<=asof-parse_time(feed['checked'])<=timedelta(hours=24)
    except (KeyError,TypeError,ValueError):pass
    item={'name':league,'result_count':len(rows),'data_from':rows[0]['date'] if rows else None,'data_through':rows[-1]['date'] if rows else None,'sources':sorted({r['source'] for r in rows}),'feed_checked':feed.get('checked'),'feed_last_success':feed.get('last_success'),'feed_provider':feed.get('provider_url',espn_url(league) if league in ESPN_PATHS else FEEDS[league]['url']),'feed_error':feed.get('error') if feed.get('status')!='ok' else None,'feed_type':feed.get('feed_type','Daily final results and upcoming schedules; not live play-by-play'),'future_schedule_error':feed.get('future_schedule_error'),'schedule_horizon_days':feed.get('schedule_horizon_days',14),'schedule':feed.get('upcoming',[]) if feed_fresh else [],'lifecycle':None,'feed_status':'fresh' if feed_fresh else ('unavailable' if not feed or feed.get('status')!='ok' else 'stale'),'benchmark':None,'predictions':[],'withheld':[],'recent_results':rows[-20:][::-1],'status':'not validated','limitation':'Initial model validation pending.','candidate_features':FEATURES[league],'teams':[],'injuries':injuries['leagues'].get(league,{'status':'unavailable','teams':{}})}
+   daily=source.execute('SELECT value FROM settings WHERE key=?',('daily_schedule_'+league,)).fetchone()
+   item['daily_schedule']=json.loads(daily[0]) if daily else None
    reports=[p for p in sorted(artifacts.glob(league+'-*.json')) if not p.name.endswith('-heldout.json')]
    from collections import defaultdict
    teams=defaultdict(list)
