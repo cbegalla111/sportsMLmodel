@@ -44,6 +44,14 @@ jobs:
         with:
           path: .pages-runtime
           key: ${{ runner.os }}-sportsml-public-v1-${{ github.run_id }}
+      - name: Back up public prediction ledgers
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-prediction-ledgers-${{ github.run_id }}
+          path: .pages-runtime/public-lifecycle/**/state.json
+          include-hidden-files: true
+          retention-days: 90
+          if-no-files-found: warn
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

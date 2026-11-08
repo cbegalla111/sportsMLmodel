@@ -81,13 +81,22 @@ def load_public(root):
  try:return json.loads((Path(root)/'public-injuries'/'snapshot.json').read_text())
  except (OSError,ValueError):return {'version':VERSION,'leagues':{}}
 
-def matchup(report,home,away,asof=None):
+NFL_TEAMS=dict(zip('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LV LAC LAR MIA MIN NE NO NYG NYJ PHI PIT SF SEA TB TEN WAS'.split(),['Arizona Cardinals','Atlanta Falcons','Baltimore Ravens','Buffalo Bills','Carolina Panthers','Chicago Bears','Cincinnati Bengals','Cleveland Browns','Dallas Cowboys','Denver Broncos','Detroit Lions','Green Bay Packers','Houston Texans','Indianapolis Colts','Jacksonville Jaguars','Kansas City Chiefs','Las Vegas Raiders','Los Angeles Chargers','Los Angeles Rams','Miami Dolphins','Minnesota Vikings','New England Patriots','New Orleans Saints','New York Giants','New York Jets','Philadelphia Eagles','Pittsburgh Steelers','San Francisco 49ers','Seattle Seahawks','Tampa Bay Buccaneers','Tennessee Titans','Washington Commanders']))
+
+def team_injuries(report,name,league=None):
+ from .grading import team
+ league=league or report.get('league')
+ canonical=NFL_TEAMS.get({'JAC':'JAX','LA':'LAR'}.get(name,name),name) if league=='NFL' else name
+ matches=[rows for key,rows in report.get('teams',{}).items() if team(key)==team(canonical)]
+ return matches[0] if len(matches)==1 else []
+
+def matchup(report,home,away,asof=None,league=None):
  asof=asof or datetime.now(timezone.utc)
  try:fresh=report.get('status')=='ok' and stamp(report['checked'])<=asof<stamp(report['valid_until'])
  except (ValueError,KeyError,TypeError):fresh=False
- teams={team:report.get('teams',{}).get(team,[]) for team in (home,away)}
+ teams={team:team_injuries(report,team,league) for team in (home,away)}
  affected=any(p['category']!='listed_active' for players in teams.values() for p in players)
- return {'version':VERSION,'status':'review_required' if fresh and affected else 'report_checked' if fresh else 'unverified','checked':report.get('checked'),'valid_until':report.get('valid_until'),'source':report.get('source'),'teams':teams,'model_adjusted':False,'probability_label':'Result-history baseline; no validated injury adjustment','note':'Reported absences and uncertain statuses require lineup review. No arbitrary probability penalty is applied.' if fresh else 'Fresh injury coverage is unavailable; absence from this report is not clearance.'}
+ return {'version':VERSION,'status':'review_required' if fresh and affected else 'report_checked' if fresh else 'unverified','checked':report.get('checked'),'valid_until':report.get('valid_until'),'source':report.get('source'),'teams':teams,'affected_players':[{**p,'team':team} for team,players in teams.items() for p in players if p.get('category')!='listed_active'] if fresh else [],'risk_level':'availability_review' if fresh and affected else 'coverage_unverified' if not fresh else 'report_checked','model_adjusted':False,'probability_label':'Result-history baseline; no validated injury adjustment','note':'Reported absences and uncertain statuses require lineup review. No arbitrary probability penalty is applied.' if fresh else 'Fresh injury coverage is unavailable; absence from this report is not clearance.'}
 
 def injury_features(p,context):
  import math

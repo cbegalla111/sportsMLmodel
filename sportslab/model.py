@@ -192,7 +192,7 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  from .injuries import load_public as load_injuries,matchup as injury_matchup
  injury_report=context.get('injury_report')
  if injury_report is None:injury_report=load_injuries(root)['leagues'].get(league,{})
- result['injury_context']=injury_matchup(injury_report,home,away,context.get('asof'))
+ result['injury_context']=injury_matchup(injury_report,home,away,context.get('asof'),league=league)
  result['availability']='Reported injuries are provided in injury context. This result-history probability has no validated injury adjustment; starting roles and lineups remain unconfirmed.'
  return result
 

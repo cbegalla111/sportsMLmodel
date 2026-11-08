@@ -103,3 +103,16 @@ def test_corrected_official_start_cannot_label_postgame_injury_data(tmp_path):
  final={'event_id':'espn-nba-123','outcome':'home','start_time':(NOW-timedelta(hours=1)).isoformat()}
  r=record_research(tmp_path,'NBA',[],[final],NOW+timedelta(hours=5))
  assert r['pending']==0 and r['unscored']==1 and r['settled']==0
+
+
+def test_matchup_resolves_nfl_and_nhl_schedule_abbreviations():
+ from sportslab.injuries import matchup
+ from datetime import datetime,timedelta,timezone
+ now=datetime(2026,11,8,12,tzinfo=timezone.utc)
+ def report(league,team):return {'league':league,'status':'ok','checked':now.isoformat(),'valid_until':(now+timedelta(hours=8)).isoformat(),'teams':{team:[{'player':'Player','category':'unavailable','status':'Out'}]}}
+ nfl=matchup(report('NFL','New England Patriots'),'NE','KC',now)
+ assert nfl['status']=='review_required' and len(nfl['teams']['NE'])==1
+ assert nfl['affected_players'][0]['team']=='NE'
+ nhl=matchup(report('NHL','Boston Bruins'),'BOS','NYR',now)
+ assert nhl['status']=='review_required' and len(nhl['teams']['BOS'])==1
+ assert not nhl['model_adjusted']
