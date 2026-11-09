@@ -68,7 +68,7 @@ def refresh(root,asof=None,fetcher=fetch):
  for path in (Path(root)/'public-lifecycle').glob('*/state.json'):
   state=json.loads(path.read_text());entries=list(state.get('ledger',{}).values())+[e for ledger in state.get('policy_ledgers',{}).values() for e in ledger.values()]
   for e in entries:
-   if not (asof.date()-timedelta(days=10)).isoformat()<=e['date']<=asof.date().isoformat():continue
+   if e['date']>asof.date().isoformat():continue
    key=path.parent.name+':'+identity(e['id']);old=data['events'].get(key,{})
    if e.get('settled') and key not in data['events']:continue
    if path.parent.name=='NFL' and not identity(e['id']).isdigit():continue
@@ -84,11 +84,14 @@ def refresh(root,asof=None,fetcher=fetch):
   except Exception as exc:return key,None,type(exc).__name__
  failures=0
  with ThreadPoolExecutor(max_workers=6) as pool:
-  for key,r,error in pool.map(collect,list(pending.items())[:250]):
+  ordered=sorted(pending.items(),key=lambda item:(item[1]['date'],item[0]),reverse=True)
+  recent=[item for item in ordered if item[1]['date']>=(asof.date()-timedelta(days=10)).isoformat()][:200]
+  older=[item for item in reversed(ordered) if item[1]['date']<(asof.date()-timedelta(days=10)).isoformat()][:50]
+  for key,r,error in pool.map(collect,recent+older):
    if r:data['events'][key]=r
    else:failures+=1
- cutoff=(asof.date()-timedelta(days=12)).isoformat();data['events']={k:r for k,r in data['events'].items() if r['date']>=cutoff};data['checked']=asof.isoformat();data['failed_checks']=failures
+ cutoff=(asof.date()-timedelta(days=12)).isoformat();data['events']={k:r for k,r in data['events'].items() if r['date']>=cutoff or r.get('state') in ('final','canceled','postponed')};data['checked']=asof.isoformat();data['failed_checks']=failures
  path=Path(root)/'public-results.json';tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,allow_nan=False));tmp.replace(path)
- return {'checked':len(pending),'finals':sum(r.get('state')=='final' for r in data['events'].values()),'failed_checks':failures}
+ return {'checked':len(recent)+len(older),'queued_unchecked':max(0,len(pending)-len(recent)-len(older)),'finals':sum(r.get('state')=='final' for r in data['events'].values()),'failed_checks':failures}
 
 def league_records(data,league):return [r for r in data.get('events',{}).values() if r.get('league')==league and r.get('state') in ('final','canceled','postponed')]

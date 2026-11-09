@@ -41,6 +41,7 @@ if args.refresh:
  print('All-state daily calendars:',refresh_daily_schedules(root),flush=True)
 snapshot=export_snapshot(root,Path('artifacts'))
 write_site(snapshot,Path(args.output),Path.cwd())
+print('Public performance and feed health:',snapshot.get('health'),flush=True)
 print('Built public dashboard:',[(s['name'],s['result_count'],len(s['predictions'])) for s in snapshot['leagues']],flush=True)
 
 summary=os.environ.get('GITHUB_STEP_SUMMARY')

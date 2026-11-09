@@ -86,8 +86,12 @@ def prediction_record(entries,asof):
  scheduled=sum(p.get('correct') is None and p['result_status'] not in ('unscored','not_pregame','canceled','postponed') and bool(p.get('event_start_utc') and parse_time(p['event_start_utc'])>asof) for p in rows)
  unresolved=sum(p.get('correct') is None and p['result_status'] not in ('unscored','not_pregame','canceled','postponed') and not (p.get('event_start_utc') and parse_time(p['event_start_utc'])>asof) for p in rows)
  graded=correct+incorrect
+ import math
+ graded_rows=[p for p in rows if isinstance(p.get('correct'),bool)]
+ log_loss=sum(-math.log(max(1e-12,min(1-1e-12,p['home_probability'] if p['outcome']=='home' else 1-p['home_probability']))) for p in graded_rows)/graded if graded else None
+ brier=sum((p['home_probability']-int(p['outcome']=='home'))**2 for p in graded_rows)/graded if graded else None
  injury_captured=[p for p in rows if p.get('injury_context')];affected=[p for p in injury_captured if p['injury_context'].get('status')=='review_required']
- return {'recorded':len(rows),'correct':correct,'incorrect':incorrect,'graded':graded,'accuracy':correct/graded if graded else None,'scheduled':scheduled,'awaiting_result':unresolved,'unscored':len(rows)-graded-scheduled-unresolved,'first_published':min((p['generated_at'] for p in rows),default=None),'injury_context_recorded':len(injury_captured),'injury_affected':len(affected),'injury_affected_graded':sum(isinstance(p.get('correct'),bool) for p in affected),'injury_affected_correct':sum(p.get('correct') is True for p in affected),'note':'All retained recorded games, one earliest valid pregame prediction per event across model policies. Accuracy = correct / (correct + incorrect). Scheduled, unresolved and unscored games are excluded until a decisive result is verified. Historical games without a saved pregame pick are not reconstructed.'}
+ return {'log_loss':log_loss,'brier':brier,'recorded':len(rows),'correct':correct,'incorrect':incorrect,'graded':graded,'accuracy':correct/graded if graded else None,'scheduled':scheduled,'awaiting_result':unresolved,'unscored':len(rows)-graded-scheduled-unresolved,'first_published':min((p['generated_at'] for p in rows),default=None),'injury_context_recorded':len(injury_captured),'injury_affected':len(affected),'injury_affected_graded':sum(isinstance(p.get('correct'),bool) for p in affected),'injury_affected_correct':sum(p.get('correct') is True for p in affected),'note':'All retained recorded games, one earliest valid pregame prediction per event across model policies. Accuracy = correct / (correct + incorrect). Scheduled, unresolved and unscored games are excluded until a decisive result is verified. Historical games without a saved pregame pick are not reconstructed.'}
 
 def export_snapshot(source_root,artifacts,asof=None):
  asof=asof or datetime.now(timezone.utc)
@@ -202,7 +206,8 @@ def export_snapshot(source_root,artifacts,asof=None):
     item['lifecycle']['live_record']=record(lifecycle_root,item['predictions'])
     item['lifecycle']['feedback_policy']=REST_POLICY_VERSION if (lifecycle_root/'state.json').exists() and REST_POLICY_VERSION in json.loads((lifecycle_root/'state.json').read_text()).get('policy_ledgers',{}) else 'legacy'
    item['prediction_history']=prediction_history(lifecycle_root,grading_rows,asof,[r for r in result_data.get('events',{}).values() if r.get('league')==league],feed.get('upcoming',[]))
-   item['prediction_record']=prediction_record(prediction_history(lifecycle_root,grading_rows,asof,[r for r in result_data.get('events',{}).values() if r.get('league')==league],feed.get('upcoming',[]),days=None,include_scheduled=True),asof)
+   item['prediction_archive']=prediction_history(lifecycle_root,grading_rows,asof,[r for r in result_data.get('events',{}).values() if r.get('league')==league],feed.get('upcoming',[]),days=None,include_scheduled=True)
+   item['prediction_record']=prediction_record(item['prediction_archive'],asof)
    item['injury_research']=record_research(source_root,league,item['predictions'],grading_rows,asof) if league in injuries['leagues'] else {'status':'injury source not configured','production_adjustment':False}
    snapshot['leagues'].append(item)
   # Estimating public forecasts must never write to either prediction ledger.
@@ -213,7 +218,10 @@ def export_snapshot(source_root,artifacts,asof=None):
  snapshot['player_props']=load_public(source_root)
  totals={key:sum(l.get('prediction_record',{}).get(key,0) for l in snapshot['leagues']) for key in ('recorded','correct','incorrect','graded','scheduled','awaiting_result','unscored')}
  totals['accuracy']=totals['correct']/totals['graded'] if totals['graded'] else None
+ for metric in ('log_loss','brier'):
+  totals[metric]=sum(l['prediction_record'][metric]*l['prediction_record']['graded'] for l in snapshot['leagues'] if l.get('prediction_record',{}).get(metric) is not None)/totals['graded'] if totals['graded'] else None
  snapshot['prediction_record']=totals
+ snapshot['health']={'generated_at':asof.isoformat(),'fresh_feeds':sum(l['feed_status']=='fresh' for l in snapshot['leagues']),'total_feeds':len(snapshot['leagues']),'graded_predictions':totals['graded'],'unresolved_predictions':totals['awaiting_result'],'result_reconciliation':{k:result_data.get(k) for k in ('checked','failed_checks')}}
  return snapshot
 
 def write_site(snapshot,destination,project):

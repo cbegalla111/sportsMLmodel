@@ -11,6 +11,9 @@ def test_all_time_counts_first_pick_once_across_policies_not_best_outcome():
  a=pick();b=pick(policy='new',correct=True,generated='2026-09-01T11:00:00+00:00');c=pick('two',correct=True)
  report=prediction_record([a,b,c],ASOF)
  assert report['recorded']==2 and report['correct']==1 and report['incorrect']==1 and report['accuracy']==.5
+ import math
+ assert abs(report['log_loss']-(-math.log(.3)-math.log(.7))/2)<1e-10
+ assert abs(report['brier']-.29)<1e-10
  report=prediction_record([dict(a,result_status='not_pregame',correct=None),b],ASOF)
  assert report['correct']==1
 
@@ -34,3 +37,14 @@ def test_record_preserves_original_probability_and_original_injury_context(tmp_p
  record(tmp_path,[a]);b=dict(a,home_probability=.9,injury_context={'status':'report_checked'})
  record(tmp_path,[b]);saved=json.loads((tmp_path/'state.json').read_text())['ledger']['one']
  assert saved['home_probability']==.7 and saved['injury_context']==a['injury_context']
+
+
+def test_result_reconciliation_retries_old_unresolved_results_and_keeps_verified_final(tmp_path,monkeypatch):
+ from sportslab.results import refresh,load
+ root=tmp_path/'public-lifecycle'/'NBA';root.mkdir(parents=True)
+ p=pick('espn-nba-123');p.update(settled=False,correct=None,outcome=None)
+ (root/'state.json').write_text(json.dumps({'ledger':{p['id']:p}}))
+ def retrieve(entry,fetcher):return {'event_id':entry['id'],'league':'NBA','date':entry['date'],'home':'A','away':'B','home_score':90.,'away_score':100.,'outcome':'away','state':'final','source':'https://example.test','start_time':entry['event_start_utc']}
+ monkeypatch.setattr('sportslab.results.retrieve',retrieve)
+ result=refresh(tmp_path,ASOF)
+ assert result['finals']==1 and load(tmp_path)['events']['NBA:123']['outcome']=='away'

@@ -18,6 +18,7 @@ const SPORT_INFO={
 const localDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const shiftDay=(day,n)=>{const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);return localDay(d);};
 const dayLabel=day=>new Date(day+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+let recordDays=7;
 let snapshot=null,league='NFL',view=new URLSearchParams(location.search).get('view')==='finder'?'finder':'forecasts',selected=null,dateFilter=localDay(),teamFilter='',allSports=false,followToday=true;
 try{league=localStorage.getItem('courtside_public_league')||'NFL';}catch(_){}
 const expired=p=>Date.now()>=Date.parse(p.valid_until)||Date.now()>=Date.parse(snapshot.valid_until);
@@ -31,8 +32,9 @@ function gamesOnDay(l,day){
  return freshFeed(l)?(l.schedule||[]).filter(p=>eventDay(p)===day):[];
 }
 const dayEvents=l=>gamesOnDay(l,dateFilter);
-const rawHistory=l=>(l.prediction_history||[]).filter(p=>eventDay(p)>=shiftDay(localDay(),-6)&&eventDay(p)<=localDay());
-const history=l=>uniquePredictions(rawHistory(l),l.lifecycle?.feedback_policy);
+const recentHistory=l=>uniquePredictions((l.prediction_history||[]).filter(p=>eventDay(p)>=shiftDay(localDay(),-6)&&eventDay(p)<=localDay()),l.lifecycle?.feedback_policy);
+const rawHistory=l=>(l.prediction_archive||l.prediction_history||[]).filter(p=>(!recordDays||eventDay(p)>=shiftDay(localDay(),1-recordDays))&&eventDay(p)<=localDay()&&(!p.event_start_utc||Date.parse(p.event_start_utc)<=Date.now()));
+const history=l=>uniquePredictions(rawHistory(l));
 const daySports=()=>snapshot.leagues.filter(l=>view==='history'?history(l).length:dayEvents(l).length||active(l).some(p=>eventDay(p)===dateFilter)||history(l).some(p=>eventDay(p)===dateFilter));
 function chooseDay(day){dateFilter=day||localDay();followToday=dateFilter===localDay();selected=null;render();}
 function current(){return snapshot.leagues.find(l=>l.name===league)||snapshot.leagues[0];}
@@ -101,7 +103,7 @@ function historyTable(picks,l){
 }
 function renderHistory(l){
  const picks=history(l).filter(p=>!teamFilter||(p.home+' '+p.away).toLowerCase().includes(teamFilter.toLowerCase()));
- $('history-content').innerHTML=lifetimeRecord(l)+'<h3>Prediction record · '+esc(l.name)+'</h3><p class="muted">'+esc(dayLabel(shiftDay(localDay(),-6)))+' – '+esc(dayLabel(localDay()))+' · saved pre-game predictions and imported final results. Pending results settle with hourly data updates.</p>'+historyTable(picks,l)+'<details><summary>Audit all original prediction policies · duplicate event versions</summary>'+historyTable(rawHistory(l),l)+'</details>'+diagnosticsPanel(l);
+ $('history-content').innerHTML=lifetimeRecord(l)+'<h3>Prediction record · '+esc(l.name)+'</h3><p class="muted">'+(recordDays?esc(dayLabel(shiftDay(localDay(),1-recordDays)))+' – '+esc(dayLabel(localDay())):'All retained recorded games')+' · saved pre-game predictions and imported final results. Pending results settle with hourly data updates.</p>'+historyTable(picks,l)+'<details><summary>Audit all original prediction policies · duplicate event versions</summary>'+historyTable(rawHistory(l),l)+'</details>'+diagnosticsPanel(l);
  $('day-history').hidden=dateFilter>=localDay();
  $('day-history').innerHTML='<h3>Saved predictions · '+esc(dayLabel(dateFilter))+'</h3>'+historyTable(picks.filter(p=>eventDay(p)===dateFilter),l);
 }
@@ -263,10 +265,10 @@ function explainPrediction(p,l){
 }
 function lifetimeRecord(l){
  const r=l.prediction_record;if(!r)return '';
- return `<section class="panel"><h3>All-time prediction average · ${esc(l.name)}</h3><div class="record-metrics"><span>Accuracy<strong>${r.graded?percent(r.accuracy):'—'}</strong></span><span>Correct<strong>${r.correct}</strong></span><span>Incorrect<strong>${r.incorrect}</strong></span><span>Recorded games<strong>${r.recorded}</strong></span></div><p class="muted">${esc(r.note)}</p>${snapshot.prediction_record?`<p>All sports combined: <strong>${snapshot.prediction_record.graded?percent(snapshot.prediction_record.accuracy):'—'}</strong> · ${snapshot.prediction_record.correct} correct / ${snapshot.prediction_record.graded} graded games.</p>`:''}<p class="muted">${r.scheduled} scheduled · ${r.awaiting_result} awaiting results · ${r.unscored} unscored. Injury context saved for ${r.injury_context_recorded} games; ${r.injury_affected} reported availability concerns.</p></section>`;
+ return `<section class="panel"><h3>All-time prediction average · ${esc(l.name)}</h3><div class="record-metrics"><span>Accuracy<strong>${r.graded?percent(r.accuracy):'—'}</strong></span><span>Correct<strong>${r.correct}</strong></span><span>Incorrect<strong>${r.incorrect}</strong></span><span>Recorded games<strong>${r.recorded}</strong></span><span>Log loss<strong>${num(r.log_loss)}</strong></span><span>Brier score<strong>${num(r.brier)}</strong></span></div><p class="muted">${esc(r.note)}</p>${snapshot.prediction_record?`<p>All sports combined: <strong>${snapshot.prediction_record.graded?percent(snapshot.prediction_record.accuracy):'—'}</strong> · ${snapshot.prediction_record.correct} correct / ${snapshot.prediction_record.graded} graded games.</p>`:''}<p class="muted">${r.scheduled} scheduled · ${r.awaiting_result} awaiting results · ${r.unscored} unscored. Injury context saved for ${r.injury_context_recorded} games; ${r.injury_affected} reported availability concerns.</p></section>`;
 }
 function recordOverview(l){
- const picks=history(l),c=predictionCounts(picks);
+ const picks=recentHistory(l),c=predictionCounts(picks);
  return lifetimeRecord(l)+`<div class="record-heading"><div><h3>How have the predictions done?</h3><p class="muted">${esc(l.name)} · last 7 calendar days, including today. One saved pick per game: current eligible policy when available, otherwise the first valid saved version. Original policies remain available in the audit table.</p></div><button id="open-record" type="button">See right / wrong record</button></div><div class="record-metrics"><span><strong>${c.correct}</strong> Correct</span><span><strong>${c.incorrect}</strong> Incorrect</span><span><strong>${c.pending}</strong> Pending / in progress</span><span><strong>${c.awaiting}</strong> Awaiting source result</span><span><strong>${c.unscored}</strong> Unscored</span><span><strong>${c.graded?percent(c.accuracy):'—'}</strong> Observed accuracy</span></div><p class="muted">Accuracy = correct ÷ graded games (${c.graded}). Delayed source results, unfinished games and unscored events are separate; none is counted as a win or loss until verified.</p>`;
 }
 $('record-overview').onclick=e=>{if(e.target.closest('#open-record')){view='history';render();}};
@@ -318,3 +320,5 @@ function renderPerfectProps(){
 for(const id of ['perfect-sport','perfect-sample','perfect-side','perfect-market'])$(id).onchange=()=>{perfectLimit=50;renderPerfectProps();};
 $('perfect-search').oninput=()=>{perfectLimit=50;renderPerfectProps();};
 $('perfect-more').onclick=()=>{perfectLimit+=50;renderPerfectProps();};
+
+$('record-period').onchange=()=>{recordDays=Number($('record-period').value);render();};
