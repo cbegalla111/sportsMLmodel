@@ -209,6 +209,8 @@ def export_snapshot(source_root,artifacts,asof=None):
    item['prediction_archive']=prediction_history(lifecycle_root,grading_rows,asof,[r for r in result_data.get('events',{}).values() if r.get('league')==league],feed.get('upcoming',[]),days=None,include_scheduled=True)
    item['prediction_record']=prediction_record(item['prediction_archive'],asof)
    item['injury_research']=record_research(source_root,league,item['predictions'],grading_rows,asof) if league in injuries['leagues'] else {'status':'injury source not configured','production_adjustment':False}
+   from .priority_review import review as priority_review
+   item['priority_review']=priority_review(league,item['prediction_archive'],item['injury_research'])
    snapshot['leagues'].append(item)
   # Estimating public forecasts must never write to either prediction ledger.
   assert isolated.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]==0

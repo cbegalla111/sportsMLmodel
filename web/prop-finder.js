@@ -84,4 +84,13 @@ function findDailyProps(sources,options={}){
  }
  return found.sort((a,b)=>b.lower-a.lower||b.score-a.score||b.n-a.n||a.player.localeCompare(b.player)||a.market.localeCompare(b.market)||a.sport.localeCompare(b.sport)||String(a.event_id).localeCompare(String(b.event_id)));
 }
-if(typeof module!=='undefined')module.exports={findPlayerProps,findPerfectProps,findDailyProps,historicalStatTarget,PROP_LINES,playerAvailability};
+function propSummary(games,market,line,side,{lookback=20,now=Date.now(),before=Infinity}={}){
+ const seen=new Set();games=games.filter(g=>Number.isFinite(Date.parse(g.start_time))&&Date.parse(g.start_time)<Math.min(now,before)).sort((a,b)=>Date.parse(b.start_time)-Date.parse(a.start_time)).filter(g=>{const key=g.event_id||g.id||g.start_time;if(seen.has(key))return false;seen.add(key);return true;});
+ const rows=games.filter(g=>Number.isFinite(g.values[market])).slice(0,lookback).map(g=>({...g,value:g.values[market],grade:side==='at least'?(g.values[market]>=line?'Hit':'Miss'):g.values[market]===line?'Push':((side==='over'?g.values[market]>line:g.values[market]<line)?'Hit':'Miss')}));
+ const stats=n=>{const recent=rows.slice(0,n),graded=recent.filter(g=>g.grade!=='Push'),hits=graded.filter(g=>g.grade==='Hit').length;return {n:recent.length,hits,graded:graded.length,pushes:recent.length-graded.length,rate:graded.length?hits/graded.length:null};};
+ const all=stats(lookback);let streak=0;for(const row of rows){if(row.grade!=='Hit')break;streak++;}
+ let interval=null;
+ if(all.graded){const n=all.graded,p=all.rate,z=1.96,den=1+z*z/n,center=(p+z*z/(2*n))/den,half=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/den;interval=[center-half,center+half];}
+ return {rows,stats,streak,interval};
+}
+if(typeof module!=='undefined')module.exports={findPlayerProps,findPerfectProps,findDailyProps,historicalStatTarget,propSummary,PROP_LINES,playerAvailability};
