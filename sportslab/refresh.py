@@ -287,7 +287,17 @@ def daily_events(payload,league,day):
    except (ValueError,TypeError,AttributeError):continue
    if local!=day or not home or not away:continue
    status=competition.get('status',event.get('status',{})).get('type',{});identity='espn-'+league.lower()+'-'+str(competition['id'])
-   events[identity]={'id':identity,'date':day.isoformat(),'start_time':start,'home':home,'away':away,'state':status.get('state','unknown'),'completed':bool(status.get('completed')),'status_label':status.get('description') or status.get('detail') or status.get('name','Status unavailable'),'confirmed_source':True}
+   def score(c):
+    import math
+    try:
+     raw=c['score'];value=float(raw.get('displayValue')) if isinstance(raw,dict) else float(raw)
+     return value if math.isfinite(value) and value>=0 else None
+    except (KeyError,ValueError,TypeError):return None
+   def logo(c):
+    value=c.get(kind,{}).get('logo','')
+    from urllib.parse import urlparse
+    return value if urlparse(value).scheme=='https' and urlparse(value).hostname=='a.espncdn.com' else None
+   events[identity]={'id':identity,'date':day.isoformat(),'start_time':start,'home':home,'away':away,'state':status.get('state','unknown'),'completed':bool(status.get('completed')),'status_label':status.get('description') or status.get('detail') or status.get('name','Status unavailable'),'home_score':score(h) if status.get('state') in ('in','post') else None,'away_score':score(a) if status.get('state') in ('in','post') else None,'home_abbreviation':h.get(kind,{}).get('abbreviation'),'away_abbreviation':a.get(kind,{}).get('abbreviation'),'home_logo':logo(h),'away_logo':logo(a),'confirmed_source':True}
  return sorted(events.values(),key=lambda e:(e['start_time'],e['id']))
 
 

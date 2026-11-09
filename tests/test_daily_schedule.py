@@ -39,3 +39,15 @@ def test_daily_refresh_queries_individual_dates_and_persists_all_states(tmp_path
  with connect(tmp_path) as db:
   value=json.loads(db.execute("select value from settings where key='daily_schedule_NBA'").fetchone()[0])
  assert value['day']=='2026-11-08' and len(value['events'])==2
+
+
+def test_daily_scores_logos_and_statuses_are_source_backed_not_invented():
+ payload=event('one','2026-11-08T22:00:00Z','post',True)
+ competitors=payload['competitions'][0]['competitors'];competitors[0].update(score='112');competitors[1].update(score='105')
+ competitors[0]['team'].update(abbreviation='AAA',logo='https://a.espncdn.com/i/teamlogos/nba/500/atl.png');competitors[1]['team'].update(logo='https://untrusted.example/team.png')
+ rows=daily_events({'events':[payload]},'NBA',date(2026,11,8));assert rows[0]['home_score']==112 and rows[0]['away_score']==105
+ assert rows[0]['home_logo'].startswith('https://a.espncdn.com/') and rows[0]['away_logo'] is None
+ competitors[0]['score']={'displayValue':'112'}
+ assert daily_events({'events':[payload]},'NBA',date(2026,11,8))[0]['home_score']==112
+ payload['competitions'][0]['status']['type'].update(state='pre',completed=False)
+ assert daily_events({'events':[payload]},'NBA',date(2026,11,8))[0]['home_score'] is None

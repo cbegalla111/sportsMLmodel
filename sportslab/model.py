@@ -185,10 +185,12 @@ def estimate(db,root,league,home,away,event_date,scenario=False,overrides=None,a
  if m is None or art.get('research_spec',{}).get('kind')=='elo':factor_inputs=factor_inputs[:2]
  if art.get('research_spec',{}).get('kind')=='bayesian_prior':factor_inputs=[f for f in factor_inputs if f[0]=='uncertainty_adjusted_log_odds']
  factors=[{'factor':name,'difference':float(v)} for name,v in factor_inputs]
- if m is not None and hasattr(m,'named_steps') and set(m.named_steps)=={'standardscaler','logisticregression'}:
-  scaled=m.named_steps['standardscaler'].transform(X)[0]; contributions=scaled*m.named_steps['logisticregression'].coef_[0]
-  for f,c in zip(factors,contributions): f['log_odds_contribution']=float(c)
- result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':prior_rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'rest_context':rest_context,'prediction_policy':rest_context['version'],'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
+ from .interpretation import explain
+ interpretation=explain(m,x,names,p,home,away)
+ contributions={f['factor']:f for f in interpretation.get('ranked_factors',[])}
+ for f in factors:
+  if f['factor'] in contributions:f['log_odds_contribution']=contributions[f['factor']]['log_odds_contribution']
+ result={'league':league,'date':event_date,'home':home,'away':away,'home_probability':p,'away_probability':1-p,'mode':'hypothetical scenario' if scenario else 'limited forecast: unconfirmed manually entered fixture','model':art.get('selected',report['selected']),'experiment':report['id'],'dataset_sha256':art['digest'],'data_through':prior_rows[-1]['date'],'weights_trained_through':art['last_date'],'input_dataset_sha256':context['input_digest'],'factors':factors,'interpretation':interpretation,'interpretation_summary':{'status':interpretation['status'],'baseline_probability':interpretation.get('baseline_probability'),'top_factors':interpretation.get('ranked_factors',[])[:3]},'rules':report['outcome_rules'],'availability':'Injuries, starters, lineups and schedule NOT confirmed','overrides':overrides or {},'rest_context':rest_context,'prediction_policy':rest_context['version'],'explanation':'Logistic contributions explain the fitted log odds, not causation. Other models show input differences only; no invented importance scores.'}
  from .injuries import load_public as load_injuries,matchup as injury_matchup
  injury_report=context.get('injury_report')
  if injury_report is None:injury_report=load_injuries(root)['leagues'].get(league,{})

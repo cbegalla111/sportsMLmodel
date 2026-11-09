@@ -63,6 +63,7 @@ def prediction_history(root,rows,asof,statuses=None,schedule=None,days=8,include
    p={k:entry[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256')}
    p.update(prediction_policy=entry.get('prediction_policy','legacy rest policy'),event_start_utc=start.isoformat() if start else None,away_probability=1-p['home_probability'])
    p['injury_context']=entry.get('injury_context')
+   p['interpretation_summary']=entry.get('interpretation_summary')
    p['outcome']=result['outcome'] if result else entry.get('final_outcome',entry.get('outcome')) if entry.get('settled') else None
    excluded=bool(entry.get('grading_excluded')) or bool(start and generated>=start)
    p['correct']=((p['home_probability']>=.5)==(p['outcome']=='home')) if not excluded and p['outcome'] in ('home','away') else None

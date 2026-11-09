@@ -162,7 +162,7 @@ def record(root,predictions):
  state=json.loads(path.read_text())
  for p in predictions:
   # First published pre-event forecast is immutable; later refreshes cannot replace misses.
-  entry={k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc','prediction_policy','injury_context','availability') if k in p}
+  entry={k:p[k] for k in ('id','date','home','away','home_probability','generated_at','model','dataset_sha256','event_start_utc','prediction_policy','injury_context','availability','interpretation_summary') if k in p}
   state['ledger'].setdefault(p['id'],dict(entry))
   if p.get('prediction_policy'):
    state.setdefault('policy_ledgers',{}).setdefault(p['prediction_policy'],{}).setdefault(p['id'],dict(entry))
