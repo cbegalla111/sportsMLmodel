@@ -171,8 +171,8 @@ def fetch(root,url,league):
  req=urllib.request.Request(url,headers={'User-Agent':'SportsMLLab/0.1 (private research; result-only importer)'})
  with urllib.request.urlopen(req,timeout=45) as r: raw=r.read(80_000_001)
  if len(raw)>80_000_000: raise ValueError('Source response exceeds 80 MB')
- sha=hashlib.sha256(raw).hexdigest(); dest=Path(root)/'sources'; dest.mkdir(exist_ok=True)
- (dest/(sha+'.raw')).write_bytes(raw)
+ from .storage import archive_bytes
+ sha=archive_bytes(root,raw)
  return raw,{'url':url,'fetched':now(),'sha256':sha,'league':league}
 
 def nfl_start(row):

@@ -9,7 +9,8 @@ from sportslab.pages import export_snapshot,write_site
 from sportslab.refresh import run
 from sportslab.lifecycle import checkpoint_public_lineage
 p=argparse.ArgumentParser();p.add_argument('--runtime',default=os.environ.get('SPORTSLAB_HOME','/workspace/.sportsml-private'));p.add_argument('--output',default='_site');p.add_argument('--refresh',action='store_true');args=p.parse_args()
-root=Path(args.runtime).resolve();env=dict(os.environ,SPORTSLAB_HOME=str(root),OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1')
+from sportslab.storage import maintain
+root=Path(args.runtime).resolve();print('Storage maintenance:',maintain(root),flush=True);env=dict(os.environ,SPORTSLAB_HOME=str(root),OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1')
 if args.refresh:
  checkpoint_public_lineage(root,Path('artifacts'))
  with connect(root) as db:
@@ -39,6 +40,7 @@ if args.refresh:
 if args.refresh:
  from sportslab.refresh import refresh_daily_schedules
  print('All-state daily calendars:',refresh_daily_schedules(root),flush=True)
+print('Storage after refresh:',maintain(root),flush=True)
 snapshot=export_snapshot(root,Path('artifacts'))
 write_site(snapshot,Path(args.output),Path.cwd())
 print('Public performance and feed health:',snapshot.get('health'),flush=True)

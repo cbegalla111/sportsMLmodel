@@ -15,8 +15,10 @@ name='sportslab-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'.tar.
 with tempfile.TemporaryDirectory() as tmp:
  tmp=Path(tmp)
  with sqlite3.connect(root/'lab.sqlite3') as src, sqlite3.connect(tmp/'lab.sqlite3') as dst: src.backup(dst)
- for folder in ('models','sources'):
+ for folder in ('models','sources','public-lifecycle'):
   if (root/folder).exists(): shutil.copytree(root/folder,tmp/folder)
+ if (root/'public-injuries'/'research').exists():shutil.copytree(root/'public-injuries'/'research',tmp/'public-injuries'/'research')
+ if (root/'public-results.json').exists():shutil.copy2(root/'public-results.json',tmp/'public-results.json')
  files={str(f.relative_to(tmp)):hashlib.sha256(f.read_bytes()).hexdigest() for f in tmp.rglob('*') if f.is_file()}
  (tmp/'manifest.json').write_text(json.dumps(files,indent=2))
  with tarfile.open(dest/name,'w:gz') as tar:

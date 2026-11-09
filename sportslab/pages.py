@@ -223,7 +223,7 @@ def export_snapshot(source_root,artifacts,asof=None):
  for metric in ('log_loss','brier'):
   totals[metric]=sum(l['prediction_record'][metric]*l['prediction_record']['graded'] for l in snapshot['leagues'] if l.get('prediction_record',{}).get(metric) is not None)/totals['graded'] if totals['graded'] else None
  snapshot['prediction_record']=totals
- snapshot['health']={'generated_at':asof.isoformat(),'fresh_feeds':sum(l['feed_status']=='fresh' for l in snapshot['leagues']),'total_feeds':len(snapshot['leagues']),'graded_predictions':totals['graded'],'unresolved_predictions':totals['awaiting_result'],'result_reconciliation':{k:result_data.get(k) for k in ('checked','failed_checks')}}
+ snapshot['health']={'generated_at':asof.isoformat(),'fresh_feeds':sum(l['feed_status']=='fresh' for l in snapshot['leagues']),'total_feeds':len(snapshot['leagues']),'graded_predictions':totals['graded'],'unresolved_predictions':totals['awaiting_result'],'result_reconciliation':{k:result_data.get(k) for k in ('checked','failed_checks')},'injury_feeds':{name:{k:r.get(k) for k in ('status','checked','valid_until','error')} for name,r in injuries['leagues'].items()}}
  return snapshot
 
 def write_site(snapshot,destination,project):

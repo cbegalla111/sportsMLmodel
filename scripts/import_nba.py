@@ -13,7 +13,8 @@ root.mkdir(parents=True,exist_ok=True); root.chmod(0o700)
 with urllib.request.urlopen(URL,timeout=90) as r: raw=r.read(30_000_001)
 if len(raw)>30_000_000: raise ValueError('Source exceeds expected size')
 archive=root/'sources'; archive.mkdir(exist_ok=True)
-sha=hashlib.sha256(raw).hexdigest(); (archive/(sha+'.csv')).write_bytes(raw)
+from sportslab.storage import archive_bytes
+sha=archive_bytes(root,raw,'csv')
 rows=[]
 for r in csv.DictReader(io.StringIO(raw.decode())):
  if r['lg_id']!='NBA' or r['game_location']!='H' or int(r['year_id'])<2005: continue
