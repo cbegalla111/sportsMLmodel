@@ -30,4 +30,8 @@ function scoreboardPick(game,picks,league){
  if(!matches.length&&league!=='MLB'){const legacy=candidates.filter(p=>!p.event_start_utc&&p.date===game.date);if(new Set(legacy.map(p=>scoreboardIdentity(p.id))).size===1)matches=legacy;}
  return matches.sort((a,b)=>Date.parse(a.generated_at)-Date.parse(b.generated_at))[0]||null;
 }
-if(typeof module!=='undefined')module.exports={uniquePredictions,resultCategory,predictionCounts,scoreboardPick,scoreboardTeam};
+function scoreboardDisplay(game,saved,current,now=Date.now()){
+ const started=game.completed||['in','post'].includes(game.state)||Number.isFinite(Date.parse(game.start_time))&&Date.parse(game.start_time)<=now;
+ return {pick:started?saved:current,started,basis:started?'Original saved pregame prediction':'Current model prediction'};
+}
+if(typeof module!=='undefined')module.exports={uniquePredictions,resultCategory,predictionCounts,scoreboardPick,scoreboardTeam,scoreboardDisplay};
